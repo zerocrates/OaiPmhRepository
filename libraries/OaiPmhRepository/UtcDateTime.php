@@ -22,5 +22,10 @@ class OaiPmhRepository_UtcDateTime
         //time, utc, and in what format
         //may condense these to one function with optional timestamp param
     }
+
+    static function dbTimeToUtc($databaseTime)
+    {
+        return self::convertToUtcDateTime(strtotime($databaseTime));
+    }
 }
 ?>

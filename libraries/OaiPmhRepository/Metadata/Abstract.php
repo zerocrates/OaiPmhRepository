@@ -1,6 +1,7 @@
 <?php
 
-include_once('OaiPmhRepository/OaiIdentifier.php');
+require_once('OaiPmhRepository/OaiIdentifier.php');
+require_once('OaiPmhRepository/UtcDateTime.php');
 
 abstract class OaiPmhRepository_Metadata_Abstract
 {
@@ -36,7 +37,7 @@ abstract class OaiPmhRepository_Metadata_Abstract
         $header->appendChild($identifier);
         
         // still yet to figure how to extract the added/modified times from DB
-        $datestamp = new DOMElement('datestamp', $this->item->modified);
+        $datestamp = new DOMElement('datestamp', OaiPmhRepository_UtcDateTime::dbTimeToUtc($this->item->modified));
         $header->appendChild($datestamp);
     }
     
