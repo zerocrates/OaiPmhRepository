@@ -9,8 +9,14 @@ abstract class OaiPmhRepository_Metadata_Abstract
 
     public function __construct(&$element, $itemId)
     {
-        $this->item = new Item(get_db());
-        $this->item->id = $itemId;
+        //all this Item stuff is wrong
+        //$this->item = new Item(get_db());
+        //$this->item->id = $itemId;
+        $itemTable = new ItemTable('Item', get_db());
+        $select = $itemTable->getSelect();
+        $itemTable->filterByRange($select, $itemId);
+        $this->item = $itemTable->fetchObject($select);
+        
         $this->parentElement =& $element;
         
         $this->appendHeader();
@@ -30,7 +36,7 @@ abstract class OaiPmhRepository_Metadata_Abstract
         $header->appendChild($identifier);
         
         // still yet to figure how to extract the added/modified times from DB
-        $datestamp = new DOMElement('datestamp', 'unimplemented');
+        $datestamp = new DOMElement('datestamp', $this->item->modified);
         $header->appendChild($datestamp);
     }
     
