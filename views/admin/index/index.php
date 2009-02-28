@@ -8,6 +8,9 @@
  * @subpackage Views
  * @author John Flatness <jflatnes@vt.edu>
  */
+
+define('OAI_PMH_URI', WEB_ROOT.'/oai-pmh-repository/request');
+
 $head = array('body_class' => 'oaipmh-repository primary',
               'title'      => 'OAI-PMH Repository');
 head($head);
@@ -19,7 +22,14 @@ head($head);
 
 <?php echo flash(); ?>
 
-   <h2>Hello, World!</h2>
+   <p>This Omeka installation is now exposing the metadata for its items as a
+      repository conforming to the Open Archives Initiative Protocol for
+      Metadata Harvesting.
+   </p>
+   <p>   
+      The respository is located at 
+      <a href="<?php echo OAI_PMH_URI ?>"><?php echo OAI_PMH_URI ?></a>.
+   </p>
 </div>
 
 <?php foot(); ?>

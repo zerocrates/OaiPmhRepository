@@ -30,6 +30,7 @@ class OaiPmhRepository_RequestController extends Omeka_Controller_Action
 	switch($query['verb'])
 	{
 	    case 'Identify': $response->identify(); break;
+	    case 'GetRecord': $response->getRecord(); break;
 	    default: $response->throwError('badVerb', 'Invalid or no verb specified.');
 	}
 	$this->view->response = $response;

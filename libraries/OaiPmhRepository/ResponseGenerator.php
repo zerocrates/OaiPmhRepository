@@ -116,6 +116,11 @@ class OaiPmhRepository_ResponseGenerator
 
         $this->responseDoc->documentElement->appendChild($identify);
     }
+    
+    public function getRecord()
+    {
+        $this->request->setAttribute('verb', 'GetRecord');
+    }
 
     /**
      * Adds an error element to the output
