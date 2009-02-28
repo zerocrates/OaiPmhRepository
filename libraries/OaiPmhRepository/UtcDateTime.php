@@ -15,8 +15,9 @@ class OaiPmhRepository_UtcDateTime
         return gmdate(self::DATE_FORMAT);
     }
     
-    static function convertToUtcDateTime()
+    static function convertToUtcDateTime($timestamp)
     {
+        return gmdate(self::DATE_FORMAT, $timestamp);
         //unsure what's involved here yet, need to see if database stores local
         //time, utc, and in what format
         //may condense these to one function with optional timestamp param

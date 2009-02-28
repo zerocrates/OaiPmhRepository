@@ -6,6 +6,7 @@
 
 require_once('OaiIdentifier.php');
 require_once('UtcDateTime.php');
+require_once('Metadata/OaiDc.php');
 
 /**
  * Namespace URI for the OAI-PMH protocol.
@@ -73,7 +74,7 @@ class OaiPmhRepository_ResponseGenerator
         $OAI_PMH_SCHEMA_URI = 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd';
         $root->appendChild($this->request);
     }
-
+    
     /**
      * Responds to the Identify verb
      *
@@ -82,44 +83,42 @@ class OaiPmhRepository_ResponseGenerator
     public function identify()
     {
         $this->request->setAttribute('verb', 'Identify');
-        $identify = $this->responseDoc->createElement('Identify');
         $elements = array( 'repositoryName' => 
                                 get_option('oaipmh_repository_name'),
                            'adminEmail' => get_option('administrator_email'),
                            'baseURL' => BASE_URL,
                            'protocolVersion' => PROTOCOL_VERSION,
-                           'earliestDatestamp' => 'I need to fix this.',
+                           'earliestDatestamp' => OaiPmhRepository_UtcDateTime::convertToUtcDateTime(0),
                            'deletedRecord' => 'no',
                            'granularity' => 'YYYY-MM-DDThh:mm:ssZ');
-        foreach($elements as $tag => $value)
-        {
-            $identify->appendChild($this->responseDoc->createElement($tag, $value));
-        }
+        $identify = $this->createElementWithChildren('Identify', $elements);
+        
         $description = $this->responseDoc->createElement('description');
         $identify->appendChild($description);
         
-        $oaiIdentifier = new DOMElement('oai-identifier');
+        $elements = array( 'scheme' => 'oai',
+                           'repositoryIdentifier' => get_option('oaipmh_repository_namespace_id'),
+                           'delimiter' => ':',
+                           'sampleIdentifier' => OaiPmhRepository_OaiIdentifier::itemtoOaiId(1));
+        $oaiIdentifier = $this->createElementWithChildren('oai-identifier', $elements);
         $description->appendChild($oaiIdentifier);
         //must set xmlns attribute manually to avoid DOM extension appending default: prefix to element name
         $oaiIdentifier->setAttribute('xmlns', OAI_IDENTIFIER_NAMESPACE_URI);
         $oaiIdentifier->setAttributeNS(XML_SCHEMA_NAMESPACE_URI,
                 'xsi:schemaLocation',
                 OAI_IDENTIFIER_NAMESPACE_URI.' '.OAI_IDENTIFIER_SCHEMA_URI);
-        $elements = array( 'scheme' => 'oai',
-                           'repositoryIdentifier' => get_option('oaipmh_repository_namespace_id'),
-                           'delimiter' => ':',
-                           'sampleIdentifier' => OaiPmhRepository_OaiIdentifier::itemtoOaiId(1));
-        foreach($elements as $tag => $value)
-        {
-            $oaiIdentifier->appendChild($this->responseDoc->createElement($tag, $value));
-        }
-
         $this->responseDoc->documentElement->appendChild($identify);
     }
     
-    public function getRecord()
+    public function getRecord($identifier, $metadataPrefix)
     {
         $this->request->setAttribute('verb', 'GetRecord');
+        $this->request->setAttribute('identifier', $identifier);
+        $this->request->setAttribute('metadataPrefix', $metadataPrefix);
+        
+        $getRecord = $this->responseDoc->createElement('GetRecord');
+        $this->responseDoc->documentElement->appendChild($getRecord);
+        $metadata = new OaiPmhRepository_Metadata_OaiDc($getRecord, OaiPmhRepository_OaiIdentifier::oaiIdToItem($identifier));
     }
 
     /**
@@ -134,6 +133,16 @@ class OaiPmhRepository_ResponseGenerator
         $error = $this->responseDoc->createElement('error', $text);
         $error->setAttribute('code', $code);
         $this->responseDoc->documentElement->appendChild($error);
+    }
+
+    private function createElementWithChildren($name, $children)
+    {
+        $newElement = $this->responseDoc->createElement($name);
+        foreach($children as $tag => $value)
+        {
+            $newElement->appendChild($this->responseDoc->createElement($tag, $value));
+        }
+        return $newElement;
     }
 
     /**

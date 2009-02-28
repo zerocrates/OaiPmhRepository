@@ -18,12 +18,12 @@ class OaiPmhRepository_OaiIdentifier {
 
     public static function oaiIdToItem($oaiId) {
         $scheme = strtok($oaiId, ':');
-	$namespaceId = strtok(':');
-	$localId = strtok(':');
-	if( $scheme != 'oai' || $namespaceId != get_option('oaipmh_repository_namespace_id') ) {
-	    return -1;
-	}
-	return intval($localId);
+        $namespaceId = strtok(':');
+        $localId = strtok(':');
+        if( $scheme != 'oai' || $namespaceId != get_option('oaipmh_repository_namespace_id') ) {
+           return -1;
+        }
+        return intval($localId);
     }
 
     public static function itemToOaiId($item) {

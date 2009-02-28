@@ -30,7 +30,16 @@ class OaiPmhRepository_RequestController extends Omeka_Controller_Action
 	switch($query['verb'])
 	{
 	    case 'Identify': $response->identify(); break;
-	    case 'GetRecord': $response->getRecord(); break;
+	    case 'GetRecord': 
+	        if(isset($query['identifier']) && isset($query['metadataPrefix']))
+	        {
+	            $response->getRecord($query['identifier'], $query['metadataPrefix']);
+	        }
+	        else
+	        {
+	            $response->throwError('badArgument', 'Missing required arguments');
+	        }
+	        break;
 	    default: $response->throwError('badVerb', 'Invalid or no verb specified.');
 	}
 	$this->view->response = $response;
