@@ -21,9 +21,9 @@ class OaiPmhRepository_OaiIdentifier {
         $namespaceId = strtok(':');
         $localId = strtok(':');
         if( $scheme != 'oai' || $namespaceId != get_option('oaipmh_repository_namespace_id') ) {
-           return -1;
+           return NULL;
         }
-        return intval($localId);
+        return $localId;
     }
 
     public static function itemToOaiId($item) {

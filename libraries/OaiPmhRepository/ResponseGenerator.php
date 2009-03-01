@@ -46,6 +46,7 @@ class OaiPmhRepository_ResponseGenerator
 {
     private $responseDoc;
     private $request;
+    private $error;
 
     /**
      * Default constructor
@@ -55,6 +56,7 @@ class OaiPmhRepository_ResponseGenerator
      */
     public function __construct()
     {
+        $this->error = false;
         $this->responseDoc = new DomDocument('1.0', 'UTF-8');
         //formatOutput makes DOM output "pretty" XML.  Good for debugging, but
         //adds some overhead, especially on large outputs
@@ -94,7 +96,7 @@ class OaiPmhRepository_ResponseGenerator
         $identify = $this->createElementWithChildren('Identify', $elements);
         
         $description = $this->responseDoc->createElement('description');
-        $identify->appendChild($description);
+        $IDENtify->appendChild($description);
         
         $elements = array( 'scheme' => 'oai',
                            'repositoryIdentifier' => get_option('oaipmh_repository_namespace_id'),
@@ -116,9 +118,19 @@ class OaiPmhRepository_ResponseGenerator
         $this->request->setAttribute('identifier', $identifier);
         $this->request->setAttribute('metadataPrefix', $metadataPrefix);
         
-        $getRecord = $this->responseDoc->createElement('GetRecord');
-        $this->responseDoc->documentElement->appendChild($getRecord);
-        $metadata = new OaiPmhRepository_Metadata_OaiDc($getRecord, OaiPmhRepository_OaiIdentifier::oaiIdToItem($identifier));
+        $itemId = OaiPmhRepository_OaiIdentifier::oaiIdToItem($identifier);
+        
+        if(!$itemId) {
+            $this->throwError('idDoesNotExist', 'Invalid identifier.');
+        }
+        if($metadataPrefix != 'oai_dc') {
+            $this->throwError('cannotDisseminateFormat', 'Invalid metadataPrefix.');
+        }
+        if(!$this->error) {
+            $getRecord = $this->responseDoc->createElement('GetRecord');
+            $this->responseDoc->documentElement->appendChild($getRecord);
+            $metadata = new OaiPmhRepository_Metadata_OaiDc($getRecord, $itemId);
+        }
     }
 
     /**
@@ -130,6 +142,7 @@ class OaiPmhRepository_ResponseGenerator
      */
     public function throwError($code, $text)
     {
+        $this->error = true;
         $error = $this->responseDoc->createElement('error', $text);
         $error->setAttribute('code', $code);
         $this->responseDoc->documentElement->appendChild($error);
