@@ -19,13 +19,15 @@ abstract class OaiPmhRepository_Metadata_Abstract
             OaiPmhRepository_Error::throwError($response, OAI_ERR_ID_DOES_NOT_EXIST);
             return;
         }
-        
-        $header = new DOMElement('header');
-        $element->appendChild($header);
+        $record = $element->ownerDocument->createElement('record');
+        $element->appendChild($record);
+
+        $header = $element->ownerDocument->createElement('header');
+        $record->appendChild($header);
         $this->generateHeader($header, $item);
 
-        $metadata = new DOMElement('metadata');
-        $element->appendChild($metadata);
+        $metadata = $element->ownerDocument->createElement('metadata');
+        $record->appendChild($metadata);
         $this->generateMetadata($metadata, $item);
     }
     
