@@ -83,19 +83,24 @@ class OaiPmhRepository_ResponseGenerator
      */
     public function identify()
     {
+        if($this->error)
+            return;
         $this->request->setAttribute('verb', 'Identify');
+        /* according to the schema, this order of elements is required for the
+         * response to validate
+         */
         $elements = array( 'repositoryName' => 
                                 get_option('oaipmh_repository_name'),
-                           'adminEmail' => get_option('administrator_email'),
                            'baseURL' => BASE_URL,
                            'protocolVersion' => PROTOCOL_VERSION,
+                           'adminEmail' => get_option('administrator_email'),
                            'earliestDatestamp' => OaiPmhRepository_UtcDateTime::convertToUtcDateTime(0),
                            'deletedRecord' => 'no',
                            'granularity' => 'YYYY-MM-DDThh:mm:ssZ');
         $identify = $this->createElementWithChildren('Identify', $elements);
         
         $description = $this->responseDoc->createElement('description');
-        $IDENtify->appendChild($description);
+        $identify->appendChild($description);
         
         $elements = array( 'scheme' => 'oai',
                            'repositoryIdentifier' => get_option('oaipmh_repository_namespace_id'),

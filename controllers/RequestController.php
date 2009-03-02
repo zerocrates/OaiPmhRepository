@@ -17,32 +17,45 @@
  */
 class OaiPmhRepository_RequestController extends Omeka_Controller_Action
 {
+    private $response;
+    private $query;
+
     public function indexAction()
     {
-	$response = new OaiPmhRepository_ResponseGenerator();
-	
-	switch($_SERVER['REQUEST_METHOD'])
-	{
-	    case 'GET': $query = &$_GET; break;
-	    case 'POST': $query = &$_POST; break;
-	    default: die('Error determining request.');
-	}
-	switch($query['verb'])
-	{
-	    case 'Identify': $response->identify(); break;
-	    case 'GetRecord': 
-	        if(isset($query['identifier']) && isset($query['metadataPrefix']))
-	        {
-	            $response->getRecord($query['identifier'], $query['metadataPrefix']);
-	        }
-	        else
-	        {
-	            $response->throwError('badArgument', 'Missing required arguments');
-	        }
-	        break;
-	    default: $response->throwError('badVerb', 'Invalid or no verb specified.');
-	}
-	$this->view->response = $response;
+        $this->response = new OaiPmhRepository_ResponseGenerator();
+    
+        switch($_SERVER['REQUEST_METHOD'])
+        {
+            case 'GET': $this->query = &$_GET; break;
+            case 'POST': $this->query = &$_POST; break;
+            default: die('Error determining request.');
+        }
+        switch($this->query['verb'])
+        {
+            case 'Identify': 
+                $this->checkArguments(0);
+                $this->response->identify(); 
+                break;
+            case 'GetRecord': 
+                $requiredArguments = array('identifier', 'metadataPrefix');
+                $this->checkArguments(2, $requiredArguments);
+                $this->response->getRecord($this->query['identifier'], $this->query['metadataPrefix']);
+                break;
+            default: 
+                $this->response->throwError('badVerb', 'Invalid or no verb specified.');
+        }
+        $this->view->response = $this->response;
+    }
+
+    private function checkArguments($numArgs, $requiredArgs = array())
+    {
+        foreach($requiredArgs as $arg)
+        {
+            if(!isset($this->query[$arg]))
+                $this->response->throwError('badArgument', "Missing argument '$arg'");
+        }
+        if(count($this->query) != $numArgs + 1)
+            $this->response->throwError('badArgument', "Specified verb takes $numArgs arguments.");
     }
 }
 ?>
