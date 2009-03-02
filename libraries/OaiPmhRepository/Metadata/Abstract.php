@@ -5,12 +5,20 @@ require_once('OaiPmhRepository/UtcDateTime.php');
 
 abstract class OaiPmhRepository_Metadata_Abstract
 {
-    public function __construct($element, $itemId)
+    public function __construct($response, $element, $itemId)
     {
         $itemTable = new ItemTable('Item', get_db());
         $select = $itemTable->getSelect();
         $itemTable->filterByRange($select, $itemId);
         $item = $itemTable->fetchObject($select);
+
+        if(!isset($item->id))
+        {
+            // remove the response element
+            $element->parentNode->removeChild($element);
+            OaiPmhRepository_Error::throwError($response, OAI_ERR_ID_DOES_NOT_EXIST);
+            return;
+        }
         
         $header = new DOMElement('header');
         $element->appendChild($header);

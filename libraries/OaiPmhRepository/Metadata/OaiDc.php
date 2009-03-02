@@ -23,10 +23,13 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
         $oai_dc->setAttribute('xmlns:xsi', self::XML_SCHEMA_URI);
         $oai_dc->setAttribute('xsi:schemaLocation', self::OAI_DC_SCHEMA_URI);
 
-        $dcElementNames = array('contributor', 'coverage', 'creator', 'date',
-                                'description', 'format', 'identifier', 
-                                'language', 'publisher', 'relation', 'rights',
-                                'source', 'subject', 'title', 'type');
+        /* Each of the 16 unqualified Dublin Core elements, in the order
+         * specified by the oai_dc XML schema
+         */
+        $dcElementNames = array('title', 'creator', 'subject', 'description',
+                                'publisher', 'contributor', 'date', 'type',
+                                'format', 'identifier', 'source', 'language',
+                                'relation', 'coverage', 'rights');
 
         /* Must create elements using createElement to make DOM allow a
          * top-level xmlns declaration instead of wasteful and non-

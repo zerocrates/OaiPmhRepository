@@ -4,6 +4,7 @@
  * @author John Flatness <jflatnes@vt.edu>
  */
 
+require_once('Error.php');
 require_once('OaiIdentifier.php');
 require_once('UtcDateTime.php');
 require_once('Metadata/OaiDc.php');
@@ -43,9 +44,9 @@ define('PROTOCOL_VERSION', '2.0');
  */
 class OaiPmhRepository_ResponseGenerator
 {
-    private $responseDoc;
+    public $responseDoc;
     private $request;
-    private $error;
+    public $error;
 
     /**
      * Default constructor
@@ -125,15 +126,15 @@ class OaiPmhRepository_ResponseGenerator
         $itemId = OaiPmhRepository_OaiIdentifier::oaiIdToItem($identifier);
         
         if(!$itemId) {
-            $this->throwError('idDoesNotExist', 'Invalid identifier.');
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_ID_DOES_NOT_EXIST);
         }
         if($metadataPrefix != 'oai_dc') {
-            $this->throwError('cannotDisseminateFormat', 'Invalid metadataPrefix.');
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
         }
         if(!$this->error) {
             $getRecord = $this->responseDoc->createElement('GetRecord');
             $this->responseDoc->documentElement->appendChild($getRecord);
-            $metadata = new OaiPmhRepository_Metadata_OaiDc($getRecord, $itemId);
+            $metadata = new OaiPmhRepository_Metadata_OaiDc($this, $getRecord, $itemId);
         }
     }
 
@@ -144,13 +145,13 @@ class OaiPmhRepository_ResponseGenerator
      * @param string $code The OAI-PMH error code
      * @param string $text Human-readable error text
      */
-    public function throwError($code, $text)
+    /*public function throwError($code, $text)
     {
         $this->error = true;
         $error = $this->responseDoc->createElement('error', $text);
         $error->setAttribute('code', $code);
         $this->responseDoc->documentElement->appendChild($error);
-    }
+    }*/
 
     private function createElementWithChildren($name, $children)
     {
