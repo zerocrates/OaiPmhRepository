@@ -138,21 +138,6 @@ class OaiPmhRepository_ResponseGenerator
         }
     }
 
-    /**
-     * Adds an error element to the output
-     *
-     * Called to specify that an error has occured while processing a request.
-     * @param string $code The OAI-PMH error code
-     * @param string $text Human-readable error text
-     */
-    /*public function throwError($code, $text)
-    {
-        $this->error = true;
-        $error = $this->responseDoc->createElement('error', $text);
-        $error->setAttribute('code', $code);
-        $this->responseDoc->documentElement->appendChild($error);
-    }*/
-
     private function createElementWithChildren($name, $children)
     {
         $newElement = $this->responseDoc->createElement($name);

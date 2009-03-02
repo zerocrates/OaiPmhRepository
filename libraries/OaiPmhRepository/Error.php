@@ -10,16 +10,6 @@ define(OAI_ERR_NO_SET_HIERARCHY          , 'noSetHierarchy');
 
 class OaiPmhRepository_Error {
 
-    /* The specified OAI-PMH error conditions. */
-    /*const BAD_ARGUMENT              = 'badArgument';
-    const BAD_RESUMPTION_TOKEN      = 'badResumptionToken';
-    const BAD_VERB                  = 'badVerb';
-    const CANNOT_DISSEMINATE_FORMAT = 'cannotDisseminateFormat';
-    const ID_DOES_NOT_EXIST         = 'idDoesNotExist';
-    const NO_RECORDS_MATCH          = 'noRecordsMatch';
-    const NO_METADATA_FORMATS       = 'noMetadataFormats';
-    const NO_SET_HIERARCHY          = 'noSetHierarchy';
-   */
     static public function throwError($response, $error, $message = NULL)
     {
         $response->error = true;
