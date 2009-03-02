@@ -5,10 +5,7 @@ require_once('OaiPmhRepository/UtcDateTime.php');
 
 abstract class OaiPmhRepository_Metadata_Abstract
 {
-    private $item;
-    private $parentElement;
-
-    public function __construct(&$element, $itemId)
+    public function __construct($element, $itemId)
     {
         //all this Item stuff is wrong
         //$this->item = new Item(get_db());
@@ -18,28 +15,30 @@ abstract class OaiPmhRepository_Metadata_Abstract
         $itemTable->filterByRange($select, $itemId);
         $this->item = $itemTable->fetchObject($select);
         
-        $this->parentElement =& $element;
         
-        $this->appendHeader();
+        $header = new DOMElement('header');
+        $element->appendChild($header);
+        $this->generateHeader($header);
+
+        $metadata = new DOMElement('metadata');
+        $element->appendChild($metadata);
+        $this->generateMetadata($metadata);
     }
     
-    protected function appendHeader()
+    protected function generateHeader($headerElement)
     {
         /* without access to the root document, we must directly use the
          * DOMElement constructor.  Each element cannot have children appended
          * to it util it is part of a document.
          */
-        $header = new DOMElement('header');
-        $this->parentElement->appendChild($header);
-        
         $identifier = new DOMElement('identifier',
             OaiPmhRepository_OaiIdentifier::itemToOaiId($this->item->id));
-        $header->appendChild($identifier);
+        $headerElement->appendChild($identifier);
         
         // still yet to figure how to extract the added/modified times from DB
         $datestamp = new DOMElement('datestamp', OaiPmhRepository_UtcDateTime::dbTimeToUtc($this->item->modified));
-        $header->appendChild($datestamp);
+        $headerElement->appendChild($datestamp);
     }
     
-    abstract function appendMetadata();
+    abstract function generateMetadata($metadataElement);
 }

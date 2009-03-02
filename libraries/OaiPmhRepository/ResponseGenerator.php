@@ -12,8 +12,8 @@ require_once('Metadata/OaiDc.php');
  * Namespace URI for the OAI-PMH protocol.
  */
 define('OAI_PMH_NAMESPACE_URI', 'http://www.openarchives.org/OAI/2.0/');
-
 define('OAI_IDENTIFIER_NAMESPACE_URI', 'http://www.openarchives.org/OAI/2.0/oai-identifier');
+
 /**
  * Namespace URI for XML Schema instance elements.
  */
@@ -22,7 +22,6 @@ define('XML_SCHEMA_NAMESPACE_URI', 'http://www.w3.org/2001/XMLSchema-instance');
  * Schema URI for the OAI-PMH protocol.
  */
 define('OAI_PMH_SCHEMA_URI', 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd');
-
 define('OAI_IDENTIFIER_SCHEMA_URI', 'http://www.openarchives.org/OAI/2.0/oai-identifier.xsd');
 
 /**
