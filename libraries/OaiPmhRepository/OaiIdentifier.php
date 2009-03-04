@@ -20,7 +20,9 @@ class OaiPmhRepository_OaiIdentifier {
         $scheme = strtok($oaiId, ':');
         $namespaceId = strtok(':');
         $localId = strtok(':');
-        if( $scheme != 'oai' || $namespaceId != get_option('oaipmh_repository_namespace_id') ) {
+        if( $scheme != 'oai' || 
+            $namespaceId != get_option('oaipmh_repository_namespace_id') ||
+            $localId < 0) {
            return NULL;
         }
         return $localId;

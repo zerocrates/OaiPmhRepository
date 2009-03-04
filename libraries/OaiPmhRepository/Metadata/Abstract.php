@@ -5,47 +5,71 @@ require_once('OaiPmhRepository/UtcDateTime.php');
 
 abstract class OaiPmhRepository_Metadata_Abstract
 {
-    public function __construct($response, $element, $itemId)
+    protected $item;
+    protected $parentElement;
+    protected $document;
+    
+    public function __construct($item, $element)
     {
-        $itemTable = new ItemTable('Item', get_db());
-        $select = $itemTable->getSelect();
-        $itemTable->filterByRange($select, $itemId);
-        $item = $itemTable->fetchObject($select);
-
-        if(!isset($item->id))
-        {
-            // remove the response element
-            $element->parentNode->removeChild($element);
-            OaiPmhRepository_Error::throwError($response, OAI_ERR_ID_DOES_NOT_EXIST);
-            return;
-        }
-        $record = $element->ownerDocument->createElement('record');
+        $this->item = $item;
+        $this->parentElement = $element;
+        $this->document = $element->ownerDocument;
+        /*
+        $record = $this->document->createElement('record');
         $element->appendChild($record);
 
-        $header = $element->ownerDocument->createElement('header');
+        $header = $this->document->createElement('header');
         $record->appendChild($header);
-        $this->generateHeader($header, $item);
+        $this->generateHeader($header);
 
-        $metadata = $element->ownerDocument->createElement('metadata');
+        $metadata = $this->document->createElement('metadata');
         $record->appendChild($metadata);
-        $this->generateMetadata($metadata, $item);
+        $this->generateMetadata($metadata);
+        */
     }
     
-    protected function generateHeader($headerElement, $item)
+    /*protected function getItem()
+    {
+        return $this->item;
+    }
+    
+    protected function getParentElement()
+    {
+        return $this->parentElement
+    */
+    public function appendRecord()
+    {
+        $record = $this->document->createElement('record');
+        $this->parentElement->appendChild($record);
+        
+        // Sets the parent of the next append functions
+        $this->parentElement = $record;
+        $this->appendHeader();
+        $this->appendMetadata();
+    }
+    
+    public function appendHeader()
     {
         /* without access to the root document, we can directly use the
          * DOMElement constructor.  Each element cannot have children appended
          * to it util it is part of a document.
          */
-        $identifier = new DOMElement('identifier',
-            OaiPmhRepository_OaiIdentifier::itemToOaiId($item->id));
-        $headerElement->appendChild($identifier);
+         
+        $header = $this->document->createElement('header');
+        $this->parentElement->appendChild($header); 
+         
+        $identifier = $this->document->createElement('identifier',
+            OaiPmhRepository_OaiIdentifier::itemToOaiId($this->item->id));
+        $header->appendChild($identifier);
         
         // still yet to figure how to extract the added/modified times from DB
-        $datestamp = new DOMElement('datestamp', 
-            OaiPmhRepository_UtcDateTime::dbTimeToUtc($item->modified));
-        $headerElement->appendChild($datestamp);
+        $datestamp = $this->document->createElement('datestamp', 
+            OaiPmhRepository_UtcDateTime::dbTimeToUtc($this->item->modified));
+        $header->appendChild($datestamp);
     }
     
-    abstract function generateMetadata($metadataElement, $item);
+    abstract public function appendMetadata();
+    
+    //abstract function declareMetadatFormat($parentElement);
 }
+?>

@@ -9,30 +9,19 @@ require_once('OaiIdentifier.php');
 require_once('UtcDateTime.php');
 require_once('Metadata/OaiDc.php');
 
-/**
- * Namespace URI for the OAI-PMH protocol.
- */
+// Namespace URIs for XML response document
 define('OAI_PMH_NAMESPACE_URI', 'http://www.openarchives.org/OAI/2.0/');
 define('OAI_IDENTIFIER_NAMESPACE_URI', 'http://www.openarchives.org/OAI/2.0/oai-identifier');
-
-/**
- * Namespace URI for XML Schema instance elements.
- */
 define('XML_SCHEMA_NAMESPACE_URI', 'http://www.w3.org/2001/XMLSchema-instance');
-/**
- * Schema URI for the OAI-PMH protocol.
- */
+
+// XML Schema URIs for XML response document 
 define('OAI_PMH_SCHEMA_URI', 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd');
 define('OAI_IDENTIFIER_SCHEMA_URI', 'http://www.openarchives.org/OAI/2.0/oai-identifier.xsd');
 
-/**
- * Calculated base URL for the repository.
- */
+// Calculated base URL for the repository.
 define('BASE_URL', 'http://'.$_SERVER['SERVER_NAME'].parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
-/**
- * Version of OAI-PMH protocol the repository complies with.
- */
+// Version of OAI-PMH protocol the repository plugin complies with.
 define('PROTOCOL_VERSION', '2.0');
 
 /**
@@ -49,7 +38,7 @@ class OaiPmhRepository_ResponseGenerator
     public $error;
 
     /**
-     * Default constructor
+     * Constructor
      *
      * Creates the DomDocument object, and adds XML elements common to all
      * OAI-PMH responses.
@@ -90,26 +79,28 @@ class OaiPmhRepository_ResponseGenerator
         /* according to the schema, this order of elements is required for the
          * response to validate
          */
-        $elements = array( 'repositoryName' => 
-                                get_option('oaipmh_repository_name'),
-                           'baseURL' => BASE_URL,
-                           'protocolVersion' => PROTOCOL_VERSION,
-                           'adminEmail' => get_option('administrator_email'),
-                           'earliestDatestamp' => OaiPmhRepository_UtcDateTime::convertToUtcDateTime(0),
-                           'deletedRecord' => 'no',
-                           'granularity' => 'YYYY-MM-DDThh:mm:ssZ');
+        $elements = array( 
+            'repositoryName'    => get_option('oaipmh_repository_name'),
+            'baseURL'           => BASE_URL,
+            'protocolVersion'   => PROTOCOL_VERSION,
+            'adminEmail'        => get_option('administrator_email'),
+            'earliestDatestamp' => OaiPmhRepository_UtcDateTime::convertToUtcDateTime(0),
+            'deletedRecord'     => 'no',
+            'granularity'       => 'YYYY-MM-DDThh:mm:ssZ');
         $identify = $this->createElementWithChildren('Identify', $elements);
         
         $description = $this->responseDoc->createElement('description');
         $identify->appendChild($description);
         
-        $elements = array( 'scheme' => 'oai',
-                           'repositoryIdentifier' => get_option('oaipmh_repository_namespace_id'),
-                           'delimiter' => ':',
-                           'sampleIdentifier' => OaiPmhRepository_OaiIdentifier::itemtoOaiId(1));
+        $elements = array(
+            'scheme'               => 'oai',
+            'repositoryIdentifier' => get_option('oaipmh_repository_namespace_id'),
+            'delimiter'            => ':',
+            'sampleIdentifier'     => OaiPmhRepository_OaiIdentifier::itemtoOaiId(1));
         $oaiIdentifier = $this->createElementWithChildren('oai-identifier', $elements);
         $description->appendChild($oaiIdentifier);
-        //must set xmlns attribute manually to avoid DOM extension appending default: prefix to element name
+        //must set xmlns attribute manually to avoid DOM extension appending 
+        //default: prefix to element name
         $oaiIdentifier->setAttribute('xmlns', OAI_IDENTIFIER_NAMESPACE_URI);
         $oaiIdentifier->setAttributeNS(XML_SCHEMA_NAMESPACE_URI,
                 'xsi:schemaLocation',
@@ -127,6 +118,13 @@ class OaiPmhRepository_ResponseGenerator
         
         if(!$itemId) {
             OaiPmhRepository_Error::throwError($this, OAI_ERR_ID_DOES_NOT_EXIST);
+            return;
+        }
+        
+        $item = get_db()->getTable('Item')->find($itemId);
+
+        if(!$item) {
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_ID_DOES_NOT_EXIST);
         }
         if($metadataPrefix != 'oai_dc') {
             OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
@@ -134,8 +132,31 @@ class OaiPmhRepository_ResponseGenerator
         if(!$this->error) {
             $getRecord = $this->responseDoc->createElement('GetRecord');
             $this->responseDoc->documentElement->appendChild($getRecord);
-            $metadata = new OaiPmhRepository_Metadata_OaiDc($this, $getRecord, $itemId);
+            $record = new OaiPmhRepository_Metadata_OaiDc($item, $getRecord);
+            $record->appendRecord();
         }
+    }
+    
+    public function listRecords($metadataPrefix)
+    {
+        $this->request->setAttribute('verb', 'ListRecords');
+        $this->request->setAttribute('metadataPrefix', $metadataPrefix);
+        
+        if($metadataPrefix != 'oai_dc') {
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
+        }
+        
+        $items = get_db()->getTable('Item')->findBy();
+        
+        if(!$this->error) {
+            $listRecords = $this->responseDoc->createElement('ListRecords');
+            $this->responseDoc->documentElement->appendChild($listRecords);
+            foreach($items as $item) {
+                $record = new OaiPmhRepository_Metadata_OaiDc($listRecords, $item);
+                $record->appendRecord();
+            }
+        }
+        
     }
 
     private function createElementWithChildren($name, $children)

@@ -41,6 +41,11 @@ class OaiPmhRepository_RequestController extends Omeka_Controller_Action
                 $this->checkArguments(2, $requiredArguments);
                 $this->response->getRecord($this->query['identifier'], $this->query['metadataPrefix']);
                 break;
+             case 'ListRecords': 
+                $requiredArguments = array('metadataPrefix');
+                $this->checkArguments(1, $requiredArguments);
+                $this->response->listRecords($this->query['metadataPrefix']);
+                break;
             case 'ListSets':
                 //will change in the future, but we currently don't support sets
                 //should map to Omeka collections

@@ -10,9 +10,12 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
     const XML_SCHEMA_URI = 'http://www.w3.org/2001/XMLSchema-instance';
     const OAI_DC_SCHEMA_URI = 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd';
 
-    public function generateMetadata($metadataElement, $item) 
+    public function appendMetadata() 
     {
-        $oai_dc = $metadataElement->ownerDocument->createElementNS(
+        $metadataElement = $this->document->createElement('metadata');
+        $this->parentElement->appendChild($metadataElement);   
+        
+        $oai_dc = $this->document->createElementNS(
             self::OAI_DC_NAMESPACE_URI, 'oai_dc:dc');
         $metadataElement->appendChild($oai_dc);
 
@@ -21,7 +24,8 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
          */
         $oai_dc->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
         $oai_dc->setAttribute('xmlns:xsi', self::XML_SCHEMA_URI);
-        $oai_dc->setAttribute('xsi:schemaLocation', self::DC_NAMESPACE_URI.' '.self::OAI_DC_SCHEMA_URI);
+        $oai_dc->setAttribute('xsi:schemaLocation', self::DC_NAMESPACE_URI.' '.
+            self::OAI_DC_SCHEMA_URI);
 
         /* Each of the 16 unqualified Dublin Core elements, in the order
          * specified by the oai_dc XML schema
@@ -38,7 +42,7 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
         foreach($dcElementNames as $elementName)
         {   
             $upperName = Inflector::camelize($elementName);
-            $dcElements = $item->getElementTextsByElementNameAndSetName(
+            $dcElements = $this->item->getElementTextsByElementNameAndSetName(
                 $upperName, 'Dublin Core');
             foreach($dcElements as $elementText) {
                 $dcElement = $metadataElement->ownerDocument->createElement(
