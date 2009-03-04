@@ -14,29 +14,8 @@ abstract class OaiPmhRepository_Metadata_Abstract
         $this->item = $item;
         $this->parentElement = $element;
         $this->document = $element->ownerDocument;
-        /*
-        $record = $this->document->createElement('record');
-        $element->appendChild($record);
-
-        $header = $this->document->createElement('header');
-        $record->appendChild($header);
-        $this->generateHeader($header);
-
-        $metadata = $this->document->createElement('metadata');
-        $record->appendChild($metadata);
-        $this->generateMetadata($metadata);
-        */
     }
     
-    /*protected function getItem()
-    {
-        return $this->item;
-    }
-    
-    protected function getParentElement()
-    {
-        return $this->parentElement
-    */
     public function appendRecord()
     {
         $record = $this->document->createElement('record');
@@ -70,6 +49,6 @@ abstract class OaiPmhRepository_Metadata_Abstract
     
     abstract public function appendMetadata();
     
-    //abstract function declareMetadatFormat($parentElement);
+    abstract public function declareMetadataFormat();
 }
 ?>

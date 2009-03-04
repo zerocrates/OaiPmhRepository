@@ -46,10 +46,18 @@ class OaiPmhRepository_RequestController extends Omeka_Controller_Action
                 $this->checkArguments(1, $requiredArguments);
                 $this->response->listRecords($this->query['metadataPrefix']);
                 break;
+            case 'ListIdentifiers': 
+                $requiredArguments = array('metadataPrefix');
+                $this->checkArguments(1, $requiredArguments);
+                $this->response->listIdentifiers($this->query['metadataPrefix']);
+                break;
             case 'ListSets':
                 //will change in the future, but we currently don't support sets
                 //should map to Omeka collections
                 OaiPmhRepository_Error::throwError($this->response, OAI_ERR_NO_SET_HIERARCHY);
+                break;
+            case 'ListMetadataFormats':
+                $this->response->listMetadataFormats($this->query['identifier']);
                 break;
             default:
                 OaiPmhRepository_Error::throwError($this->response, OAI_ERR_BAD_VERB);
@@ -62,7 +70,7 @@ class OaiPmhRepository_RequestController extends Omeka_Controller_Action
         foreach($requiredArgs as $arg)
         {
             if(!isset($this->query[$arg]))
-                OaiPmhRepository_Error::throwError($this->response, OAI_ERR_BAD_ARGUMENT, "Missing argument '$arg'.");
+                OaiPmhRepository_Error::throwError($this->response, OAI_ERR_BAD_ARGUMENT, "Missing argument $arg.");
         }
         if(count($this->query) != $numArgs + 1)
             OaiPmhRepository_Error::throwError($this->response, OAI_ERR_BAD_ARGUMENT, "Specified verb takes $numArgs arguments.");

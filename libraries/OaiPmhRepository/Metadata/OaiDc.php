@@ -4,6 +4,8 @@ require_once('Abstract.php');
 
 class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
 {
+    const METADATA_PREFIX = 'oai_dc';    
+    
     const OAI_DC_NAMESPACE_URI = 'http://www.openarchives.org/OAI/2.0/oai_dc/';
     const DC_NAMESPACE_URI = 'http://purl.org/dc/elements/1.1/';
 
@@ -30,10 +32,10 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
         /* Each of the 16 unqualified Dublin Core elements, in the order
          * specified by the oai_dc XML schema
          */
-        $dcElementNames = array('title', 'creator', 'subject', 'description',
-                                'publisher', 'contributor', 'date', 'type',
-                                'format', 'identifier', 'source', 'language',
-                                'relation', 'coverage', 'rights');
+        $dcElementNames = array( 'title', 'creator', 'subject', 'description',
+                                 'publisher', 'contributor', 'date', 'type',
+                                 'format', 'identifier', 'source', 'language',
+                                 'relation', 'coverage', 'rights' );
 
         /* Must create elements using createElement to make DOM allow a
          * top-level xmlns declaration instead of wasteful and non-
@@ -49,6 +51,21 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
                     'dc:'.$elementName, $elementText->text);
                 $oai_dc->appendChild($dcElement);
             }
+        }
+    }
+    
+    public function declareMetadataFormat()
+    {
+        $metadataFormat = $this->document->createElement('metadataFormat');
+        $this->parentElement->appendChild($metadataFormat);
+        
+        $elements = array( 'metadataPrefix'    => self::METADATA_PREFIX,
+                           'schema'            => self::OAI_DC_SCHEMA_URI,
+                           'metadataNamespace' => self::DC_NAMESPACE_URI );
+        foreach($elements as $tag => $value)
+        {
+            $formatElement = $this->document->createElement($tag, $value);
+            $metadataFormat->appendChild($formatElement);
         }
     }
 }

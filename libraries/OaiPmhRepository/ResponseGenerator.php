@@ -111,8 +111,10 @@ class OaiPmhRepository_ResponseGenerator
     public function getRecord($identifier, $metadataPrefix)
     {
         $this->request->setAttribute('verb', 'GetRecord');
-        $this->request->setAttribute('identifier', $identifier);
-        $this->request->setAttribute('metadataPrefix', $metadataPrefix);
+        if($identifier)
+            $this->request->setAttribute('identifier', $identifier);
+        if($metadataPrefix)
+            $this->request->setAttribute('metadataPrefix', $metadataPrefix);
         
         $itemId = OaiPmhRepository_OaiIdentifier::oaiIdToItem($identifier);
         
@@ -140,7 +142,8 @@ class OaiPmhRepository_ResponseGenerator
     public function listRecords($metadataPrefix)
     {
         $this->request->setAttribute('verb', 'ListRecords');
-        $this->request->setAttribute('metadataPrefix', $metadataPrefix);
+        if($metadataPrefix)
+            $this->request->setAttribute('metadataPrefix', $metadataPrefix);
         
         if($metadataPrefix != 'oai_dc') {
             OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
@@ -152,11 +155,45 @@ class OaiPmhRepository_ResponseGenerator
             $listRecords = $this->responseDoc->createElement('ListRecords');
             $this->responseDoc->documentElement->appendChild($listRecords);
             foreach($items as $item) {
-                $record = new OaiPmhRepository_Metadata_OaiDc($listRecords, $item);
+                $record = new OaiPmhRepository_Metadata_OaiDc($item, $listRecords);
                 $record->appendRecord();
             }
         }
+    }
+    
+    public function listIdentifiers($metadataPrefix)
+    {
+        $this->request->setAttribute('verb', 'ListIdentifiers');
+        if($metadataPrefix)
+            $this->request->setAttribute('metadataPrefix', $metadataPrefix);
         
+        if($metadataPrefix != 'oai_dc') {
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
+        }
+        
+        $items = get_db()->getTable('Item')->findBy();
+        
+        if(!$this->error) {
+            $listIdentifiers = $this->responseDoc->createElement('ListIdentifiers');
+            $this->responseDoc->documentElement->appendChild($listIdentifiers);
+            foreach($items as $item) {
+                $record = new OaiPmhRepository_Metadata_OaiDc($item, $listIdentifiers);
+                $record->appendHeader();
+            }
+        }
+    }
+    
+    public function listMetadataFormats($identifier = null)
+    {
+        $this->request->setAttribute('verb', 'ListMetadataFormats');
+        if($identifier)
+            $this->request->setAttribute('identifier', $identifier);
+        if(!$this->error) {
+            $listMetadataFormats = $this->responseDoc->createElement('ListMetadataFormats');
+            $this->responseDoc->documentElement->appendChild($listMetadataFormats);
+            $format = new OaiPmhRepository_Metadata_OaiDc(null, $listMetadataFormats);
+            $format->declareMetadataFormat();
+        }
     }
 
     private function createElementWithChildren($name, $children)
