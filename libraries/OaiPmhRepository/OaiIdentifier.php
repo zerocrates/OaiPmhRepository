@@ -4,6 +4,10 @@
  * @author John Flatness, Yu-Hsun Lin
  */
 
+define('OAI_IDENTIFIER_NAMESPACE_URI', 'http://www.openarchives.org/OAI/2.0/oai-identifier');
+define('OAI_IDENTIFIER_SCHEMA_URI', 'http://www.openarchives.org/OAI/2.0/oai-identifier.xsd');
+define('OAI_PMH_NAMESPACE_ID', get_option('oaipmh_repository_namespace_id'));
+
 /**
  * Utility class for dealing with OAI identifiers
  *
@@ -15,8 +19,6 @@
  * @package OaiPmhRepository
  */
 class OaiPmhRepository_OaiIdentifier {
-
-    const NAMESPACE_ID = get_option('oaipmh_repository_namespace_id');
     
     /**
      * Converts the given OAI identifier to an Omeka item ID.
@@ -29,7 +31,7 @@ class OaiPmhRepository_OaiIdentifier {
         $namespaceId = strtok(':');
         $localId = strtok(':');
         if( $scheme != 'oai' || 
-            $namespaceId != NAMESPACE_ID ||
+            $namespaceId != OAI_PMH_NAMESPACE_ID ||
             $localId < 0) {
            return NULL;
         }
@@ -43,8 +45,34 @@ class OaiPmhRepository_OaiIdentifier {
      * @return string OAI identifier.
      */
     public static function itemToOaiId($itemId) {
-        return 'oai:'.NAMESPACE_ID.':'.$itemId;
+        return 'oai:'.OAI_PMH_NAMESPACE_ID.':'.$itemId;
     }
-
+    
+    /**
+     * Outputs description element child describing the repository's OAI
+     * identifier implementation.
+     *
+     * @param DOMElement $parentElement Parent DOM element for XML output
+     */
+    public static function describeIdentifier($parentElement) {
+        $elements = array(
+            'scheme'               => 'oai',
+            'repositoryIdentifier' => OAI_PMH_NAMESPACE_ID,
+            'delimiter'            => ':',
+            'sampleIdentifier'     => self::itemtoOaiId(1) );
+        $oaiIdentifier = $parentElement->ownerDocument->createElement('oai-identifier');
+        foreach($elements as $tag => $value)
+        {
+            $oaiIdentifier->appendChild($parentElement->ownerDocument->createElement($tag, $value));
+        }
+        $parentElement->appendChild($oaiIdentifier);
+        
+        //must set xmlns attribute manually to avoid DOM extension appending 
+        //default: prefix to element name
+        $oaiIdentifier->setAttribute('xmlns', OAI_IDENTIFIER_NAMESPACE_URI);
+        $oaiIdentifier->setAttributeNS(XML_SCHEMA_NAMESPACE_URI,
+                'xsi:schemaLocation',
+                OAI_IDENTIFIER_NAMESPACE_URI.' '.OAI_IDENTIFIER_SCHEMA_URI);
+   }
 }
 ?>

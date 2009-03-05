@@ -11,12 +11,10 @@ require_once('Metadata/OaiDc.php');
 
 // Namespace URIs for XML response document
 define('OAI_PMH_NAMESPACE_URI', 'http://www.openarchives.org/OAI/2.0/');
-define('OAI_IDENTIFIER_NAMESPACE_URI', 'http://www.openarchives.org/OAI/2.0/oai-identifier');
 define('XML_SCHEMA_NAMESPACE_URI', 'http://www.w3.org/2001/XMLSchema-instance');
 
 // XML Schema URIs for XML response document 
 define('OAI_PMH_SCHEMA_URI', 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd');
-define('OAI_IDENTIFIER_SCHEMA_URI', 'http://www.openarchives.org/OAI/2.0/oai-identifier.xsd');
 
 // Calculated base URL for the repository.
 define('BASE_URL', 'http://'.$_SERVER['SERVER_NAME'].parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
@@ -95,20 +93,8 @@ class OaiPmhRepository_ResponseGenerator
         $description = $this->responseDoc->createElement('description');
         $identify->appendChild($description);
         
-        $elements = array(
-            'scheme'               => 'oai',
-            'repositoryIdentifier' => get_option('oaipmh_repository_namespace_id'),
-            'delimiter'            => ':',
-            'sampleIdentifier'     => OaiPmhRepository_OaiIdentifier::itemtoOaiId(1));
-        $oaiIdentifier = $this->createElementWithChildren('oai-identifier', $elements);
-        $description->appendChild($oaiIdentifier);
+        OaiPmhRepository_OaiIdentifier::describeIdentifier($description);
         
-        //must set xmlns attribute manually to avoid DOM extension appending 
-        //default: prefix to element name
-        $oaiIdentifier->setAttribute('xmlns', OAI_IDENTIFIER_NAMESPACE_URI);
-        $oaiIdentifier->setAttributeNS(XML_SCHEMA_NAMESPACE_URI,
-                'xsi:schemaLocation',
-                OAI_IDENTIFIER_NAMESPACE_URI.' '.OAI_IDENTIFIER_SCHEMA_URI);
         $this->responseDoc->documentElement->appendChild($identify);
     }
     
@@ -255,7 +241,7 @@ class OaiPmhRepository_ResponseGenerator
      * Outputs the XML response as a string
      *
      * Called once processing is complete to obtain the XML to return to the client.
-     *
+     
      * @return string the response XML
      */
     public function __toString()
