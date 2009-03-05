@@ -40,7 +40,7 @@ abstract class OaiPmhRepository_Metadata_Abstract
      * @param Item item Item object whose metadata will be output.
      * @param DOMElement element Parent element for XML output.
      */
-    public function __construct(Item $item, DOMElement $element)
+    public function __construct($item, DOMElement $element)
     {
         $this->item = $item;
         $this->parentElement = $element;
