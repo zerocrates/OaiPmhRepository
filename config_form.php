@@ -4,7 +4,7 @@
  *
  * Included in the configuration page for the plugin to change settings.
  * @package OaiPmhRepository
- * @author John Flatness <jflatnes@vt.edu>
+ * @author John Flatness, Yu-Hsun Lin
  */
 ?>
 <div class="field">

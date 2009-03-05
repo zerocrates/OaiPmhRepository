@@ -1,7 +1,19 @@
 <?php
+/**
+ * @package OaiPmhRepository
+ * @subpackage Metadata Formats
+ * @author John Flatness, Yu-Hsun Lin
+ */
 
 require_once('Abstract.php');
 
+/**
+ * Class implmenting metadata output for the required oai_dc metadata format.
+ * oai_dc is output of the 15 unqualified Dublin Core fields.
+ *
+ * @package OaiPmhRepository
+ * @subpackage Metadata Formats
+ */
 class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
 {
     const METADATA_PREFIX = 'oai_dc';    
@@ -11,7 +23,14 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
 
     const XML_SCHEMA_URI = 'http://www.w3.org/2001/XMLSchema-instance';
     const OAI_DC_SCHEMA_URI = 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd';
-
+    
+    /**
+     * Appends Dublin Core metadata. 
+     *
+     * Appends a metadata element, an child element with the required format,
+     * and further children for each of the Dublin Core fields present in the
+     * item.
+     */
     public function appendMetadata() 
     {
         $metadataElement = $this->document->createElement('metadata');
@@ -48,12 +67,21 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
                 $upperName, 'Dublin Core');
             foreach($dcElements as $elementText) {
                 $dcElement = $metadataElement->ownerDocument->createElement(
-                    'dc:'.$elementName, $elementText->text);
+                    'dc:'.$elementName);
+                // Use a TextNode, causes escaping of input text
+                $text = $metadataElement->ownerDocument->createTextNode($elementText->text);
+                $dcElement->appendChild($text);
                 $oai_dc->appendChild($dcElement);
             }
         }
     }
     
+    /**
+     * Appends a metadataFormat element to the document. 
+     *
+     * Declares the metadataPrefix, schema URI, and namespace for the oai_dc
+     * metadata format.
+     */    
     public function declareMetadataFormat()
     {
         $metadataFormat = $this->document->createElement('metadataFormat');

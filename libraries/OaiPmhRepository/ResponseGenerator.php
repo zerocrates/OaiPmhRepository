@@ -1,7 +1,7 @@
 <?php
 /**
  * @package OaiPmhRepository
- * @author John Flatness <jflatnes@vt.edu>
+ * @author John Flatness, Yu-Hsun Lin
  */
 
 require_once('Error.php');
@@ -30,6 +30,7 @@ define('PROTOCOL_VERSION', '2.0');
  * all the XML output on-the-fly.
  *
  * @package OaiPmhRepository
+ * @todo Refactor out code for setting arguments in request element
  */
 class OaiPmhRepository_ResponseGenerator
 {
@@ -50,6 +51,8 @@ class OaiPmhRepository_ResponseGenerator
         //formatOutput makes DOM output "pretty" XML.  Good for debugging, but
         //adds some overhead, especially on large outputs
         $this->responseDoc->formatOutput = true;
+        $this->responseDoc->xmlStandalone = true;
+        
         $root = $this->responseDoc->createElementNS(OAI_PMH_NAMESPACE_URI,
             'OAI-PMH');
         $this->responseDoc->appendChild($root);
@@ -67,7 +70,7 @@ class OaiPmhRepository_ResponseGenerator
     }
     
     /**
-     * Responds to the Identify verb
+     * Responds to the Identify verb.
      *
      * Appends the Identify element for the repository to the response.
      */
@@ -99,6 +102,7 @@ class OaiPmhRepository_ResponseGenerator
             'sampleIdentifier'     => OaiPmhRepository_OaiIdentifier::itemtoOaiId(1));
         $oaiIdentifier = $this->createElementWithChildren('oai-identifier', $elements);
         $description->appendChild($oaiIdentifier);
+        
         //must set xmlns attribute manually to avoid DOM extension appending 
         //default: prefix to element name
         $oaiIdentifier->setAttribute('xmlns', OAI_IDENTIFIER_NAMESPACE_URI);
@@ -108,6 +112,15 @@ class OaiPmhRepository_ResponseGenerator
         $this->responseDoc->documentElement->appendChild($identify);
     }
     
+    /**
+     * Responds to the GetRecord verb.
+     *
+     * Outputs the header and metadata in the specified format for the specified
+     * identifier.
+     *
+     * @param string identifier The oai-identifier for the desired record.
+     * @param string metadataPrefix Code for the desired metadata format.
+     */
     public function getRecord($identifier, $metadataPrefix)
     {
         $this->request->setAttribute('verb', 'GetRecord');
@@ -139,6 +152,14 @@ class OaiPmhRepository_ResponseGenerator
         }
     }
     
+    /**
+     * Responds to the ListRecords verb.
+     *
+     * Outputs records for all of the items in the database in the specified
+     * metadata format.
+     *
+     * @param string metadataPrefix Code for the desired metadata format.
+     */
     public function listRecords($metadataPrefix)
     {
         $this->request->setAttribute('verb', 'ListRecords');
@@ -161,6 +182,14 @@ class OaiPmhRepository_ResponseGenerator
         }
     }
     
+    /**
+     * Responds to the ListIdentifiers verb.
+     *
+     * Outputs headers for all of the items in the database in the specified
+     * metadata format.
+     *
+     * @param string metadataPrefix Code for the desired metadata format.
+     */
     public function listIdentifiers($metadataPrefix)
     {
         $this->request->setAttribute('verb', 'ListIdentifiers');
@@ -182,7 +211,14 @@ class OaiPmhRepository_ResponseGenerator
             }
         }
     }
-    
+    /**
+     * Responds to the ListMetadataFormats verb.
+     *
+     * Outputs records for all of the items in the database in the specified
+     * metadata format.
+     *
+     * @param string identifier OAI identifier for the desired record, if any.
+     */
     public function listMetadataFormats($identifier = null)
     {
         $this->request->setAttribute('verb', 'ListMetadataFormats');
@@ -195,7 +231,16 @@ class OaiPmhRepository_ResponseGenerator
             $format->declareMetadataFormat();
         }
     }
-
+    /**
+     * Creates a new XML element with the specified children
+     *
+     * Creates a parent element with the given name, with children with names
+     * and values as given.  Adds the resulting element to the response
+     * document.
+     *
+     * @param string name Name of the parent element.
+     * @param array children Child names and values, as name => value. 
+     */
     private function createElementWithChildren($name, $children)
     {
         $newElement = $this->responseDoc->createElement($name);
@@ -210,6 +255,7 @@ class OaiPmhRepository_ResponseGenerator
      * Outputs the XML response as a string
      *
      * Called once processing is complete to obtain the XML to return to the client.
+     *
      * @return string the response XML
      */
     public function __toString()

@@ -2,7 +2,7 @@
 /**
  * @package OaiPmhRepository
  * @subpackage Controllers
- * @author John Flatness <jflatnes@vt.edu>
+ * @author John Flatness, Yu-Hsun Lin
  */
 
 /**

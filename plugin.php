@@ -4,8 +4,9 @@
  *
  * Main script for the plugin, sets up hooks and filters to the Omeka API.
  * @package OaiPmhRepository
- * @author John Flatness <jflatnes@vt.edu>
+ * @author John Flatness, Yu-Hsun Lin
  */
+ 
 define('OAIPMH_REPOSITORY_PLUGIN_VERSION', '0.0.1');
 
 require_once('OaiPmhRepository/ResponseGenerator.php');

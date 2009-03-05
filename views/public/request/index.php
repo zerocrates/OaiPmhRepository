@@ -7,7 +7,7 @@
  *
  * @package OaiPmhRepository
  * @subpackage Views
- * @author John Flatness <jflatnes@vt.edu>
+ * @author John Flatness, Yu-Hsun Lin
  */
 header('Content-Type: text/xml');
 

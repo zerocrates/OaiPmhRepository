@@ -6,7 +6,7 @@
  *
  * @package OaiPmhRepository
  * @subpackage Views
- * @author John Flatness <jflatnes@vt.edu>
+ * @author John Flatness, Yu-Hsun Lin
  */
 
 define('OAI_PMH_URI', WEB_ROOT.'/oai-pmh-repository/request');

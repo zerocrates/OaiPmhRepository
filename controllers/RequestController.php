@@ -2,7 +2,7 @@
 /**
  * @package OaiPmhRepository
  * @subpackage Controllers
- * @author John Flatness <jflatnes@vt.edu>
+ * @author John Flatness, Yu-Hsun Lin
  */
 
 /**
@@ -14,12 +14,18 @@
  * @package OaiPmhRepository
  * @subpackage Controllers
  * @uses OaiPmhRepository_ResponseGenerator
+ * @uses OaiPmhRepository_Error
  */
 class OaiPmhRepository_RequestController extends Omeka_Controller_Action
 {
     private $response;
     private $query;
-
+    
+    /**
+     * Parses and verifies POST/GET variables.
+     *
+     * @uses checkArguments
+     */
     public function indexAction()
     {
         $this->response = new OaiPmhRepository_ResponseGenerator();
@@ -64,7 +70,18 @@ class OaiPmhRepository_RequestController extends Omeka_Controller_Action
         }
         $this->view->response = $this->response;
     }
-
+    
+    /**
+     * Checks the argument list from the POST/GET query.
+     *
+     * Checks if there are the required number of arguments, and the required
+     * argument types. 
+     *
+     * @todo Extend to optional arguments, repeated arguments.
+     * @param int numArgs Number of required arguments.
+     * @param array requiredArgs Array of required argument names.
+     * @return bool True if arguments verify, false otherwise.
+     */
     private function checkArguments($numArgs, $requiredArgs = array())
     {
         foreach($requiredArgs as $arg)

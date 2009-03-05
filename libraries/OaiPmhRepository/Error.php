@@ -1,4 +1,10 @@
 <?php
+/**
+ * @package OaiPmhRepository
+ * @author John Flatness, Yu-Hsun Lin
+ */
+
+// Each of the defined OAI-PMH error states
 define(OAI_ERR_BAD_ARGUMENT              , 'badArgument');
 define(OAI_ERR_BAD_RESUMPTION_TOKEN      , 'badResumptionToken');
 define(OAI_ERR_BAD_VERB                  , 'badVerb');
@@ -8,9 +14,21 @@ define(OAI_ERR_NO_RECORDS_MATCH          , 'noRecordsMatch');
 define(OAI_ERR_NO_METADATA_FORMATS       , 'noMetadataFormats');
 define(OAI_ERR_NO_SET_HIERARCHY          , 'noSetHierarchy');
 
+/**
+ * Class for throwing OAI-PMH error states.
+ *
+ * @package OaiPmhRepository
+ */
 class OaiPmhRepository_Error {
 
-    static public function throwError($response, $error, $message = NULL)
+    /**
+     * Throws an OAI-PMH error on the given response.
+     * 
+     * @param OaiPmhRepository_ResponseGenerator $response Response generator object.
+     * @param string $error OAI-PMH error code.
+     * @param string $message Optional human-readable error message.
+     */
+    static public function throwError($response, $error, $message = null)
     {
         $response->error = true;
         $errorElement = $response->responseDoc->createElement('error', $message);
