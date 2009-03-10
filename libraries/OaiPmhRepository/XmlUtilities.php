@@ -34,7 +34,7 @@ class OaiPmhRepository_XmlUtilities
             $newElement->appendChild($document->createElement($tag, $value));
         }
         $parent->appendChild($newElement);
-        return newElement;
+        return $newElement;
     }
 }
 ?>
