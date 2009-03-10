@@ -87,6 +87,6 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
                            'schema'            => self::OAI_DC_SCHEMA_URI,
                            'metadataNamespace' => self::DC_NAMESPACE_URI );
         OaiPmhRepository_XmlUtilities::createElementWithChildren(
-            $this->parentElement, 'metadataFormat', $element);
+            $this->parentElement, 'metadataFormat', $elements);
     }
 }
