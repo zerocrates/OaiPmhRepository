@@ -66,10 +66,9 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
             $dcElements = $this->item->getElementTextsByElementNameAndSetName(
                 $upperName, 'Dublin Core');
             foreach($dcElements as $elementText) {
-                $dcElement = $metadataElement->ownerDocument->createElement(
-                    'dc:'.$elementName);
+                $dcElement = $this->document->createElement('dc:'.$elementName);
                 // Use a TextNode, causes escaping of input text
-                $text = $metadataElement->ownerDocument->createTextNode($elementText->text);
+                $text = $this->document->createTextNode($elementText->text);
                 $dcElement->appendChild($text);
                 $oai_dc->appendChild($dcElement);
             }
@@ -84,16 +83,10 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
      */    
     public function declareMetadataFormat()
     {
-        $metadataFormat = $this->document->createElement('metadataFormat');
-        $this->parentElement->appendChild($metadataFormat);
-        
         $elements = array( 'metadataPrefix'    => self::METADATA_PREFIX,
                            'schema'            => self::OAI_DC_SCHEMA_URI,
                            'metadataNamespace' => self::DC_NAMESPACE_URI );
-        foreach($elements as $tag => $value)
-        {
-            $formatElement = $this->document->createElement($tag, $value);
-            $metadataFormat->appendChild($formatElement);
-        }
+        OaiPmhRepository_XmlUtilities::createElementWithChildren(
+            $this->parentElement, 'metadataFormat', $element);
     }
 }

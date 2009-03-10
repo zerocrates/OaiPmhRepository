@@ -5,6 +5,7 @@
  * @author John Flatness, Yu-Hsun Lin
  */
 
+require_once('OaiPmhRepository/XmlUtilities.php');
 require_once('OaiPmhRepository/OaiIdentifier.php');
 require_once('OaiPmhRepository/UtcDateTime.php');
 

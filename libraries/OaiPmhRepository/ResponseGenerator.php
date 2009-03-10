@@ -7,11 +7,11 @@
 require_once('Error.php');
 require_once('OaiIdentifier.php');
 require_once('UtcDateTime.php');
+require_once('XmlUtilities.php');
 require_once('Metadata/OaiDc.php');
 
 // Namespace URIs for XML response document
 define('OAI_PMH_NAMESPACE_URI', 'http://www.openarchives.org/OAI/2.0/');
-define('XML_SCHEMA_NAMESPACE_URI', 'http://www.w3.org/2001/XMLSchema-instance');
 
 // XML Schema URIs for XML response document 
 define('OAI_PMH_SCHEMA_URI', 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd');
@@ -88,14 +88,13 @@ class OaiPmhRepository_ResponseGenerator
             'earliestDatestamp' => OaiPmhRepository_UtcDateTime::convertToUtcDateTime(0),
             'deletedRecord'     => 'no',
             'granularity'       => 'YYYY-MM-DDThh:mm:ssZ');
-        $identify = $this->createElementWithChildren('Identify', $elements);
+        $identify = OaiPmhRepository_XmlUtilities::createElementWithChildren(
+            $this->responseDoc->documentElement, 'Identify', $elements);
         
         $description = $this->responseDoc->createElement('description');
         $identify->appendChild($description);
         
         OaiPmhRepository_OaiIdentifier::describeIdentifier($description);
-        
-        $this->responseDoc->documentElement->appendChild($identify);
     }
     
     /**
@@ -152,11 +151,16 @@ class OaiPmhRepository_ResponseGenerator
         if($metadataPrefix)
             $this->request->setAttribute('metadataPrefix', $metadataPrefix);
         
-        if($metadataPrefix != 'oai_dc') {
+        if($metadataPrefix != 'oai_dc')
             OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
-        }
         
-        $items = get_db()->getTable('Item')->findBy();
+        else {
+            // will likely need to be replaced with some type of Zend_Db_Select or other more complex query
+            $items = get_db()->getTable('Item')->findBy();
+            
+            if(count($items) == 0)
+                OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_ITEMS_MATCH);
+        }
         
         if(!$this->error) {
             $listRecords = $this->responseDoc->createElement('ListRecords');
@@ -186,7 +190,13 @@ class OaiPmhRepository_ResponseGenerator
             OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
         }
         
-        $items = get_db()->getTable('Item')->findBy();
+        else {
+            // will likely need to be replaced with some type of Zend_Db_Select or other more complex query
+            $items = get_db()->getTable('Item')->findBy();
+            
+            if(count($items) == 0)
+                OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_ITEMS_MATCH);
+        }
         
         if(!$this->error) {
             $listIdentifiers = $this->responseDoc->createElement('ListIdentifiers');
@@ -216,25 +226,6 @@ class OaiPmhRepository_ResponseGenerator
             $format = new OaiPmhRepository_Metadata_OaiDc(null, $listMetadataFormats);
             $format->declareMetadataFormat();
         }
-    }
-    /**
-     * Creates a new XML element with the specified children
-     *
-     * Creates a parent element with the given name, with children with names
-     * and values as given.  Adds the resulting element to the response
-     * document.
-     *
-     * @param string name Name of the parent element.
-     * @param array children Child names and values, as name => value. 
-     */
-    private function createElementWithChildren($name, $children)
-    {
-        $newElement = $this->responseDoc->createElement($name);
-        foreach($children as $tag => $value)
-        {
-            $newElement->appendChild($this->responseDoc->createElement($tag, $value));
-        }
-        return $newElement;
     }
 
     /**
