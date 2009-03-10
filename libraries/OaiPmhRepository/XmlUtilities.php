@@ -36,4 +36,5 @@ class OaiPmhRepository_XmlUtilities
         $parent->appendChild($newElement);
         return newElement;
     }
+}
 ?>
