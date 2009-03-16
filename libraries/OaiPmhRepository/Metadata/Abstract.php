@@ -95,6 +95,14 @@ abstract class OaiPmhRepository_Metadata_Abstract
         $datestamp = $this->document->createElement('datestamp', 
             OaiPmhRepository_UtcDateTime::dbTimeToUtc($this->item->modified));
         $header->appendChild($datestamp);
+
+        // can one item be in multiple sets?
+        $collectionId = $this->item->collection_id;
+        if ($collectionId) {
+            $setSpec = $this->document->createElement('setSpec',
+                ($collectionId));
+            $header->appendChild($setSpec);
+        }
     }
     
     abstract public function appendMetadata();

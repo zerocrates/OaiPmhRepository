@@ -229,6 +229,31 @@ class OaiPmhRepository_ResponseGenerator
     }
 
     /**
+     * This function will output XML listing all the sets in the repository.
+     */
+    public function listSets()
+    {
+        $this->request->setAttribute('verb', 'listSets');
+        
+        if(!$this->error) {
+            $collectionObject = get_db()->getTable('Collection')->findBy();
+        
+            $setHeader = $this->document->createElement('ListSets');
+            $this->parentElement->appendChild($setHeader); 
+
+            foreach ($collectionObject as &$dummy) {
+                $setBullet = $this->document->createElement('set');
+                $setSpec = $this->document->createElement('setSpec', ($dummy->id));
+                $setName = $this->document->createElement('setName', ($dummy->name));
+                $setHeader->appendChild($setBullet);
+                $setBullet->appendChild($setSpec);
+                $setBullet->appendChild($setName);
+            }
+        unset($dummy);
+        }
+    }
+
+    /**
      * Outputs the XML response as a string
      *
      * Called once processing is complete to obtain the XML to return to the client.
