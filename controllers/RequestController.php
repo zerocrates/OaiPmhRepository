@@ -60,7 +60,7 @@ class OaiPmhRepository_RequestController extends Omeka_Controller_Action
             case 'ListSets':
                 //will change in the future, but we currently don't support sets
                 //should map to Omeka collections
-                OaiPmhRepository_Error::throwError($this->response, OAI_ERR_NO_SET_HIERARCHY);
+                $this->response->listSets();
                 break;
             case 'ListMetadataFormats':
                 $this->response->listMetadataFormats($this->query['identifier']);

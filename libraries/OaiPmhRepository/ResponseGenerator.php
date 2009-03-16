@@ -235,16 +235,19 @@ class OaiPmhRepository_ResponseGenerator
     {
         $this->request->setAttribute('verb', 'listSets');
         
-        if(!$this->error) {
-            $collectionObject = get_db()->getTable('Collection')->findBy();
+        $collectionObject = get_db()->getTable('Collection')->findBy();
         
-            $setHeader = $this->document->createElement('ListSets');
-            $this->parentElement->appendChild($setHeader); 
+        $setHeader = $this->responseDoc->createElement('ListSets');
+        $this->responseDoc->documentElement->appendChild($setHeader); 
+        
+        if(count($collectionObject) == 0)
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_SET_HIERARCHY);
 
+        if(!$this->error) {
             foreach ($collectionObject as &$dummy) {
-                $setBullet = $this->document->createElement('set');
-                $setSpec = $this->document->createElement('setSpec', ($dummy->id));
-                $setName = $this->document->createElement('setName', ($dummy->name));
+                $setBullet = $this->responseDoc->createElement('set');
+                $setSpec = $this->responseDoc->createElement('setSpec', ($dummy->id));
+                $setName = $this->responseDoc->createElement('setName', ($dummy->name));
                 $setHeader->appendChild($setBullet);
                 $setBullet->appendChild($setSpec);
                 $setBullet->appendChild($setName);
