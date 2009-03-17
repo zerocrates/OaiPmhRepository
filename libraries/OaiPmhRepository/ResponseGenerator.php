@@ -145,7 +145,7 @@ class OaiPmhRepository_ResponseGenerator
      *
      * @param string metadataPrefix Code for the desired metadata format.
      */
-    public function listRecords($metadataPrefix)
+    public function listRecords($metadataPrefix, $set = null)
     {
         $this->request->setAttribute('verb', 'ListRecords');
         if($metadataPrefix)
@@ -156,7 +156,10 @@ class OaiPmhRepository_ResponseGenerator
         
         else {
             // will likely need to be replaced with some type of Zend_Db_Select or other more complex query
-            $items = get_db()->getTable('Item')->findBy();
+            if($set)
+                $items = get_db()->getTable('Item')->findBy(array('collection' => $set));
+            else
+                $items = get_db()->getTable('Item')->findAll();
             
             if(count($items) == 0)
                 OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_ITEMS_MATCH);
@@ -180,7 +183,7 @@ class OaiPmhRepository_ResponseGenerator
      *
      * @param string metadataPrefix Code for the desired metadata format.
      */
-    public function listIdentifiers($metadataPrefix)
+    public function listIdentifiers($metadataPrefix, $set = null)
     {
         $this->request->setAttribute('verb', 'ListIdentifiers');
         if($metadataPrefix)
@@ -192,7 +195,10 @@ class OaiPmhRepository_ResponseGenerator
         
         else {
             // will likely need to be replaced with some type of Zend_Db_Select or other more complex query
-            $items = get_db()->getTable('Item')->findBy();
+            if($set)
+                $items = get_db()->getTable('Item')->findBy(array('collection' => $set));
+            else
+                $items = get_db()->getTable('Item')->findAll();
             
             if(count($items) == 0)
                 OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_ITEMS_MATCH);

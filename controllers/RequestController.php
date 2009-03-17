@@ -49,13 +49,13 @@ class OaiPmhRepository_RequestController extends Omeka_Controller_Action
                 break;
              case 'ListRecords': 
                 $requiredArguments = array('metadataPrefix');
-                $this->checkArguments(1, $requiredArguments);
-                $this->response->listRecords($this->query['metadataPrefix']);
+                #$this->checkArguments(1, $requiredArguments);
+                $this->response->listRecords($this->query['metadataPrefix'], $this->query['set']);
                 break;
             case 'ListIdentifiers': 
                 $requiredArguments = array('metadataPrefix');
-                $this->checkArguments(1, $requiredArguments);
-                $this->response->listIdentifiers($this->query['metadataPrefix']);
+                #$this->checkArguments(1, $requiredArguments);
+                $this->response->listIdentifiers($this->query['metadataPrefix'], $this->query['set']);
                 break;
             case 'ListSets':
                 //will change in the future, but we currently don't support sets
