@@ -33,8 +33,9 @@ define('PROTOCOL_VERSION', '2.0');
 class OaiPmhRepository_ResponseGenerator
 {
     public $responseDoc;
-    private $request;
     public $error;
+    private $request;
+    private $query;
 
     /**
      * Constructor
@@ -42,12 +43,14 @@ class OaiPmhRepository_ResponseGenerator
      * Creates the DomDocument object, and adds XML elements common to all
      * OAI-PMH responses.
      */
-    public function __construct()
+    public function __construct($query)
     {
         $this->error = false;
+        $this->query = $query;
         $this->responseDoc = new DomDocument('1.0', 'UTF-8');
+        
         //formatOutput makes DOM output "pretty" XML.  Good for debugging, but
-        //adds some overhead, especially on large outputs
+        //adds some overhead, especially on large outputs.
         $this->responseDoc->formatOutput = true;
         $this->responseDoc->xmlStandalone = true;
         
@@ -63,9 +66,86 @@ class OaiPmhRepository_ResponseGenerator
         $root->appendChild($responseDate);
 
         $this->request = $this->responseDoc->createElement('request', BASE_URL);
-        $OAI_PMH_SCHEMA_URI = 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd';
+
         $root->appendChild($this->request);
+        
+        $this->dispatchRequest();
     }
+    
+    /**
+     * Parses the HTTP query and dispatches to the correct verb handler.
+     *
+     * Checks arguments for each verb type, and sets XML request tag.
+     *
+     * @uses checkArguments()
+     */
+    private function dispatchRequest()
+    {
+        $requiredArgs = array();
+        $optionalArgs = array();
+        
+        switch($this->query['verb'])
+        {
+            case 'Identify':
+                break;
+            case 'GetRecord':
+                $requiredArgs = array('identifier', 'metadataPrefix');
+                break;
+            case 'ListRecords':
+                $requiredArgs = array('metadataPrefix');
+                $optionalArgs = array('from', 'until', 'set');
+                break;
+            case 'ListIdentifiers':
+                $requiredArgs = array('metadataPrefix');
+                $optionalArgs = array('from', 'until', 'set');
+                break;                
+            case 'ListSets':
+                break;
+            case 'ListMetadataFormats':
+                $optionalArgs = array('identifier');
+                break;
+            default:
+                OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_VERB);
+        }
+        
+        $this->checkArguments($requiredArgs, $optionalArgs);
+        
+        if(!$this->error) {
+            foreach($this->query as $key => $value)
+                $this->request->setAttribute($key, $value);
+            // This Inflector use means verb-implementing functions must be
+            // the lowerCamelCased version of the verb name.
+            $functionName = Inflector::variablize($this->query['verb']);
+            $this->$functionName();
+        }
+    }
+    
+    /**
+     * Checks the argument list from the POST/GET query.
+     *
+     * Checks if the required arguments are present, and no invalid extra
+     * arguments are present.  All valid arguments must be in either the
+     * required or optional array.
+     *
+     * @param array requiredArgs Array of required argument names.
+     * @param array optionalArgs Array of optional, but valid argument names.
+     */
+    private function checkArguments($requiredArgs = array(), $optionalArgs = array())
+    {
+        $requiredArgs[] = 'verb';
+        $keys = array_keys($this->query);
+        
+        /* Lacking a convenient facility in PHP to check for duplicate arguments
+           they will be allowed, which is against the spec. */
+        
+        foreach(array_diff($requiredArgs, $keys) as $arg)
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
+                "Missing required argument $arg.");
+        foreach(array_diff($keys, $requiredArgs, $optionalArgs) as $arg)
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
+                "Unknown argument $arg.");
+    }
+    
     
     /**
      * Responds to the Identify verb.
@@ -103,16 +183,11 @@ class OaiPmhRepository_ResponseGenerator
      * Outputs the header and metadata in the specified format for the specified
      * identifier.
      *
-     * @param string identifier The oai-identifier for the desired record.
-     * @param string metadataPrefix Code for the desired metadata format.
      */
-    public function getRecord($identifier, $metadataPrefix)
+    private function getRecord()
     {
-        $this->request->setAttribute('verb', 'GetRecord');
-        if($identifier)
-            $this->request->setAttribute('identifier', $identifier);
-        if($metadataPrefix)
-            $this->request->setAttribute('metadataPrefix', $metadataPrefix);
+        $identifier = $this->query['identifier'];
+        $metadataPrefix = $this->query['metadataPrefix'];
         
         $itemId = OaiPmhRepository_OaiIdentifier::oaiIdToItem($identifier);
         
@@ -142,20 +217,18 @@ class OaiPmhRepository_ResponseGenerator
      *
      * Outputs records for all of the items in the database in the specified
      * metadata format.
-     *
-     * @param string metadataPrefix Code for the desired metadata format.
      */
-    public function listRecords($metadataPrefix, $set = null)
+    private function listRecords()
     {
-        $this->request->setAttribute('verb', 'ListRecords');
-        if($metadataPrefix)
-            $this->request->setAttribute('metadataPrefix', $metadataPrefix);
+        $metadataPrefix = $this->query['metadataPrefix'];
+        $set = $this->query['set'];
         
         if($metadataPrefix != 'oai_dc')
             OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
         
         else {
-            // will likely need to be replaced with some type of Zend_Db_Select or other more complex query
+            // will likely need to be replaced with some type of Zend_Db_Select
+            // or other more complex query
             if($set)
                 $items = get_db()->getTable('Item')->findBy(array('collection' => $set));
             else
@@ -180,21 +253,19 @@ class OaiPmhRepository_ResponseGenerator
      *
      * Outputs headers for all of the items in the database in the specified
      * metadata format.
-     *
-     * @param string metadataPrefix Code for the desired metadata format.
      */
-    public function listIdentifiers($metadataPrefix, $set = null)
+    private function listIdentifiers()
     {
-        $this->request->setAttribute('verb', 'ListIdentifiers');
-        if($metadataPrefix)
-            $this->request->setAttribute('metadataPrefix', $metadataPrefix);
+        $metadataPrefix = $this->query['metadataPrefix'];
+        $set = $this->query['set'];
         
         if($metadataPrefix != 'oai_dc') {
             OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
         }
         
         else {
-            // will likely need to be replaced with some type of Zend_Db_Select or other more complex query
+            // will likely need to be replaced with some type of Zend_Db_Select
+            // or other more complex query
             if($set)
                 $items = get_db()->getTable('Item')->findBy(array('collection' => $set));
             else
@@ -219,13 +290,10 @@ class OaiPmhRepository_ResponseGenerator
      * Outputs records for all of the items in the database in the specified
      * metadata format.
      *
-     * @param string identifier OAI identifier for the desired record, if any.
+     * @todo extend for additional metadata formats
      */
-    public function listMetadataFormats($identifier = null)
+    private function listMetadataFormats()
     {
-        $this->request->setAttribute('verb', 'ListMetadataFormats');
-        if($identifier)
-            $this->request->setAttribute('identifier', $identifier);
         if(!$this->error) {
             $listMetadataFormats = $this->responseDoc->createElement('ListMetadataFormats');
             $this->responseDoc->documentElement->appendChild($listMetadataFormats);
@@ -235,30 +303,27 @@ class OaiPmhRepository_ResponseGenerator
     }
 
     /**
-     * This function will output XML listing all the sets in the repository.
+     * Responds to the ListSets verb.
+     *
+     * Outputs setSpec and setName for all OAI-PMH sets (Omeka collections).
      */
-    public function listSets()
+    private function listSets()
     {
-        $this->request->setAttribute('verb', 'listSets');
+        $collections = get_db()->getTable('Collection')->findBy();
         
-        $collectionObject = get_db()->getTable('Collection')->findBy();
-        
-        $setHeader = $this->responseDoc->createElement('ListSets');
-        $this->responseDoc->documentElement->appendChild($setHeader); 
-        
-        if(count($collectionObject) == 0)
+        if(count($collections) == 0)
             OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_SET_HIERARCHY);
+            
+        $listSets = $this->responseDoc->createElement('ListSets');     
 
         if(!$this->error) {
-            foreach ($collectionObject as &$dummy) {
-                $setBullet = $this->responseDoc->createElement('set');
-                $setSpec = $this->responseDoc->createElement('setSpec', ($dummy->id));
-                $setName = $this->responseDoc->createElement('setName', ($dummy->name));
-                $setHeader->appendChild($setBullet);
-                $setBullet->appendChild($setSpec);
-                $setBullet->appendChild($setName);
+            $this->responseDoc->documentElement->appendChild($listSets); 
+            foreach ($collections as $collection) {
+                $elements = array( 'setSpec' => $collection->id,
+                                   'setName' => $collection->name );
+                OaiPmhRepository_XmlUtilities::createElementWithChildren(
+                    $listSets, 'set', $elements);
             }
-        unset($dummy);
         }
     }
 
