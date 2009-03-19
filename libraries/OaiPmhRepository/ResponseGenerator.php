@@ -40,7 +40,10 @@ class OaiPmhRepository_ResponseGenerator
      * Constructor
      *
      * Creates the DomDocument object, and adds XML elements common to all
-     * OAI-PMH responses.
+     * OAI-PMH responses.  Dispatches control to appropriate verb, if any.
+     *
+     * @param array $query HTTP POST/GET query key-value pair array.
+     * @uses dispatchRequest()
      */
     public function __construct($query)
     {

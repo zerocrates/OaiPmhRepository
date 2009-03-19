@@ -14,7 +14,6 @@
  * @package OaiPmhRepository
  * @subpackage Controllers
  * @uses OaiPmhRepository_ResponseGenerator
- * @uses OaiPmhRepository_Error
  */
 class OaiPmhRepository_RequestController extends Omeka_Controller_Action
 {    
