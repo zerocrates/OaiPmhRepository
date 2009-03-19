@@ -28,7 +28,6 @@ define('PROTOCOL_VERSION', '2.0');
  * all the XML output on-the-fly.
  *
  * @package OaiPmhRepository
- * @todo Refactor out code for setting arguments in request element
  */
 class OaiPmhRepository_ResponseGenerator
 {

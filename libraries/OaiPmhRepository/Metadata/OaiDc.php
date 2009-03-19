@@ -1,7 +1,7 @@
 <?php
 /**
  * @package OaiPmhRepository
- * @subpackage Metadata Formats
+ * @subpackage MetadataFormats
  * @author John Flatness, Yu-Hsun Lin
  */
 

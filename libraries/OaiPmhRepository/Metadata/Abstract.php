@@ -1,7 +1,7 @@
 <?php
 /**
  * @package OaiPmhRepository
- * @subpackage Metadata Formats
+ * @subpackage MetadataFormats
  * @author John Flatness, Yu-Hsun Lin
  */
 
@@ -66,6 +66,9 @@ abstract class OaiPmhRepository_Metadata_Abstract
         $this->parentElement = $record;
         $this->appendHeader();
         $this->appendMetadata();
+        
+        // Drop Item from memory explicitly
+        release_object($this->item);
     }
     
     /**
