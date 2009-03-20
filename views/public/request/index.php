@@ -8,6 +8,8 @@
  * @package OaiPmhRepository
  * @subpackage Views
  * @author John Flatness, Yu-Hsun Lin
+ * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 header('Content-Type: text/xml');
 

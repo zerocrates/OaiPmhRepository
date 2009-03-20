@@ -3,8 +3,11 @@
  * Main plugin script
  *
  * Main script for the plugin, sets up hooks and filters to the Omeka API.
+ *
  * @package OaiPmhRepository
  * @author John Flatness, Yu-Hsun Lin
+ * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
  
 define('OAIPMH_REPOSITORY_PLUGIN_VERSION', '0.0.1');

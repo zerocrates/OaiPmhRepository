@@ -3,8 +3,11 @@
  * Config form include
  *
  * Included in the configuration page for the plugin to change settings.
+ *
  * @package OaiPmhRepository
  * @author John Flatness, Yu-Hsun Lin
+ * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 ?>
 <div class="field">

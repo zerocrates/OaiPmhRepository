@@ -2,6 +2,8 @@
 /**
  * @package OaiPmhRepository
  * @author John Flatness, Yu-Hsun Lin
+ * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
 define('OAI_IDENTIFIER_NAMESPACE_URI', 'http://www.openarchives.org/OAI/2.0/oai-identifier');

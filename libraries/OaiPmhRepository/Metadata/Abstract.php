@@ -3,6 +3,8 @@
  * @package OaiPmhRepository
  * @subpackage MetadataFormats
  * @author John Flatness, Yu-Hsun Lin
+ * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
 require_once('OaiPmhRepository/XmlUtilities.php');
@@ -66,9 +68,6 @@ abstract class OaiPmhRepository_Metadata_Abstract
         $this->parentElement = $record;
         $this->appendHeader();
         $this->appendMetadata();
-        
-        // Drop Item from memory explicitly
-        release_object($this->item);
     }
     
     /**

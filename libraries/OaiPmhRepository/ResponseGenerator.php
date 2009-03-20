@@ -2,6 +2,8 @@
 /**
  * @package OaiPmhRepository
  * @author John Flatness, Yu-Hsun Lin
+ * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
+ * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
 require_once('Error.php');
@@ -115,8 +117,8 @@ class OaiPmhRepository_ResponseGenerator
         if(!$this->error) {
             foreach($this->query as $key => $value)
                 $this->request->setAttribute($key, $value);
-            // This Inflector use means verb-implementing functions must be
-            // the lowerCamelCased version of the verb name.
+            /* This Inflector use means verb-implementing functions must be
+               the lowerCamelCased version of the verb name. */
             $functionName = Inflector::variablize($this->query['verb']);
             $this->$functionName();
         }
@@ -159,9 +161,9 @@ class OaiPmhRepository_ResponseGenerator
         if($this->error)
             return;
         $this->request->setAttribute('verb', 'Identify');
+        
         /* according to the schema, this order of elements is required for the
-         * response to validate
-         */
+           response to validate */
         $elements = array( 
             'repositoryName'    => get_option('oaipmh_repository_name'),
             'baseURL'           => BASE_URL,
@@ -229,23 +231,29 @@ class OaiPmhRepository_ResponseGenerator
             OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
         
         else {
-            // will likely need to be replaced with some type of Zend_Db_Select
-            // or other more complex query
+            $itemTable = get_db()->getTable('Item');
+            $select = $itemTable->getSelect();
+            $itemTable->filterByPublic($select, true);
             if($set)
-                $items = get_db()->getTable('Item')->findBy(array('collection' => $set));
-            else
-                $items = get_db()->getTable('Item')->findAll();
+                $itemTable->filterByCollection($select, $set);
+            
+            // This limit call will form the basis of the flow control
+            //$select->limit(10);
+            
+            $items = $itemTable->fetchObjects($select);  
             
             if(count($items) == 0)
                 OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_ITEMS_MATCH);
-        }
-        
-        if(!$this->error) {
-            $listRecords = $this->responseDoc->createElement('ListRecords');
-            $this->responseDoc->documentElement->appendChild($listRecords);
-            foreach($items as $item) {
-                $record = new OaiPmhRepository_Metadata_OaiDc($item, $listRecords);
-                $record->appendRecord();
+
+            else {
+                $listRecords = $this->responseDoc->createElement('ListRecords');
+                $this->responseDoc->documentElement->appendChild($listRecords);
+                foreach($items as $item) {
+                    $record = new OaiPmhRepository_Metadata_OaiDc($item, $listRecords);
+                    $record->appendRecord();
+                    // Drop Item from memory explicitly
+                    release_object($this->item);
+                }
             }
         }
     }
@@ -261,31 +269,37 @@ class OaiPmhRepository_ResponseGenerator
         $metadataPrefix = $this->query['metadataPrefix'];
         $set = $this->query['set'];
         
-        if($metadataPrefix != 'oai_dc') {
+        if($metadataPrefix != 'oai_dc')
             OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
-        }
         
         else {
-            // will likely need to be replaced with some type of Zend_Db_Select
-            // or other more complex query
+            $itemTable = get_db()->getTable('Item');
+            $select = $itemTable->getSelect();
+            $itemTable->filterByPublic($select, true);
             if($set)
-                $items = get_db()->getTable('Item')->findBy(array('collection' => $set));
-            else
-                $items = get_db()->getTable('Item')->findAll();
+                $itemTable->filterByCollection($select, $set);
+            
+            // This limit call will form the basis of the flow control
+            //$select->limit(10);
+            
+            $items = $itemTable->fetchObjects($select);  
             
             if(count($items) == 0)
                 OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_ITEMS_MATCH);
-        }
-        
-        if(!$this->error) {
-            $listIdentifiers = $this->responseDoc->createElement('ListIdentifiers');
-            $this->responseDoc->documentElement->appendChild($listIdentifiers);
-            foreach($items as $item) {
-                $record = new OaiPmhRepository_Metadata_OaiDc($item, $listIdentifiers);
-                $record->appendHeader();
+
+            else {
+                $listIdentifiers = $this->responseDoc->createElement('ListIdentifiers');
+                $this->responseDoc->documentElement->appendChild($listIdentifiers);
+                foreach($items as $item) {
+                    $record = new OaiPmhRepository_Metadata_OaiDc($item, $listIdentifiers);
+                    $record->appendHeader();
+                    // Drop Item from memory explicitly
+                    release_object($this->item);
+                }
             }
         }
     }
+    
     /**
      * Responds to the ListMetadataFormats verb.
      *
@@ -308,10 +322,12 @@ class OaiPmhRepository_ResponseGenerator
      * Responds to the ListSets verb.
      *
      * Outputs setSpec and setName for all OAI-PMH sets (Omeka collections).
+     *
+     * @todo replace with Zend_Db_Select to allow use of limit or pageLimit
      */
     private function listSets()
     {
-        $collections = get_db()->getTable('Collection')->findBy();
+        $collections = get_db()->getTable('Collection')->findAll();
         
         if(count($collections) == 0)
             OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_SET_HIERARCHY);
@@ -332,8 +348,8 @@ class OaiPmhRepository_ResponseGenerator
     /**
      * Outputs the XML response as a string
      *
-     * Called once processing is complete to obtain the XML to return to the client.
-     
+     * Called once processing is complete to return the XML to the client.
+     *
      * @return string the response XML
      */
     public function __toString()
