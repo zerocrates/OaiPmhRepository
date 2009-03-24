@@ -19,7 +19,7 @@ define('OAI_PMH_NAMESPACE_URI', 'http://www.openarchives.org/OAI/2.0/');
 define('OAI_PMH_SCHEMA_URI', 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd');
 
 // Calculated base URL for the repository.
-define('BASE_URL', 'http://'.$_SERVER['SERVER_NAME'].parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+define('BASE_URL', WEB_ROOT.'/oai-pmh-repository/request');
 
 // Version of OAI-PMH protocol the repository plugin complies with.
 define('PROTOCOL_VERSION', '2.0');
@@ -148,6 +148,19 @@ class OaiPmhRepository_ResponseGenerator
         foreach(array_diff($keys, $requiredArgs, $optionalArgs) as $arg)
             OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
                 "Unknown argument $arg.");
+        
+        $fromGran = OaiPmhRepository_UtcDateTime::getGranularity($this->query['from']);
+        $untilGran = OaiPmhRepository_UtcDateTime::getGranularity($this->query['until']);
+        
+        if(isset($this->query['from']) && !$fromGran)
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
+                "Invalid date/time argument.");
+        if(isset($this->query['until']) && !$untilGran)
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
+                "Invalid date/time argument.");
+        if(isset($this->query['from']) && isset($this->query['until']) && $fromGran != $untilGran)
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
+                "Date/time arguments of differing granularity.");
     }
     
     
@@ -226,6 +239,8 @@ class OaiPmhRepository_ResponseGenerator
     {
         $metadataPrefix = $this->query['metadataPrefix'];
         $set = $this->query['set'];
+        $from = $this->query['from'];
+        $until = $this->query['until'];
         
         if($metadataPrefix != 'oai_dc')
             OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
@@ -236,14 +251,22 @@ class OaiPmhRepository_ResponseGenerator
             $itemTable->filterByPublic($select, true);
             if($set)
                 $itemTable->filterByCollection($select, $set);
-            
+            if($from) {
+                $fromDate = OaiPmhRepository_UtcDateTime::utcToDbTime($from);
+                $select->where('modified >= CAST(? AS DATETIME) OR added >= CAST(? AS DATETIME)', $fromDate);
+            }
+            if($until) {
+                $untilDate = OaiPmhRepository_UtcDateTime::utcToDbTime($until);
+                $select->where('modified <= CAST(? AS DATETIME) OR added <= CAST(? AS DATETIME)', $untilDate);
+            }
             // This limit call will form the basis of the flow control
             //$select->limit(10);
             
             $items = $itemTable->fetchObjects($select);  
             
             if(count($items) == 0)
-                OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_ITEMS_MATCH);
+                OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_RECORDS_MATCH,
+                    'No records match the given criteria');
 
             else {
                 $listRecords = $this->responseDoc->createElement('ListRecords');
@@ -268,6 +291,8 @@ class OaiPmhRepository_ResponseGenerator
     {
         $metadataPrefix = $this->query['metadataPrefix'];
         $set = $this->query['set'];
+        $from = $this->query['from'];
+        $until = $this->query['until'];
         
         if($metadataPrefix != 'oai_dc')
             OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
@@ -278,14 +303,22 @@ class OaiPmhRepository_ResponseGenerator
             $itemTable->filterByPublic($select, true);
             if($set)
                 $itemTable->filterByCollection($select, $set);
-            
+            if($from) {
+                $fromDate = OaiPmhRepository_UtcDateTime::utcToDbTime($from);
+                $select->where('modified >= CAST(? AS DATETIME) OR added >= CAST(? AS DATETIME)', $fromDate);
+            }
+            if($until) {
+                $untilDate = OaiPmhRepository_UtcDateTime::utcToDbTime($until);
+                $select->where('modified <= CAST(? AS DATETIME) OR added <= CAST(? AS DATETIME)', $untilDate);
+            }
             // This limit call will form the basis of the flow control
             //$select->limit(10);
             
             $items = $itemTable->fetchObjects($select);  
             
             if(count($items) == 0)
-                OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_ITEMS_MATCH);
+                OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_RECORDS_MATCH,
+                    'No records match the given criteria');
 
             else {
                 $listIdentifiers = $this->responseDoc->createElement('ListIdentifiers');

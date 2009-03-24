@@ -18,7 +18,14 @@ class OaiPmhRepository_UtcDateTime
      * PHP date() format string to produce the required date format.
      * Must be used with gmdate() to conform to spec.
      */
-    const DATE_FORMAT = 'Y-m-d\TH:i:s\Z';
+    const OAI_DATE_FORMAT = 'Y-m-d\TH:i:s\Z';
+    const DB_DATE_FORMAT = 'Y-m-d H:i:s';
+    
+    const OAI_DATE_PCRE = "/^\\d{4}\\-\\d{2}\\-\\d{2}$/";
+    const OAI_DATETIME_PCRE = "/^\\d{4}\\-\\d{2}\\-\\d{2}T\\d{2}\\:\\d{2}\\:\\d{2}Z$/";
+    
+    const OAI_GRANULARITY_DATE = 1;
+    const OAI_GRANULARITY_DATETIME = 2;
     
     /**
      * Returns the current time in OAI-PMH's specified ISO 8601 format.
@@ -27,7 +34,7 @@ class OaiPmhRepository_UtcDateTime
      */
     static function currentTime()
     {
-        return gmdate(self::DATE_FORMAT);
+        return gmdate(self::OAI_DATE_FORMAT);
     }
     
     /**
@@ -38,7 +45,7 @@ class OaiPmhRepository_UtcDateTime
      */
     static function convertToUtcDateTime($timestamp)
     {
-        return gmdate(self::DATE_FORMAT, $timestamp);
+        return gmdate(self::OAI_DATE_FORMAT, $timestamp);
     }
 
     /**
@@ -47,11 +54,26 @@ class OaiPmhRepository_UtcDateTime
      *
      * @param string $databaseTime Database time string
      * @return string Time in ISO 8601 format
-     * @uses convertToUtcDateTime
+     * @uses convertToUtcDateTime()
      */
     static function dbTimeToUtc($databaseTime)
     {
         return self::convertToUtcDateTime(strtotime($databaseTime));
+    }
+    
+    static function utcToDbTime($utcDateTime)
+    {
+       return date(self::DB_DATE_FORMAT, strtotime($utcDateTime));
+    }
+    
+    static function getGranularity($dateTime)
+    {
+        if(preg_match(self::OAI_DATE_PCRE, $dateTime)
+            return OAI_GRANULARITY_DATE;
+        else if(preg_match(self::OAI_DATETIME_PCRE, $dateTime)
+            return OAI_GRANULARITY_DATETIME;
+        else 
+            return false;
     }
 }
 ?>
