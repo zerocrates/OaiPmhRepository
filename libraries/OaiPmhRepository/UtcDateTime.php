@@ -68,9 +68,9 @@ class OaiPmhRepository_UtcDateTime
     
     static function getGranularity($dateTime)
     {
-        if(preg_match(self::OAI_DATE_PCRE, $dateTime)
+        if(preg_match(self::OAI_DATE_PCRE, $dateTime))
             return OAI_GRANULARITY_DATE;
-        else if(preg_match(self::OAI_DATETIME_PCRE, $dateTime)
+        else if(preg_match(self::OAI_DATETIME_PCRE, $dateTime))
             return OAI_GRANULARITY_DATETIME;
         else 
             return false;

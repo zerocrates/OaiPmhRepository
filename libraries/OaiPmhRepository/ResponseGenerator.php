@@ -137,10 +137,15 @@ class OaiPmhRepository_ResponseGenerator
     private function checkArguments($requiredArgs = array(), $optionalArgs = array())
     {
         $requiredArgs[] = 'verb';
-        $keys = array_keys($this->query);
         
-        /* Lacking a convenient facility in PHP to check for duplicate arguments
-           they will be allowed, which is against the spec. */
+        /* Checks (essentially), if there are more arguments in the query string
+           than in PHP's returned array, if so there were duplicate arguments,
+           which is not allowed. */
+        if($_SERVER['QUERY_STRING'] != urldecode(http_build_query($this->query)))
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
+                "Duplicate arguments in request.");
+        
+        $keys = array_keys($this->query);
         
         foreach(array_diff($requiredArgs, $keys) as $arg)
             OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
@@ -152,6 +157,10 @@ class OaiPmhRepository_ResponseGenerator
         $fromGran = OaiPmhRepository_UtcDateTime::getGranularity($this->query['from']);
         $untilGran = OaiPmhRepository_UtcDateTime::getGranularity($this->query['until']);
         
+        
+        /* These tests, while they do catch the date errors they are written for,
+           vastly overtest the same things several times. Not a big issue, but
+           could easily be improved */ 
         if(isset($this->query['from']) && !$fromGran)
             OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
                 "Invalid date/time argument.");
