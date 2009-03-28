@@ -66,7 +66,7 @@ class OaiPmhRepository_ResponseGenerator
             OAI_PMH_NAMESPACE_URI.' '.OAI_PMH_SCHEMA_URI);
     
         $responseDate = $this->responseDoc->createElement('responseDate', 
-            OaiPmhRepository_UtcDateTime::currentTime());
+            OaiPmhRepository_UtcDateTime::unixToUtc(time()));
         $root->appendChild($responseDate);
 
         $this->request = $this->responseDoc->createElement('request', BASE_URL);
@@ -88,39 +88,50 @@ class OaiPmhRepository_ResponseGenerator
         $requiredArgs = array();
         $optionalArgs = array();
         
-        switch($this->query['verb'])
-        {
-            case 'Identify':
-                break;
-            case 'GetRecord':
-                $requiredArgs = array('identifier', 'metadataPrefix');
-                break;
-            case 'ListRecords':
-                $requiredArgs = array('metadataPrefix');
-                $optionalArgs = array('from', 'until', 'set');
-                break;
-            case 'ListIdentifiers':
-                $requiredArgs = array('metadataPrefix');
-                $optionalArgs = array('from', 'until', 'set');
-                break;                
-            case 'ListSets':
-                break;
-            case 'ListMetadataFormats':
-                $optionalArgs = array('identifier');
-                break;
-            default:
-                OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_VERB);
-        }
+        $verb = $this->query['verb'];
+        $resumptionToken = $this->query['resumptionToken'];
+        
+        if($resumptionToken)
+            $requiredArgs = array('resumptionToken');
+        else
+            switch($verb)
+            {
+                case 'Identify':
+                    break;
+                case 'GetRecord':
+                    $requiredArgs = array('identifier', 'metadataPrefix');
+                    break;
+                case 'ListRecords':
+                    $requiredArgs = array('metadataPrefix');
+                    $optionalArgs = array('from', 'until', 'set');
+                    break;
+                case 'ListIdentifiers':
+                    $requiredArgs = array('metadataPrefix');
+                    $optionalArgs = array('from', 'until', 'set');
+                    break;                
+                case 'ListSets':
+                    break;
+                case 'ListMetadataFormats':
+                    $optionalArgs = array('identifier');
+                    break;
+                default:
+                    OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_VERB);
+            }
         
         $this->checkArguments($requiredArgs, $optionalArgs);
         
         if(!$this->error) {
             foreach($this->query as $key => $value)
                 $this->request->setAttribute($key, $value);
-            /* This Inflector use means verb-implementing functions must be
-               the lowerCamelCased version of the verb name. */
-            $functionName = Inflector::variablize($this->query['verb']);
-            $this->$functionName();
+                
+            if($resumptionToken)
+                $this->resumeListRequest($resumptionToken);
+            else {
+                /* This Inflector use means verb-implementing functions must be
+                   the lowerCamelCased version of the verb name. */
+                $functionName = Inflector::variablize($this->query['verb']);
+                $this->$functionName();
+            }
         }
     }
     
@@ -191,7 +202,7 @@ class OaiPmhRepository_ResponseGenerator
             'baseURL'           => BASE_URL,
             'protocolVersion'   => PROTOCOL_VERSION,
             'adminEmail'        => get_option('administrator_email'),
-            'earliestDatestamp' => OaiPmhRepository_UtcDateTime::convertToUtcDateTime(0),
+            'earliestDatestamp' => OaiPmhRepository_UtcDateTime::unixToUtc(0),
             'deletedRecord'     => 'no',
             'granularity'       => 'YYYY-MM-DDThh:mm:ssZ');
         $identify = OaiPmhRepository_XmlUtilities::createElementWithChildren(
@@ -243,6 +254,8 @@ class OaiPmhRepository_ResponseGenerator
      *
      * Outputs records for all of the items in the database in the specified
      * metadata format.
+     *
+     * @uses listResponse()
      */
     private function listRecords()
     {
@@ -251,43 +264,12 @@ class OaiPmhRepository_ResponseGenerator
         $from = $this->query['from'];
         $until = $this->query['until'];
         
-        if($metadataPrefix != 'oai_dc')
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
+        if($from)
+            $fromDate = OaiPmhRepository_UtcDateTime::utcToDb($from);
+        if($until)
+            $untilDate = OaiPmhRepository_UtcDateTime::utcToDb($until);
         
-        else {
-            $itemTable = get_db()->getTable('Item');
-            $select = $itemTable->getSelect();
-            $itemTable->filterByPublic($select, true);
-            if($set)
-                $itemTable->filterByCollection($select, $set);
-            if($from) {
-                $fromDate = OaiPmhRepository_UtcDateTime::utcToDbTime($from);
-                $select->where('modified >= CAST(? AS DATETIME) OR added >= CAST(? AS DATETIME)', $fromDate);
-            }
-            if($until) {
-                $untilDate = OaiPmhRepository_UtcDateTime::utcToDbTime($until);
-                $select->where('modified <= CAST(? AS DATETIME) OR added <= CAST(? AS DATETIME)', $untilDate);
-            }
-            // This limit call will form the basis of the flow control
-            //$select->limit(10);
-            
-            $items = $itemTable->fetchObjects($select);  
-            
-            if(count($items) == 0)
-                OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_RECORDS_MATCH,
-                    'No records match the given criteria');
-
-            else {
-                $listRecords = $this->responseDoc->createElement('ListRecords');
-                $this->responseDoc->documentElement->appendChild($listRecords);
-                foreach($items as $item) {
-                    $record = new OaiPmhRepository_Metadata_OaiDc($item, $listRecords);
-                    $record->appendRecord();
-                    // Drop Item from memory explicitly
-                    release_object($this->item);
-                }
-            }
-        }
+        $this->listResponse('ListRecords', $metadataPrefix, 0, $set, $from, $until);
     }
     
     /**
@@ -295,6 +277,8 @@ class OaiPmhRepository_ResponseGenerator
      *
      * Outputs headers for all of the items in the database in the specified
      * metadata format.
+     *
+     * @uses listResponse()
      */
     private function listIdentifiers()
     {
@@ -303,6 +287,28 @@ class OaiPmhRepository_ResponseGenerator
         $from = $this->query['from'];
         $until = $this->query['until'];
         
+        if($from)
+            $fromDate = OaiPmhRepository_UtcDateTime::utcToDb($from);
+        if($until)
+            $untilDate = OaiPmhRepository_UtcDateTime::utcToDb($until);
+        
+        $this->listResponse('ListIdentifiers', $metadataPrefix, 0, $set, $fromDate, $untilDate);
+    }
+    
+    /**
+     * Responds to the two main List verbs, includes resumption and limiting.
+     *
+     * @param string $verb OAI-PMH verb for the request
+     * @param string $metadataPrefix Metadata prefix
+     * @param int $cursor Offset in response to begin output at
+     * @param mixed $set Optional set argument
+     * @param string $from Optional from date argument
+     * @param string $until Optional until date argument
+     * @uses createResumptionToken()
+     */
+    private function listResponse($verb, $metadataPrefix, $cursor, $set, $from, $until) {
+        $listLimit = get_option('oaipmh_repository_list_limit');
+        
         if($metadataPrefix != 'oai_dc')
             OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
         
@@ -313,15 +319,16 @@ class OaiPmhRepository_ResponseGenerator
             if($set)
                 $itemTable->filterByCollection($select, $set);
             if($from) {
-                $fromDate = OaiPmhRepository_UtcDateTime::utcToDbTime($from);
-                $select->where('modified >= CAST(? AS DATETIME) OR added >= CAST(? AS DATETIME)', $fromDate);
-            }
+                $select->where('modified >= CAST(? AS DATETIME) OR added >= CAST(? AS DATETIME)', $from);
+                }
             if($until) {
-                $untilDate = OaiPmhRepository_UtcDateTime::utcToDbTime($until);
-                $select->where('modified <= CAST(? AS DATETIME) OR added <= CAST(? AS DATETIME)', $untilDate);
-            }
+                $select->where('modified <= CAST(? AS DATETIME) OR added <= CAST(? AS DATETIME)', $until);
+                }
+            
+            // Total number of rows that would be returned
+            $rows = $select->query()->rowCount();
             // This limit call will form the basis of the flow control
-            //$select->limit(10);
+            $select->limit($listLimit, $cursor);
             
             $items = $itemTable->fetchObjects($select);  
             
@@ -330,13 +337,31 @@ class OaiPmhRepository_ResponseGenerator
                     'No records match the given criteria');
 
             else {
-                $listIdentifiers = $this->responseDoc->createElement('ListIdentifiers');
-                $this->responseDoc->documentElement->appendChild($listIdentifiers);
+                if($verb == 'ListIdentifiers')
+                    $method = 'appendHeader';
+                else if($verb == 'ListRecords')
+                    $method = 'appendRecord';
+                
+                $verbElement = $this->responseDoc->createElement($verb);
+                $this->responseDoc->documentElement->appendChild($verbElement);
                 foreach($items as $item) {
-                    $record = new OaiPmhRepository_Metadata_OaiDc($item, $listIdentifiers);
-                    $record->appendHeader();
+                    $record = new OaiPmhRepository_Metadata_OaiDc($item, $verbElement);
+                    $record->$method();
                     // Drop Item from memory explicitly
                     release_object($this->item);
+                }
+                if($rows > ($cursor + $listLimit)) {
+                    $token = $this->createResumptionToken($verb, $metadataPrefix, $cursor + $listLimit, $from, $until, $set);
+
+                    $tokenElement = $this->responseDoc->createElement('resumptionToken', $token->id);
+                    $tokenElement->setAttribute('expirationDate', OaiPmhRepository_UtcDateTime::dbToUtc($token->expiration));
+                    $tokenElement->setAttribute('completeListSize', $rows);
+                    $tokenElement->setAttribute('cursor', $cursor);
+                    $verbElement->appendChild($tokenElement);
+                }
+                else if($cursor != 0) {
+                    $tokenElement = $this->responseDoc->createElement('resumptionToken');
+                    $verbElement->appendChild($tokenElement);
                 }
             }
         }
@@ -352,6 +377,16 @@ class OaiPmhRepository_ResponseGenerator
      */
     private function listMetadataFormats()
     {
+        $identifier = $this->query['identifier'];
+        /* Items are not used for lookup, simply checks for an invalid id */
+        if($identifier) {
+            $itemId = OaiPmhRepository_OaiIdentifier::oaiIdToItem($identifier);
+        
+            if(!$itemId) {
+                OaiPmhRepository_Error::throwError($this, OAI_ERR_ID_DOES_NOT_EXIST);
+                return;
+            }
+        }
         if(!$this->error) {
             $listMetadataFormats = $this->responseDoc->createElement('ListMetadataFormats');
             $this->responseDoc->documentElement->appendChild($listMetadataFormats);
@@ -386,7 +421,58 @@ class OaiPmhRepository_ResponseGenerator
             }
         }
     }
-
+    
+    /**
+     * Stores a new resumption token record in the database
+     *
+     * @param string $verb OAI-PMH verb for the request
+     * @param string $metadataPrefix Metadata prefix
+     * @param int $cursor Offset in response to begin output at
+     * @param mixed $set Optional set argument
+     * @param string $from Optional from date argument
+     * @param string $until Optional until date argument
+     * @return OaiPmhRepositoryToken Token model object
+     */
+    private function createResumptionToken($verb, $metadataPrefix, $cursor, $set, $from, $until)
+    {
+        $resumptionToken = new OaiPmhRepositoryToken();
+        $resumptionToken->verb = $verb;
+        $resumptionToken->metadata_prefix = $metadataPrefix;
+        $resumptionToken->cursor = $cursor;
+        if($set)
+            $resumptionToken->set = $set;
+        if($from)
+            $resumptionToken->from = $from;
+        if($until)
+            $resumptionToken->until = $until;
+        $resumptionToken->expiration = OaiPmhRepository_UtcDateTime::unixToDb(time() + (get_option('oaipmh_repository_expiration_time')*60));
+        $resumptionToken->save();
+        
+        return $resumptionToken;
+    }
+    
+    /**
+     * Returns the next incomplete list response based on the given resumption
+     * token.
+     *
+     * @param string $token Resumption token
+     * @uses listResponse()
+     */
+    private function resumeListRequest($token)
+    {
+        $tokenObject = get_db()->getTable('OaiPmhRepositoryToken')->find($token);
+        
+        if(!$tokenObject || ($tokenObject->verb != $this->query['verb']))
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_RESUMPTION_TOKEN);
+        else
+            $this->listResponse($tokenObject->verb,
+                                $tokenObject->metadata_prefix,
+                                $tokenObject->cursor,
+                                $tokenObject->set,
+                                $tokenObject->from,
+                                $tokenObject->until);
+    }
+    
     /**
      * Outputs the XML response as a string
      *

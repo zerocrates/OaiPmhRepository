@@ -25,3 +25,17 @@
     to be a domain name you have registered.  Using other values will generate
     invalid identifiers.</p>
 </div>
+<div class="field">
+    <label for="oaipmh_repository_list_limit">List limit</label>
+    <?php echo __v()->formText('oaipmh_repository_list_limit', $listLimit, null);?>
+    <p class="explanation">Number of individual items that can be returned in a
+    response at once.  Larger values will increase memory usage but reduce the
+    number of database queries and HTTP requests.  Smaller values will reduce
+    memory usage but increase the number of DB queries and requests.</p>
+</div>
+<div class="field">
+    <label for="oaipmh_repository_expiration_time">Expiration time</label>
+    <?php echo __v()->formText('oaipmh_repository_expiration_time', $expirationTime, null);?>
+    <p class="explanation">Amount of time in minutes a resumptionToken is valid for.
+    The specification suggests a number in the tens of minutes.</p>
+</div>

@@ -28,6 +28,34 @@ function oaipmh_repository_install()
     set_option('oaipmh_repository_plugin_version', OAIPMH_REPOSITORY_PLUGIN_VERSION);
     set_option('oaipmh_repository_name', get_option('site_title'));
     set_option('oaipmh_repository_namespace_id', 'default.must.change');
+    set_option('oaipmh_repository_list_limit', 50);
+    set_option('oaipmh_repository_expiration_time', 10);
+    
+    $db = get_db();
+    
+    /* Table: Stores currently active resumptionTokens
+       
+       id: primary key (also the value of the token)
+       verb: Verb of original request
+       metadata_prefix: metadataPrefix of original request
+       from: Optional from argument of original request
+       until: Optional until argument of original request
+       set: Optional set argument of original request
+       expiration: Datestamp after which token is expired
+    */
+    $sql = "
+    CREATE TABLE IF NOT EXISTS `{$db->prefix}oai_pmh_repository_tokens` (
+        `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+        `verb` ENUM('ListIdentifiers', 'ListRecords', 'ListSets') COLLATE utf8_unicode_ci NOT NULL,
+        `metadata_prefix` TEXT COLLATE utf8_unicode_ci NOT NULL,
+        `cursor` INT(10) UNSIGNED NOT NULL,
+        `from` DATETIME DEFAULT NULL,
+        `until` DATETIME DEFAULT NULL,
+        `set` INT(10) UNSIGNED DEFAULT NULL,
+        `expiration` DATETIME NOT NULL,
+        PRIMARY KEY  (`id`)
+    ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
+    $db->query($sql);
 }
 
 /**
@@ -37,6 +65,8 @@ function oaipmh_repository_config_form()
 {
     $repoName = get_option('oaipmh_repository_name');
     $namespaceID = get_option('oaipmh_repository_namespace_id');
+    $listLimit = get_option('oaipmh_repository_list_limit');
+    $expirationTime = get_option('oaipmh_repository_expiration_time');
     include('config_form.php');
 }
 
@@ -47,6 +77,8 @@ function oaipmh_repository_config()
 {
     set_option('oaipmh_repository_name', $_POST['oaipmh_repository_name']);
     set_option('oaipmh_repository_namespace_id', $_POST['oaipmh_repository_namespace_id']);
+    set_option('oaipmh_repository_list_limit', $_POST['oaipmh_repository_list_limit']);
+    set_option('oaipmh_repository_expiration_time', $_POST['oaipmh_repository_expiration_time']);
 }
 
 /**
@@ -57,6 +89,12 @@ function oaipmh_repository_uninstall()
     delete_option('oaipmh_repository_plugin_version');
     delete_option('oaipmh_repository_name');
     delete_option('oaipmh_repository_namespace_id');
+    delete_option('oaipmh_repository_record_limit');
+    delete_option('oaipmh_repository_expiration_time');
+    
+    $db = get_db();
+    $sql = "DROP TABLE IF EXISTS `{$db->prefix}oai_pmh_repository_tokens`;";
+    $db->query($sql);
 }
 
 /**

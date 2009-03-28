@@ -95,7 +95,7 @@ abstract class OaiPmhRepository_Metadata_Abstract
         
         // still yet to figure how to extract the added/modified times from DB
         $datestamp = $this->document->createElement('datestamp', 
-            OaiPmhRepository_UtcDateTime::dbTimeToUtc($this->item->modified));
+            OaiPmhRepository_UtcDateTime::dbToUtc($this->item->modified));
         $header->appendChild($datestamp);
 
         // can one item be in multiple sets?
