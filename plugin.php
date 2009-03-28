@@ -10,7 +10,7 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
  
-define('OAIPMH_REPOSITORY_PLUGIN_VERSION', '0.0.1');
+define('OAIPMH_REPOSITORY_PLUGIN_VERSION', '1.0.0');
 
 require_once('OaiPmhRepository/ResponseGenerator.php');
 
