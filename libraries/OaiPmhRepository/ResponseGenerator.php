@@ -127,7 +127,7 @@ class OaiPmhRepository_ResponseGenerator
                 $this->resumeListResponse($resumptionToken);
             /* ListRecords and ListIdentifiers use a common code base and share
                all possible arguments, and are handled by one function. */
-            else if($verb == 'ListRecords' || $verb = 'ListIdentifiers')
+            else if($verb == 'ListRecords' || $verb == 'ListIdentifiers')
                 $this->initListResponse();
             else {
                 /* This Inflector use means verb-implementing functions must be
@@ -327,7 +327,7 @@ class OaiPmhRepository_ResponseGenerator
         $this->listResponse($this->query['verb'], 
                             $this->query['metadataPrefix'],
                             0,
-                            $this->query['set']
+                            $this->query['set'],
                             $fromDate,
                             $untilDate);
     }
