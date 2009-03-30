@@ -67,7 +67,7 @@ class OaiPmhRepository_ResponseGenerator
             OaiPmhRepository_UtcDateTime::unixToUtc(time()));
         $root->appendChild($responseDate);
 
-        $this->request = $this->responseDoc->createElement('request', BASE_URL);
+        $this->request = $this->responseDoc->createElement('request', OAI_PMH_BASE_URL);
 
         $root->appendChild($this->request);
         
