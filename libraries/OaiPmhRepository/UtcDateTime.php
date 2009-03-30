@@ -24,6 +24,7 @@ class OaiPmhRepository_UtcDateTime
     const OAI_DATE_PCRE = "/^\\d{4}\\-\\d{2}\\-\\d{2}$/";
     const OAI_DATETIME_PCRE = "/^\\d{4}\\-\\d{2}\\-\\d{2}T\\d{2}\\:\\d{2}\\:\\d{2}Z$/";
     
+    const OAI_GRANULARITY_STRING = 'YYYY-MM-DDThh:mm:ssZ';
     const OAI_GRANULARITY_DATE = 1;
     const OAI_GRANULARITY_DATETIME = 2;
     

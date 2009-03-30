@@ -11,8 +11,6 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-define('OAI_PMH_URI', WEB_ROOT.'/oai-pmh-repository/request');
-
 $head = array('body_class' => 'oaipmh-repository primary',
               'title'      => 'OAI-PMH Repository');
 head($head);
@@ -30,7 +28,7 @@ head($head);
    </p>
    <p>   
       The respository is located at 
-      <a href="<?php echo OAI_PMH_URI ?>"><?php echo OAI_PMH_URI ?></a>.
+      <a href="<?php echo OAI_PMH_BASE_URL ?>"><?php echo OAI_PMH_BASE_URL ?></a>.
    </p>
 </div>
 

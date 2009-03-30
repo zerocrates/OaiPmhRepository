@@ -9,8 +9,12 @@
  * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
- 
+
+/** Plugin version: will be stored as an option */
 define('OAIPMH_REPOSITORY_PLUGIN_VERSION', '1.0.0');
+
+/** Calculated base URL for the repository. */
+define('OAI_PMH_BASE_URL', WEB_ROOT.'/oai-pmh-repository/request');
 
 require_once('OaiPmhRepository/ResponseGenerator.php');
 
@@ -53,7 +57,8 @@ function oaipmh_repository_install()
         `until` DATETIME DEFAULT NULL,
         `set` INT(10) UNSIGNED DEFAULT NULL,
         `expiration` DATETIME NOT NULL,
-        PRIMARY KEY  (`id`)
+        PRIMARY KEY  (`id`),
+        INDEX(`expiration`)
     ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;";
     $db->query($sql);
 }

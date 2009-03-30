@@ -11,6 +11,7 @@ require_once('OaiIdentifier.php');
 require_once('UtcDateTime.php');
 require_once('XmlUtilities.php');
 require_once('Metadata/OaiDc.php');
+require_once('OaiPmhRepositoryToken.php');
 
 // Namespace URIs for XML response document
 define('OAI_PMH_NAMESPACE_URI', 'http://www.openarchives.org/OAI/2.0/');
@@ -18,11 +19,8 @@ define('OAI_PMH_NAMESPACE_URI', 'http://www.openarchives.org/OAI/2.0/');
 // XML Schema URIs for XML response document 
 define('OAI_PMH_SCHEMA_URI', 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd');
 
-// Calculated base URL for the repository.
-define('BASE_URL', WEB_ROOT.'/oai-pmh-repository/request');
-
 // Version of OAI-PMH protocol the repository plugin complies with.
-define('PROTOCOL_VERSION', '2.0');
+define('OAI_PMH_PROTOCOL_VERSION', '2.0');
 
 /**
  * OaiPmhRepository_ResponseGenerator generates the XML responses to OAI-PMH
@@ -168,7 +166,6 @@ class OaiPmhRepository_ResponseGenerator
         $fromGran = OaiPmhRepository_UtcDateTime::getGranularity($this->query['from']);
         $untilGran = OaiPmhRepository_UtcDateTime::getGranularity($this->query['until']);
         
-        
         /* These tests, while they do catch the date errors they are written for,
            vastly overtest the same things several times. Not a big issue, but
            could easily be improved */ 
@@ -199,12 +196,12 @@ class OaiPmhRepository_ResponseGenerator
            response to validate */
         $elements = array( 
             'repositoryName'    => get_option('oaipmh_repository_name'),
-            'baseURL'           => BASE_URL,
-            'protocolVersion'   => PROTOCOL_VERSION,
+            'baseURL'           => OAI_PMH_BASE_URL,
+            'protocolVersion'   => OAI_PMH_PROTOCOL_VERSION,
             'adminEmail'        => get_option('administrator_email'),
             'earliestDatestamp' => OaiPmhRepository_UtcDateTime::unixToUtc(0),
             'deletedRecord'     => 'no',
-            'granularity'       => 'YYYY-MM-DDThh:mm:ssZ');
+            'granularity'       => OaiPmhRepository_UtcDateTime::OAI_GRANULARITY_STRING);
         $identify = OaiPmhRepository_XmlUtilities::createElementWithChildren(
             $this->responseDoc->documentElement, 'Identify', $elements);
         
@@ -435,6 +432,8 @@ class OaiPmhRepository_ResponseGenerator
      */
     private function createResumptionToken($verb, $metadataPrefix, $cursor, $set, $from, $until)
     {
+        $tokenTable = get_db()->getTable('OaiPmhRepositoryToken');
+        
         $resumptionToken = new OaiPmhRepositoryToken();
         $resumptionToken->verb = $verb;
         $resumptionToken->metadata_prefix = $metadataPrefix;
@@ -460,7 +459,10 @@ class OaiPmhRepository_ResponseGenerator
      */
     private function resumeListRequest($token)
     {
-        $tokenObject = get_db()->getTable('OaiPmhRepositoryToken')->find($token);
+        $tokenTable = new OaiPmhRepositoryTokenTable(get_db(), 'OaiPmhRepositoryToken');
+        $tokenTable->purgeExpiredTokens();
+        //$tokenObject = get_db()->getTable('OaiPmhRepositoryToken')->find($token);
+        $tokenObject = $tokenTable->find($token);
         
         if(!$tokenObject || ($tokenObject->verb != $this->query['verb']))
             OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_RESUMPTION_TOKEN);
