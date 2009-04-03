@@ -18,13 +18,15 @@ require_once('Abstract.php');
  */
 class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
 {
-    const METADATA_PREFIX = 'oai_dc';    
+    /* These three variables must be set to the correct values, with these exact
+       variable names, in any metadata mapping classes.  The abstract class uses
+       these to build the list of available formats. These are variables, not
+       constants because of limitations on their access from parent classes. */
+    public $metadataPrefix = 'oai_dc';    
+    protected $metadataNamespaceUri = 'http://www.openarchives.org/OAI/2.0/oai_dc/';
+    protected $metadataSchemaUri = 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd';
     
-    const OAI_DC_NAMESPACE_URI = 'http://www.openarchives.org/OAI/2.0/oai_dc/';
     const DC_NAMESPACE_URI = 'http://purl.org/dc/elements/1.1/';
-
-    const XML_SCHEMA_URI = 'http://www.w3.org/2001/XMLSchema-instance';
-    const OAI_DC_SCHEMA_URI = 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd';
     
     /**
      * Appends Dublin Core metadata. 
@@ -39,16 +41,16 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
         $this->parentElement->appendChild($metadataElement);   
         
         $oai_dc = $this->document->createElementNS(
-            self::OAI_DC_NAMESPACE_URI, 'oai_dc:dc');
+            $this->metadataNamespaceUri, 'oai_dc:dc');
         $metadataElement->appendChild($oai_dc);
 
         /* Must manually specify XML schema uri per spec, but DOM won't include
          * a redundant xmlns:xsi attribute, so we just set the attribute
          */
         $oai_dc->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
-        $oai_dc->setAttribute('xmlns:xsi', self::XML_SCHEMA_URI);
+        $oai_dc->setAttribute('xmlns:xsi', XML_SCHEMA_NAMESPACE_URI);
         $oai_dc->setAttribute('xsi:schemaLocation', self::DC_NAMESPACE_URI.' '.
-            self::OAI_DC_SCHEMA_URI);
+            $this->metadataSchemaUri);
 
         /* Each of the 16 unqualified Dublin Core elements, in the order
          * specified by the oai_dc XML schema
@@ -75,20 +77,5 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
                 $oai_dc->appendChild($dcElement);
             }
         }
-    }
-    
-    /**
-     * Appends a metadataFormat element to the document. 
-     *
-     * Declares the metadataPrefix, schema URI, and namespace for the oai_dc
-     * metadata format.
-     */    
-    public function declareMetadataFormat()
-    {
-        $elements = array( 'metadataPrefix'    => self::METADATA_PREFIX,
-                           'schema'            => self::OAI_DC_SCHEMA_URI,
-                           'metadataNamespace' => self::DC_NAMESPACE_URI );
-        OaiPmhRepository_XmlUtilities::createElementWithChildren(
-            $this->parentElement, 'metadataFormat', $elements);
     }
 }

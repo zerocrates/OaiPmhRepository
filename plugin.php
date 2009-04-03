@@ -15,6 +15,7 @@ define('OAIPMH_REPOSITORY_PLUGIN_VERSION', '1.0.0');
 
 /** Calculated base URL for the repository. */
 define('OAI_PMH_BASE_URL', WEB_ROOT.'/oai-pmh-repository/request');
+define('OAI_PMH_REPOSITORY_METADATA_DIRECTORY', dirname(__FILE__).'/libraries/OaiPmhRepository/Metadata');
 
 require_once('OaiPmhRepository/ResponseGenerator.php');
 

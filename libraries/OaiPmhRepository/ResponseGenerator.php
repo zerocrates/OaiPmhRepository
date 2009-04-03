@@ -10,7 +10,6 @@ require_once('Error.php');
 require_once('OaiIdentifier.php');
 require_once('UtcDateTime.php');
 require_once('XmlUtilities.php');
-require_once('Metadata/OaiDc.php');
 require_once('OaiPmhRepositoryToken.php');
 
 // Namespace URIs for XML response document
@@ -35,6 +34,7 @@ class OaiPmhRepository_ResponseGenerator
     public $error;
     private $request;
     private $query;
+    private $metadataFormats;
 
     /**
      * Constructor
@@ -71,6 +71,8 @@ class OaiPmhRepository_ResponseGenerator
             OAI_PMH_BASE_URL);
 
         $root->appendChild($this->request);
+        
+        $this->metadataFormats = $this->getFormats();
         
         $this->dispatchRequest();
     }
@@ -183,6 +185,11 @@ class OaiPmhRepository_ResponseGenerator
         if($from && $until && $fromGran != $untilGran)
             OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
                 "Date/time arguments of differing granularity.");
+                
+        $metadataPrefix = $this->query['metadataPrefix'];
+        
+        if($metadataPrefix && !array_key_exists($metadataPrefix, $this->metadataFormats))
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
     }
     
     
@@ -240,13 +247,11 @@ class OaiPmhRepository_ResponseGenerator
         if(!$item) {
             OaiPmhRepository_Error::throwError($this, OAI_ERR_ID_DOES_NOT_EXIST);
         }
-        if($metadataPrefix != 'oai_dc') {
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
-        }
+
         if(!$this->error) {
             $getRecord = $this->responseDoc->createElement('GetRecord');
             $this->responseDoc->documentElement->appendChild($getRecord);
-            $record = new OaiPmhRepository_Metadata_OaiDc($item, $getRecord);
+            $record = new $this->metadataFormats[$metadataPrefix]($item, $getRecord);
             $record->appendRecord();
         }
     }
@@ -274,8 +279,10 @@ class OaiPmhRepository_ResponseGenerator
         if(!$this->error) {
             $listMetadataFormats = $this->responseDoc->createElement('ListMetadataFormats');
             $this->responseDoc->documentElement->appendChild($listMetadataFormats);
-            $format = new OaiPmhRepository_Metadata_OaiDc(null, $listMetadataFormats);
-            $format->declareMetadataFormat();
+            foreach($this->metadataFormats as $format) {
+                $formatObject = new $format(null, $listMetadataFormats);
+                $formatObject->declareMetadataFormat();
+            }
         }
     }
 
@@ -332,7 +339,7 @@ class OaiPmhRepository_ResponseGenerator
                             $untilDate);
     }
     
-        /**
+    /**
      * Returns the next incomplete list response based on the given resumption
      * token.
      *
@@ -341,7 +348,7 @@ class OaiPmhRepository_ResponseGenerator
      */
     private function resumeListResponse($token)
     {
-        $tokenTable = new OaiPmhRepositoryTokenTable(get_db(), 'OaiPmhRepositoryToken');
+        $tokenTable = get_db()->getTable('OaiPmhRepositoryToken');
         $tokenTable->purgeExpiredTokens();
         
         $tokenObject = $tokenTable->find($token);
@@ -371,66 +378,61 @@ class OaiPmhRepository_ResponseGenerator
     private function listResponse($verb, $metadataPrefix, $cursor, $set, $from, $until) {
         $listLimit = get_option('oaipmh_repository_list_limit');
         
-        if($metadataPrefix != 'oai_dc')
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
+        $itemTable = get_db()->getTable('Item');
+        $select = $itemTable->getSelect();
+        $itemTable->filterByPublic($select, true);
+        if($set)
+            $itemTable->filterByCollection($select, $set);
+        if($from) {
+            $select->where('modified >= ? OR added >= ?', $from);
+        }
+        if($until) {
+            $select->where('modified <= ? OR added <= ?', $until);
+        }
         
+        // Total number of rows that would be returned
+        $rows = $select->query()->rowCount();
+        // This limit call will form the basis of the flow control
+        $select->limit($listLimit, $cursor);
+        
+        $items = $itemTable->fetchObjects($select);  
+        
+        if(count($items) == 0)
+            OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_RECORDS_MATCH,
+                'No records match the given criteria');
+
         else {
-            $itemTable = get_db()->getTable('Item');
-            $select = $itemTable->getSelect();
-            $itemTable->filterByPublic($select, true);
-            if($set)
-                $itemTable->filterByCollection($select, $set);
-            if($from) {
-                $select->where('modified >= ? OR added >= ?', $from);
+            if($verb == 'ListIdentifiers')
+                $method = 'appendHeader';
+            else if($verb == 'ListRecords')
+                $method = 'appendRecord';
+            
+            $verbElement = $this->responseDoc->createElement($verb);
+            $this->responseDoc->documentElement->appendChild($verbElement);
+            foreach($items as $item) {
+                $record = new $this->metadataFormats[$metadataPrefix]($item, $verbElement);
+                $record->$method();
+                // Drop Item from memory explicitly
+                release_object($this->item);
             }
-            if($until) {
-                $select->where('modified <= ? OR added <= ?', $until);
+            if($rows > ($cursor + $listLimit)) {
+                $token = $this->createResumptionToken($verb,
+                                                      $metadataPrefix,
+                                                      $cursor + $listLimit,
+                                                      $from,
+                                                      $until,
+                                                      $set);
+
+                $tokenElement = $this->responseDoc->createElement('resumptionToken', $token->id);
+                $tokenElement->setAttribute('expirationDate',
+                    OaiPmhRepository_UtcDateTime::dbToUtc($token->expiration));
+                $tokenElement->setAttribute('completeListSize', $rows);
+                $tokenElement->setAttribute('cursor', $cursor);
+                $verbElement->appendChild($tokenElement);
             }
-            
-            // Total number of rows that would be returned
-            $rows = $select->query()->rowCount();
-            // This limit call will form the basis of the flow control
-            $select->limit($listLimit, $cursor);
-            
-            $items = $itemTable->fetchObjects($select);  
-            
-            if(count($items) == 0)
-                OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_RECORDS_MATCH,
-                    'No records match the given criteria');
-
-            else {
-                if($verb == 'ListIdentifiers')
-                    $method = 'appendHeader';
-                else if($verb == 'ListRecords')
-                    $method = 'appendRecord';
-                
-                $verbElement = $this->responseDoc->createElement($verb);
-                $this->responseDoc->documentElement->appendChild($verbElement);
-                foreach($items as $item) {
-                    $record = new OaiPmhRepository_Metadata_OaiDc($item, $verbElement);
-                    $record->$method();
-                    // Drop Item from memory explicitly
-                    release_object($this->item);
-                }
-                if($rows > ($cursor + $listLimit)) {
-                    $token = $this->createResumptionToken($verb,
-                                                          $metadataPrefix,
-                                                          $cursor + $listLimit,
-                                                          $from,
-                                                          $until,
-                                                          $set);
-
-                    $tokenElement = $this->responseDoc->createElement('resumptionToken', $token->id);
-                    $tokenElement->setAttribute('expirationDate',
-                        OaiPmhRepository_UtcDateTime::dbToUtc($token->expiration));
-                    $tokenElement->setAttribute('completeListSize', $rows);
-                    $tokenElement->setAttribute('cursor', $cursor);
-                    $verbElement->appendChild($tokenElement);
-                }
-                else if($cursor != 0) {
-                    $tokenElement = $this->responseDoc->createElement('resumptionToken');
-                    $verbElement->appendChild($tokenElement);
-                }
+            else if($cursor != 0) {
+                $tokenElement = $this->responseDoc->createElement('resumptionToken');
+                $verbElement->appendChild($tokenElement);
             }
         }
     }
@@ -465,6 +467,33 @@ class OaiPmhRepository_ResponseGenerator
         $resumptionToken->save();
         
         return $resumptionToken;
+    }
+    
+    
+    /**
+     * Builds an array of entries for all included metadata mapping classes.
+     * Derived heavily from OaipmhHarvester's getMaps().
+     *
+     * @return array An array, with metadataPrefix => class.
+     */
+    private function getFormats()
+    {
+        $dir = new DirectoryIterator(OAI_PMH_REPOSITORY_METADATA_DIRECTORY);
+        $metadataFormats = array();
+        foreach ($dir as $dirEntry) {
+            if ($dirEntry->isFile() && !$dirEntry->isDot()) {
+                $filename = $dirEntry->getFilename();
+                $pathname = $dirEntry->getPathname();
+                // Check for all PHP files, ignore the abstract class
+                if(preg_match('/^(.+)\.php$/', $filename, $match) && $match[1] != 'Abstract') {
+                    require_once($pathname);
+                    $class = "OaiPmhRepository_Metadata_${match[1]}";
+                    $object = new $class(null, null);
+                    $metadataFormats[$object->metadataPrefix] = $class;
+                }
+            }
+        }
+        return $metadataFormats;
     }
     
     /**

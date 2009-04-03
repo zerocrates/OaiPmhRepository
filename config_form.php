@@ -13,8 +13,7 @@
 <div class="field">
     <label for="oaipmh_repository_name">Repository name</label>
     <?php echo __v()->formText('oaipmh_repository_name', $repoName, null);?>
-    <p class="explanation">Name for this OAI-PMH repository.  May default or
-    set to the Omeka installation's name in the future.</p>
+    <p class="explanation">Name for this OAI-PMH repository.</p>
 </div>
 <div class="field">
     <label for="oaipmh_repository_namespace_id">Namespace identifier</label>
@@ -26,7 +25,7 @@
     invalid identifiers.</p>
 </div>
 <div class="field">
-    <label for="oaipmh_repository_list_limit">List limit</label>
+    <label for="oaipmh_repository_list_limit">List response limit</label>
     <?php echo __v()->formText('oaipmh_repository_list_limit', $listLimit, null);?>
     <p class="explanation">Number of individual items that can be returned in a
     response at once.  Larger values will increase memory usage but reduce the
@@ -34,7 +33,7 @@
     memory usage but increase the number of DB queries and requests.</p>
 </div>
 <div class="field">
-    <label for="oaipmh_repository_expiration_time">Expiration time</label>
+    <label for="oaipmh_repository_expiration_time">List expiration time</label>
     <?php echo __v()->formText('oaipmh_repository_expiration_time', $expirationTime, null);?>
     <p class="explanation">Amount of time in minutes a resumptionToken is valid for.
     The specification suggests a number in the tens of minutes.</p>

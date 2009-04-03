@@ -19,7 +19,7 @@ require_once('OaiPmhRepository/UtcDateTime.php');
  * @subpackage Metadata Formats
  */
 abstract class OaiPmhRepository_Metadata_Abstract
-{
+{   
     /**
      * Item object for this record.
      */
@@ -43,7 +43,7 @@ abstract class OaiPmhRepository_Metadata_Abstract
      * @param Item item Item object whose metadata will be output.
      * @param DOMElement element Parent element for XML output.
      */
-    public function __construct($item, DOMElement $element)
+    public function __construct($item, $element)
     {
         $this->item = $item;
         $this->parentElement = $element;
@@ -107,8 +107,21 @@ abstract class OaiPmhRepository_Metadata_Abstract
         }
     }
     
-    abstract public function appendMetadata();
+    /**
+     * Appends a metadataFormat element to the document. 
+     *
+     * Declares the metadataPrefix, schema URI, and namespace for the oai_dc
+     * metadata format.
+     */    
+    public function declareMetadataFormat()
+    {
+        $elements = array( 'metadataPrefix'    => $this->metadataPrefix,
+                           'schema'            => $this->metadataSchemaUri,
+                           'metadataNamespace' => $this->metadataNamespaceUri );
+        OaiPmhRepository_XmlUtilities::createElementWithChildren(
+            $this->parentElement, 'metadataFormat', $elements);
+    }
     
-    abstract public function declareMetadataFormat();
+    abstract public function appendMetadata();
 }
 ?>
