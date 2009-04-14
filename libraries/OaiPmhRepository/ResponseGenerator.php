@@ -508,4 +508,3 @@ class OaiPmhRepository_ResponseGenerator
         return $this->responseDoc->saveXML();
     }
 }
-?>

@@ -8,6 +8,7 @@
  */
 
 require_once('Abstract.php');
+require_once HELPERS;
 
 /**
  * Class implmenting metadata output for the required oai_dc metadata format.
@@ -76,6 +77,13 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
                 $dcElement->appendChild($text);
                 $oai_dc->appendChild($dcElement);
             }
+            // Append the browse URI to all results
+            if($elementName == 'identifier') {
+                $showPageId = $this->document->createElement('dc:identifier',
+                              abs_item_uri($this->item));
+                $oai_dc->appendChild($showPageId);
+            }
+                
         }
     }
 }
