@@ -11,7 +11,7 @@
  */
 
 /** Plugin version: will be stored as an option */
-define('OAIPMH_REPOSITORY_PLUGIN_VERSION', '1.0.0');
+define('OAIPMH_REPOSITORY_PLUGIN_VERSION', get_plugin_ini('OaiPmhRepository', 'version'));
 
 /** Calculated base URL for the repository. */
 define('OAI_PMH_BASE_URL', WEB_ROOT.'/oai-pmh-repository/request');
