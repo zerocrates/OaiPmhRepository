@@ -81,30 +81,17 @@ abstract class OaiPmhRepository_Metadata_Abstract
      */
     public function appendHeader()
     {
-        /* without access to the root document, we can directly use the
-         * DOMElement constructor.  Each element cannot have children appended
-         * to it util it is part of a document.
-         */
-         
-        $header = $this->document->createElement('header');
-        $this->parentElement->appendChild($header); 
-         
-        $identifier = $this->document->createElement('identifier',
-            OaiPmhRepository_OaiIdentifier::itemToOaiId($this->item->id));
-        $header->appendChild($identifier);
+        $headerData['identifier'] = 
+            OaiPmhRepository_OaiIdentifier::itemToOaiId($this->item->id);
+        $headerData['datestamp'] =
+            OaiPmhRepository_UtcDateTime::dbToUtc($this->item->modified);
         
-        // still yet to figure how to extract the added/modified times from DB
-        $datestamp = $this->document->createElement('datestamp', 
-            OaiPmhRepository_UtcDateTime::dbToUtc($this->item->modified));
-        $header->appendChild($datestamp);
-
-        // can one item be in multiple sets?
         $collectionId = $this->item->collection_id;
-        if ($collectionId) {
-            $setSpec = $this->document->createElement('setSpec',
-                ($collectionId));
-            $header->appendChild($setSpec);
-        }
+        if ($collectionId)
+            $headerData['setSpec'] = $collectionId;
+        
+        OaiPmhRepository_XmlUtilities::createElementWithChildren(
+            $this->parentElement, header, $headerData);
     }
     
     /**

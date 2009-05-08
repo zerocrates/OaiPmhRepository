@@ -35,6 +35,7 @@ function oaipmh_repository_install()
     set_option('oaipmh_repository_namespace_id', 'default.must.change');
     set_option('oaipmh_repository_list_limit', 50);
     set_option('oaipmh_repository_expiration_time', 10);
+    set_option('oaipmh_repository_expose_files', 1);
     
     $db = get_db();
     
@@ -73,6 +74,7 @@ function oaipmh_repository_config_form()
     $namespaceID = get_option('oaipmh_repository_namespace_id');
     $listLimit = get_option('oaipmh_repository_list_limit');
     $expirationTime = get_option('oaipmh_repository_expiration_time');
+    $exposeFiles = get_option('oaipmh_repository_expose_files');
     include('config_form.php');
 }
 
@@ -85,6 +87,7 @@ function oaipmh_repository_config()
     set_option('oaipmh_repository_namespace_id', $_POST['oaipmh_repository_namespace_id']);
     set_option('oaipmh_repository_list_limit', $_POST['oaipmh_repository_list_limit']);
     set_option('oaipmh_repository_expiration_time', $_POST['oaipmh_repository_expiration_time']);
+    set_option('oaipmh_repository_expose_files', $_POST['oaipmh_repository_expose_files']);
 }
 
 /**
@@ -97,6 +100,7 @@ function oaipmh_repository_uninstall()
     delete_option('oaipmh_repository_namespace_id');
     delete_option('oaipmh_repository_record_limit');
     delete_option('oaipmh_repository_expiration_time');
+    delete_option('oaipmh_repository_expose_files');
     
     $db = get_db();
     $sql = "DROP TABLE IF EXISTS `{$db->prefix}oai_pmh_repository_tokens`;";

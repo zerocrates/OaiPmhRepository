@@ -38,5 +38,26 @@ class OaiPmhRepository_XmlUtilities
         $parent->appendChild($newElement);
         return $newElement;
     }
+    
+    /**
+     * Creates a parent element with the given name, with text as given.  
+     *
+     * Adds the resulting element as a child of the given parent node.
+     *
+     * @param DomElement parent Existing parent of all the new nodes.
+     * @param string name Name of the new parent element.
+     * @param string text Text of the new element.
+     * @return DomElement The new element.
+     */
+    static public function appendNewElement($parent, $name, $text)
+    {
+        $document = $parent->ownerDocument;
+        $newElement = $document->createElement($name);
+        // Use a TextNode, causes escaping of input text
+        $text = $document->createTextNode($text);
+        $newElement->appendChild($text);
+        $parent->appendChild($newElement);
+        return $newElement;
+     }
 }
 ?>

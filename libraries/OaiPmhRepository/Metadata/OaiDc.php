@@ -70,20 +70,27 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
             $upperName = Inflector::camelize($elementName);
             $dcElements = $this->item->getElementTextsByElementNameAndSetName(
                 $upperName, 'Dublin Core');
-            foreach($dcElements as $elementText) {
-                $dcElement = $this->document->createElement('dc:'.$elementName);
-                // Use a TextNode, causes escaping of input text
-                $text = $this->document->createTextNode($elementText->text);
-                $dcElement->appendChild($text);
-                $oai_dc->appendChild($dcElement);
+            foreach($dcElements as $elementText)
+            {
+                OaiPmhRepository_XmlUtilities::appendNewElement($oai_dc, 
+                    'dc:'.$elementName, $elementText->text);
             }
             // Append the browse URI to all results
-            if($elementName == 'identifier') {
-                $showPageId = $this->document->createElement('dc:identifier',
-                              abs_item_uri($this->item));
-                $oai_dc->appendChild($showPageId);
-            }
+            if($elementName == 'identifier') 
+            {
+                OaiPmhRepository_XmlUtilities::appendNewElement($oai_dc, 
+                    'dc:identifier', abs_item_uri($this->item));
                 
+                // Also append an identifier for each file
+                if(get_option('oaipmh_repository_expose_files')) {
+                    $files = $this->item->getFiles();
+                    foreach($files as $file) 
+                    {
+                        OaiPmhRepository_XmlUtilities::appendNewElement($oai_dc, 
+                            'dc:identifier', $file->getWebPath());
+                    }
+                }
+            }
         }
     }
 }
