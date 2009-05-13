@@ -157,7 +157,7 @@ class OaiPmhRepository_ResponseGenerator
         /* Checks (essentially), if there are more arguments in the query string
            than in PHP's returned array, if so there were duplicate arguments,
            which is not allowed. */
-        if($_SERVER['QUERY_STRING'] != urldecode(http_build_query($this->query)))
+        if($_SERVER['REQUEST_METHOD'] == 'GET' && (urldecode($_SERVER['QUERY_STRING']) != urldecode(http_build_query($this->query))))
             OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
                 "Duplicate arguments in request.");
         
