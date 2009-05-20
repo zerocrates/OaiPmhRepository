@@ -49,13 +49,15 @@ class OaiPmhRepository_XmlUtilities
      * @param string text Text of the new element.
      * @return DomElement The new element.
      */
-    static public function appendNewElement($parent, $name, $text)
+    static public function appendNewElement($parent, $name, $text = null)
     {
         $document = $parent->ownerDocument;
         $newElement = $document->createElement($name);
         // Use a TextNode, causes escaping of input text
-        $text = $document->createTextNode($text);
-        $newElement->appendChild($text);
+        if($text) {
+            $text = $document->createTextNode($text);
+            $newElement->appendChild($text);
+        }
         $parent->appendChild($newElement);
         return $newElement;
      }
