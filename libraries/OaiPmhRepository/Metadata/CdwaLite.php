@@ -63,9 +63,9 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         $descriptive = OaiPmhRepository_XmlUtilities::appendNewElement($cdwaliteWrap, 'cdwalite:descriptiveMetadata');
         
         $titles = $this->item->getElementTextsByElementNameAndSetName('Title', 'Dublin Core');
+        $titleWrap = OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:titleWrap');
         foreach($titles as $title)
         {
-            $titleWrap = OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:titleWrap');
             $titleSet = OaiPmhRepository_XmlUtilities::appendNewElement($titleWrap, 'cdwalite:titleSet');
             OaiPmhRepository_XmlUtilities::appendNewElement($titleSet, 'cdwalite:title', $title->text);
         }
@@ -74,7 +74,23 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         $creators = $this->item->getElementTextsByElementNameAndSetName('Creator', 'Dublin Core');
         if(count($creators) >= 1)
         {
-            OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:displayCreator', $creator->text);
+            OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:displayCreator', $creators[0]->text);
+        }
+        
+        $administrative = OaiPmhRepository_XmlUtilities::appendNewElement($cdwaliteWrap, 'cdwalite:administrativeMetadata');
+        
+        // Also append an identifier for each file
+        if(get_option('oaipmh_repository_expose_files')) {
+            $files = $this->item->getFiles();
+            if(count($files) > 0) {
+                $resourceWrap = OaiPmhRepository_XmlUtilities::appendNewElement($administrative, 'cdwalite:resourceWrap');
+                foreach($files as $file) 
+                {
+                    $resourceSet = OaiPmhRepository_XmlUtilities::appendNewElement($resourceWrap, 'cdwalite:resourceSet');
+                    OaiPmhRepository_XmlUtilities::appendNewElement($resourceSet, 
+                        'cdwalite:linkResource', $file->getWebPath('archive'));
+                }
+            }
         }
     }
 }
