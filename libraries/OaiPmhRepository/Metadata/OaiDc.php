@@ -87,7 +87,7 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
                     foreach($files as $file) 
                     {
                         OaiPmhRepository_XmlUtilities::appendNewElement($oai_dc, 
-                            'dc:identifier', $file->getWebPath());
+                            'dc:identifier', $file->getWebPath('archive'));
                     }
                 }
             }
