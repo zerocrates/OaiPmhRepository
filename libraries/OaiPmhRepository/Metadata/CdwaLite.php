@@ -60,7 +60,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
                                  'format', 'identifier', 'source', 'language',
                                  'relation', 'coverage', 'rights' );
 
-        $descriptive = OaiPmhRepository_XmlUtilities::appendNewElement($cdwaliteWrap, 'cdwalite:descriptiveMetadata');
+        $descriptive = OaiPmhRepository_XmlUtilities::appendNewElement($cdwalite, 'cdwalite:descriptiveMetadata');
         
         $titles = $this->item->getElementTextsByElementNameAndSetName('Title', 'Dublin Core');
         $titleWrap = OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:titleWrap');
@@ -77,7 +77,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
             OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:displayCreator', $creators[0]->text);
         }
         
-        $administrative = OaiPmhRepository_XmlUtilities::appendNewElement($cdwaliteWrap, 'cdwalite:administrativeMetadata');
+        $administrative = OaiPmhRepository_XmlUtilities::appendNewElement($cdwalite, 'cdwalite:administrativeMetadata');
         
         // Also append an identifier for each file
         if(get_option('oaipmh_repository_expose_files')) {
