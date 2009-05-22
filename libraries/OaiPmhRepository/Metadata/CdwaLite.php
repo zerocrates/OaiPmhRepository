@@ -10,8 +10,6 @@
 require_once('Abstract.php');
 require_once HELPERS;
 
-
-
 /**
  * Class implmenting metadata output CDWA Lite.
  *
@@ -49,11 +47,11 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
          * a redundant xmlns:xsi attribute, so we just set the attribute
          */
         $cdwaliteWrap->setAttribute('xmlns:cdwalite', $this->metadataNamespaceUri);
-        $cdwaliteWrap->setAttribute('xmlns:xsi', XML_SCHEMA_NAMESPACE_URI);
+        $cdwaliteWrap->setAttribute('xmlns:xsi', parent::XML_SCHEMA_NAMESPACE_URI);
         $cdwaliteWrap->setAttribute('xsi:schemaLocation', $this->metadataNamespaceUri.' '.
             $this->metadataSchemaUri);
             
-        $cdwalite = OaiPmhRepository_XmlUtilities::appendNewElement($cdwaliteWrap, 'cdwalite:cdwalite');
+        $cdwalite = $this->appendNewElement($cdwaliteWrap, 'cdwalite:cdwalite');
         /* Each of the 16 unqualified Dublin Core elements, in the order
          * specified by the oai_dc XML schema
          */
@@ -67,39 +65,39 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
          * ====================
          */
 
-        $descriptive = OaiPmhRepository_XmlUtilities::appendNewElement($cdwalite, 'cdwalite:descriptiveMetadata');
+        $descriptive = $this->appendNewElement($cdwalite, 'cdwalite:descriptiveMetadata');
         
         /* Type => objectWorkTypeWrap->objectWorkType 
          * Required.  Fill with 'Unknown' if omitted.
          */
         $types = $this->item->getElementTextsByElementNameAndSetName('Type', 'Dublin Core');
-        $objectWorkTypeWrap = OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:objectWorkTypeWrap');
+        $objectWorkTypeWrap = $this->appendNewElement($descriptive, 'cdwalite:objectWorkTypeWrap');
         if(count($types) == 0) $types[] = 'Unknown';
         foreach($types as $type)
         {
-            OaiPmhRepository_XmlUtilities::appendNewElement($objectWorkTypeWrap, 'cdwalite:objectWorkType', $type->text);
+            $this->appendNewElement($objectWorkTypeWrap, 'cdwalite:objectWorkType', $type->text);
         }      
         
         /* Subject => classificationWrap->classification
          * Not required.
          */
         $subjects = $this->item->getElementTextsByElementNameAndSetName('Subject', 'Dublin Core');
-        $classificationWrap = OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:classificationWrap');
+        $classificationWrap = $this->appendNewElement($descriptive, 'cdwalite:classificationWrap');
         foreach($subjects as $subject)
         {
-            OaiPmhRepository_XmlUtilities::appendNewElement($classificationWrap, 'cdwalite:classification', $subject->text);
+            $this->appendNewElement($classificationWrap, 'cdwalite:classification', $subject->text);
         }
         
         /* Title => titleWrap->titleSet->title
          * Required.  Fill with 'Unknown' if omitted.
          */        
         $titles = $this->item->getElementTextsByElementNameAndSetName('Title', 'Dublin Core');
-        $titleWrap = OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:titleWrap');
+        $titleWrap = $this->appendNewElement($descriptive, 'cdwalite:titleWrap');
         if(count($types) == 0) $types[] = 'Unknown';
         foreach($titles as $title)
         {
-            $titleSet = OaiPmhRepository_XmlUtilities::appendNewElement($titleWrap, 'cdwalite:titleSet');
-            OaiPmhRepository_XmlUtilities::appendNewElement($titleSet, 'cdwalite:title', $title->text);
+            $titleSet = $this->appendNewElement($titleWrap, 'cdwalite:titleSet');
+            $this->appendNewElement($titleSet, 'cdwalite:title', $title->text);
         }
         
         /* Creator => displayCreator
@@ -109,26 +107,26 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         $creators = $this->item->getElementTextsByElementNameAndSetName('Creator', 'Dublin Core');
         foreach($creators as $creator) $creatorTexts[] = $creator->text;
         $creatorText = count($creators) >= 1 ? implode(',', $creatorTexts) : 'Unknown';
-        OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:displayCreator', $creatorText);
+        $this->appendNewElement($descriptive, 'cdwalite:displayCreator', $creatorText);
         
         /* Creator => indexingCreatorWrap->indexingCreatorSet->nameCreatorSet->nameCreator
          * Required.  Fill with 'Unknown' if omitted.
          * Also include roleCreator, fill with 'Unknown', required.
          */
-        $indexingCreatorWrap = OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:indexingCreatorWrap');
+        $indexingCreatorWrap = $this->appendNewElement($descriptive, 'cdwalite:indexingCreatorWrap');
         if(count($creators) == 0) $creators[] = 'Unknown';       
         foreach($creators as $creator) 
         {
-            $indexingCreatorSet = OaiPmhRepository_XmlUtilities::appendNewElement($indexingCreatorWrap, 'cdwalite:indexingCreatorSet');
-            $nameCreatorSet = OaiPmhRepository_XmlUtilities::appendNewElement($indexingCreatorSet, 'cdwalite:nameCreatorSet');
-            OaiPmhRepository_XmlUtilities::appendNewElement($nameCreatorSet, 'cdwalite:nameCreator', $creator->text);
-            OaiPmhRepository_XmlUtilities::appendNewElement($indexingCreatorSet, 'cdwalite:roleCreator', 'Unknown');
+            $indexingCreatorSet = $this->appendNewElement($indexingCreatorWrap, 'cdwalite:indexingCreatorSet');
+            $nameCreatorSet = $this->appendNewElement($indexingCreatorSet, 'cdwalite:nameCreatorSet');
+            $this->appendNewElement($nameCreatorSet, 'cdwalite:nameCreator', $creator->text);
+            $this->appendNewElement($indexingCreatorSet, 'cdwalite:roleCreator', 'Unknown');
         }
         
         /* displayMaterialsTech
          * Required.  No corresponding metadata, fill with 'not applicable'.
          */
-        OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:displayMaterialsTech', 'not applicable');
+        $this->appendNewElement($descriptive, 'cdwalite:displayMaterialsTech', 'not applicable');
         
         /* Date => displayCreationDate
          * Required. Fill with 'Unknown' if omitted.
@@ -136,26 +134,26 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
          */
         $dates = $this->item->getElementTextsByElementNameAndSetName('Date', 'Dublin Core');
         $dateText = count($dates) > 0 ? $dates[0]->text : 'Unknown';
-        OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:displayCreationDate', $dateText);
+        $this->appendNewElement($descriptive, 'cdwalite:displayCreationDate', $dateText);
         
         /* Date => indexingDatesWrap->indexingDatesSet
          * Map to both earliest and latest date
          * Required.  Fill with 'Unknown' if omitted.
          */
-        $indexingDatesWrap = OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:indexingDatesWrap');   
+        $indexingDatesWrap = $this->appendNewElement($descriptive, 'cdwalite:indexingDatesWrap');   
         foreach($dates as $date)
         {
-            $indexingDatesSet = OaiPmhRepository_XmlUtilities::appendNewElement($indexingDatesWrap, 'cdwalite:indexingDatesSet');
-            OaiPmhRepository_XmlUtilities::appendNewElement($indexingDatesSet, 'cdwalite:earliestDate', $date->text);
-            OaiPmhRepository_XmlUtilities::appendNewElement($indexingDatesSet, 'cdwalite:latestDate', $date->text);
+            $indexingDatesSet = $this->appendNewElement($indexingDatesWrap, 'cdwalite:indexingDatesSet');
+            $this->appendNewElement($indexingDatesSet, 'cdwalite:earliestDate', $date->text);
+            $this->appendNewElement($indexingDatesSet, 'cdwalite:latestDate', $date->text);
         }
         
         /* locationWrap->locationSet->locationName
          * Required. No corresponding metadata, fill with 'location unknown'.
          */
-        $locationWrap = OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:locationWrap');
-        $locationSet = OaiPmhRepository_XmlUtilities::appendNewElement($locationWrap, 'cdwalite:locationSet');
-        OaiPmhRepository_XmlUtilities::appendNewElement($locationSet, 'cdwalite:locationName', 'location unknown');
+        $locationWrap = $this->appendNewElement($descriptive, 'cdwalite:locationWrap');
+        $locationSet = $this->appendNewElement($locationWrap, 'cdwalite:locationSet');
+        $this->appendNewElement($locationSet, 'cdwalite:locationName', 'location unknown');
         
         /* Description => descriptiveNoteWrap->descriptiveNoteSet->descriptiveNote
          * Not required.
@@ -163,11 +161,11 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         $descriptions = $this->item->getElementTextsByElementNameAndSetName('Description', 'Dublin Core');
         if(count($descriptions) > 0)
         {
-            $descriptiveNoteWrap = OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:descriptiveNoteWrap');
+            $descriptiveNoteWrap = $this->appendNewElement($descriptive, 'cdwalite:descriptiveNoteWrap');
             foreach($descriptions as $description)
             {
-                $descriptiveNoteSet = OaiPmhRepository_XmlUtilities::appendNewElement($descriptiveNoteWrap, 'cdwalite:descriptiveNoteSet');
-                OaiPmhRepository_XmlUtilities::appendNewElement($descriptiveNoteSet, 'cdwalite:descriptiveNote', $description->text);
+                $descriptiveNoteSet = $this->appendNewElement($descriptiveNoteWrap, 'cdwalite:descriptiveNoteSet');
+                $this->appendNewElement($descriptiveNoteSet, 'cdwalite:descriptiveNote', $description->text);
             }
         }
         
@@ -176,7 +174,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
          * =======================
          */
          
-        $administrative = OaiPmhRepository_XmlUtilities::appendNewElement($cdwalite, 'cdwalite:administrativeMetadata');
+        $administrative = $this->appendNewElement($cdwalite, 'cdwalite:administrativeMetadata');
         
         /* Rights => rightsWork
          * Not required.
@@ -184,18 +182,18 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         $rights = $this->item->getElementTextsByElementNameAndSetName('Rights', 'Dublin Core');
         foreach($rights as $right)
         {
-            OaiPmhRepository_XmlUtilities::appendNewElement($administrative, 'cdwalite:rightsWork', $right->text);
+            $this->appendNewElement($administrative, 'cdwalite:rightsWork', $right->text);
         }
         
         /* id => recordWrap->recordID
          * 'item' => recordWrap-recordType
          * Required.
          */     
-        $recordWrap = OaiPmhRepository_XmlUtilities::appendNewElement($descriptive, 'cdwalite:recordWrap');
-        OaiPmhRepository_XmlUtilities::appendNewElement($recordWrap, 'cdwalite:recordID', $this->item->id);
-        OaiPmhRepository_XmlUtilities::appendNewElement($recordWrap, 'cdwalite:recordType', 'item');
-        $recordMetadataWrap = OaiPmhRepository_XmlUtilities::appendNewElement($recordWrap, 'cdwalite:recordMetadataWrap');
-        $recordInfoID = OaiPmhRepository_XmlUtilities::appendNewElement($recordMetadataWrap, 'cdwalite:recordInfoID', OaiPmhRepository_OaiIdentifier::itemToOaiId($this->item->id));
+        $recordWrap = $this->appendNewElement($descriptive, 'cdwalite:recordWrap');
+        $this->appendNewElement($recordWrap, 'cdwalite:recordID', $this->item->id);
+        $this->appendNewElement($recordWrap, 'cdwalite:recordType', 'item');
+        $recordMetadataWrap = $this->appendNewElement($recordWrap, 'cdwalite:recordMetadataWrap');
+        $recordInfoID = $this->appendNewElement($recordMetadataWrap, 'cdwalite:recordInfoID', OaiPmhRepository_OaiIdentifier::itemToOaiId($this->item->id));
         $recordInfoID->setAttribute('type', 'oai');
         
         /* file link => resourceWrap->resourceSet->linkResource
@@ -204,11 +202,11 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         if(get_option('oaipmh_repository_expose_files')) {
             $files = $this->item->getFiles();
             if(count($files) > 0) {
-                $resourceWrap = OaiPmhRepository_XmlUtilities::appendNewElement($administrative, 'cdwalite:resourceWrap');
+                $resourceWrap = $this->appendNewElement($administrative, 'cdwalite:resourceWrap');
                 foreach($files as $file) 
                 {
-                    $resourceSet = OaiPmhRepository_XmlUtilities::appendNewElement($resourceWrap, 'cdwalite:resourceSet');
-                    OaiPmhRepository_XmlUtilities::appendNewElement($resourceSet, 
+                    $resourceSet = $this->appendNewElement($resourceWrap, 'cdwalite:resourceSet');
+                    $this->appendNewElement($resourceSet, 
                         'cdwalite:linkResource', $file->getWebPath('archive'));
                 }
             }

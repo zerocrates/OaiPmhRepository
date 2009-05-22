@@ -49,7 +49,7 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
          * a redundant xmlns:xsi attribute, so we just set the attribute
          */
         $oai_dc->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
-        $oai_dc->setAttribute('xmlns:xsi', XML_SCHEMA_NAMESPACE_URI);
+        $oai_dc->setAttribute('xmlns:xsi', parent::XML_SCHEMA_NAMESPACE_URI);
         $oai_dc->setAttribute('xsi:schemaLocation', self::DC_NAMESPACE_URI.' '.
             $this->metadataSchemaUri);
 
@@ -72,13 +72,13 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
                 $upperName, 'Dublin Core');
             foreach($dcElements as $elementText)
             {
-                OaiPmhRepository_XmlUtilities::appendNewElement($oai_dc, 
+                $this->appendNewElement($oai_dc, 
                     'dc:'.$elementName, $elementText->text);
             }
             // Append the browse URI to all results
             if($elementName == 'identifier') 
             {
-                OaiPmhRepository_XmlUtilities::appendNewElement($oai_dc, 
+                $this->appendNewElement($oai_dc, 
                     'dc:identifier', abs_item_uri($this->item));
                 
                 // Also append an identifier for each file
@@ -86,7 +86,7 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
                     $files = $this->item->getFiles();
                     foreach($files as $file) 
                     {
-                        OaiPmhRepository_XmlUtilities::appendNewElement($oai_dc, 
+                        $this->appendNewElement($oai_dc, 
                             'dc:identifier', $file->getWebPath('archive'));
                     }
                 }

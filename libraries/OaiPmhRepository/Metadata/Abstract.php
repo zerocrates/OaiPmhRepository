@@ -7,7 +7,7 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-require_once('OaiPmhRepository/XmlUtilities.php');
+require_once('OaiPmhRepository/XmlGeneratorAbstract.php');
 require_once('OaiPmhRepository/OaiIdentifier.php');
 require_once('OaiPmhRepository/UtcDateTime.php');
 
@@ -18,7 +18,7 @@ require_once('OaiPmhRepository/UtcDateTime.php');
  * @package OaiPmhRepository
  * @subpackage Metadata Formats
  */
-abstract class OaiPmhRepository_Metadata_Abstract
+abstract class OaiPmhRepository_Metadata_Abstract extends OaiPmhRepository_XmlGeneratorAbstract
 {   
     /**
      * Item object for this record.
@@ -33,7 +33,7 @@ abstract class OaiPmhRepository_Metadata_Abstract
     /**
      * Owner DOMDocument of parent element.
      */
-    protected $document;
+    public $document;
     
     /**
      * Metadata_Abstract constructor
@@ -90,7 +90,7 @@ abstract class OaiPmhRepository_Metadata_Abstract
         if ($collectionId)
             $headerData['setSpec'] = $collectionId;
         
-        OaiPmhRepository_XmlUtilities::createElementWithChildren(
+        $this->createElementWithChildren(
             $this->parentElement, header, $headerData);
     }
     
@@ -105,7 +105,7 @@ abstract class OaiPmhRepository_Metadata_Abstract
         $elements = array( 'metadataPrefix'    => $this->metadataPrefix,
                            'schema'            => $this->metadataSchemaUri,
                            'metadataNamespace' => $this->metadataNamespaceUri );
-        OaiPmhRepository_XmlUtilities::createElementWithChildren(
+        $this->createElementWithChildren(
             $this->parentElement, 'metadataFormat', $elements);
     }
     

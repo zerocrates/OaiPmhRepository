@@ -9,7 +9,7 @@
 require_once('Error.php');
 require_once('OaiIdentifier.php');
 require_once('UtcDateTime.php');
-require_once('XmlUtilities.php');
+require_once('XmlGeneratorAbstract.php');
 require_once('OaiPmhRepositoryToken.php');
 
 // Namespace URIs for XML response document
@@ -28,9 +28,9 @@ define('OAI_PMH_PROTOCOL_VERSION', '2.0');
  *
  * @package OaiPmhRepository
  */
-class OaiPmhRepository_ResponseGenerator
+class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAbstract
 {
-    public $responseDoc;
+    public $document;
     public $error;
     private $request;
     private $query;
@@ -49,25 +49,25 @@ class OaiPmhRepository_ResponseGenerator
     {
         $this->error = false;
         $this->query = $query;
-        $this->responseDoc = new DomDocument('1.0', 'UTF-8');
+        $this->document = new DomDocument('1.0', 'UTF-8');
         
         //formatOutput makes DOM output "pretty" XML.  Good for debugging, but
         //adds some overhead, especially on large outputs.
-        $this->responseDoc->formatOutput = true;
-        $this->responseDoc->xmlStandalone = true;
+        $this->document->formatOutput = true;
+        $this->document->xmlStandalone = true;
         
-        $root = $this->responseDoc->createElementNS(OAI_PMH_NAMESPACE_URI,
+        $root = $this->document->createElementNS(OAI_PMH_NAMESPACE_URI,
             'OAI-PMH');
-        $this->responseDoc->appendChild($root);
+        $this->document->appendChild($root);
     
-        $root->setAttributeNS(XML_SCHEMA_NAMESPACE_URI, 'xsi:schemaLocation',
+        $root->setAttributeNS(parent::XML_SCHEMA_NAMESPACE_URI, 'xsi:schemaLocation',
             OAI_PMH_NAMESPACE_URI.' '.OAI_PMH_SCHEMA_URI);
     
-        $responseDate = $this->responseDoc->createElement('responseDate', 
+        $responseDate = $this->document->createElement('responseDate', 
             OaiPmhRepository_UtcDateTime::unixToUtc(time()));
         $root->appendChild($responseDate);
 
-        $this->request = $this->responseDoc->createElement('request',
+        $this->request = $this->document->createElement('request',
             OAI_PMH_BASE_URL);
 
         $root->appendChild($this->request);
@@ -214,10 +214,10 @@ class OaiPmhRepository_ResponseGenerator
             'earliestDatestamp' => OaiPmhRepository_UtcDateTime::unixToUtc(0),
             'deletedRecord'     => 'no',
             'granularity'       => OaiPmhRepository_UtcDateTime::OAI_GRANULARITY_STRING);
-        $identify = OaiPmhRepository_XmlUtilities::createElementWithChildren(
-            $this->responseDoc->documentElement, 'Identify', $elements);
+        $identify = $this->createElementWithChildren(
+            $this->document->documentElement, 'Identify', $elements);
         
-        $description = $this->responseDoc->createElement('description');
+        $description = $this->document->createElement('description');
         $identify->appendChild($description);
         
         OaiPmhRepository_OaiIdentifier::describeIdentifier($description);
@@ -249,8 +249,8 @@ class OaiPmhRepository_ResponseGenerator
         }
 
         if(!$this->error) {
-            $getRecord = $this->responseDoc->createElement('GetRecord');
-            $this->responseDoc->documentElement->appendChild($getRecord);
+            $getRecord = $this->document->createElement('GetRecord');
+            $this->document->documentElement->appendChild($getRecord);
             $record = new $this->metadataFormats[$metadataPrefix]($item, $getRecord);
             $record->appendRecord();
         }
@@ -277,8 +277,8 @@ class OaiPmhRepository_ResponseGenerator
             }
         }
         if(!$this->error) {
-            $listMetadataFormats = $this->responseDoc->createElement('ListMetadataFormats');
-            $this->responseDoc->documentElement->appendChild($listMetadataFormats);
+            $listMetadataFormats = $this->document->createElement('ListMetadataFormats');
+            $this->document->documentElement->appendChild($listMetadataFormats);
             foreach($this->metadataFormats as $format) {
                 $formatObject = new $format(null, $listMetadataFormats);
                 $formatObject->declareMetadataFormat();
@@ -300,15 +300,14 @@ class OaiPmhRepository_ResponseGenerator
         if(count($collections) == 0)
             OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_SET_HIERARCHY);
             
-        $listSets = $this->responseDoc->createElement('ListSets');     
+        $listSets = $this->document->createElement('ListSets');     
 
         if(!$this->error) {
-            $this->responseDoc->documentElement->appendChild($listSets); 
+            $this->document->documentElement->appendChild($listSets); 
             foreach ($collections as $collection) {
                 $elements = array( 'setSpec' => $collection->id,
                                    'setName' => $collection->name );
-                OaiPmhRepository_XmlUtilities::createElementWithChildren(
-                    $listSets, 'set', $elements);
+                $this->createElementWithChildren($listSets, 'set', $elements);
             }
         }
     }
@@ -407,8 +406,8 @@ class OaiPmhRepository_ResponseGenerator
             else if($verb == 'ListRecords')
                 $method = 'appendRecord';
             
-            $verbElement = $this->responseDoc->createElement($verb);
-            $this->responseDoc->documentElement->appendChild($verbElement);
+            $verbElement = $this->document->createElement($verb);
+            $this->document->documentElement->appendChild($verbElement);
             foreach($items as $item) {
                 $record = new $this->metadataFormats[$metadataPrefix]($item, $verbElement);
                 $record->$method();
@@ -423,7 +422,7 @@ class OaiPmhRepository_ResponseGenerator
                                                       $until,
                                                       $set);
 
-                $tokenElement = $this->responseDoc->createElement('resumptionToken', $token->id);
+                $tokenElement = $this->document->createElement('resumptionToken', $token->id);
                 $tokenElement->setAttribute('expirationDate',
                     OaiPmhRepository_UtcDateTime::dbToUtc($token->expiration));
                 $tokenElement->setAttribute('completeListSize', $rows);
@@ -431,7 +430,7 @@ class OaiPmhRepository_ResponseGenerator
                 $verbElement->appendChild($tokenElement);
             }
             else if($cursor != 0) {
-                $tokenElement = $this->responseDoc->createElement('resumptionToken');
+                $tokenElement = $this->document->createElement('resumptionToken');
                 $verbElement->appendChild($tokenElement);
             }
         }
@@ -505,6 +504,6 @@ class OaiPmhRepository_ResponseGenerator
      */
     public function __toString()
     {
-        return $this->responseDoc->saveXML();
+        return $this->document->saveXML();
     }
 }

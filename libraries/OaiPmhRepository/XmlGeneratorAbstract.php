@@ -6,15 +6,17 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-define('XML_SCHEMA_NAMESPACE_URI', 'http://www.w3.org/2001/XMLSchema-instance');
-
 /**
- * Globally-required or useful XML utility functions and defines.
+ * Parent class for all XML-generating classes.
  *
  * @package OaiPmhRepository
  */
-class OaiPmhRepository_XmlUtilities
+class OaiPmhRepository_XmlGeneratorAbstract
 {
+    const XML_SCHEMA_NAMESPACE_URI = 'http://www.w3.org/2001/XMLSchema-instance';
+    
+    public $document;
+    
     /**
      * Creates a new XML element with the specified children
      *
@@ -27,9 +29,9 @@ class OaiPmhRepository_XmlUtilities
      * @param array children Child names and values, as name => value.
      * @return DomElement The new tree of elements.
      */
-    static public function createElementWithChildren($parent, $name, $children)
+    protected function createElementWithChildren($parent, $name, $children)
     {
-        $document = $parent->ownerDocument;
+        $document = $this->document;
         $newElement = $document->createElement($name);
         foreach($children as $tag => $value)
         {
@@ -49,9 +51,9 @@ class OaiPmhRepository_XmlUtilities
      * @param string text Text of the new element.
      * @return DomElement The new element.
      */
-    static public function appendNewElement($parent, $name, $text = null)
+    protected function appendNewElement($parent, $name, $text = null)
     {
-        $document = $parent->ownerDocument;
+        $document = $this->document;
         $newElement = $document->createElement($name);
         // Use a TextNode, causes escaping of input text
         if($text) {
@@ -62,4 +64,3 @@ class OaiPmhRepository_XmlUtilities
         return $newElement;
      }
 }
-?>
