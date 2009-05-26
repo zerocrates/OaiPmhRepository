@@ -33,8 +33,8 @@ class OaiPmhRepository_Error {
     static public function throwError($response, $error, $message = null)
     {
         $response->error = true;
-        $errorElement = $response->responseDoc->createElement('error', $message);
-        $response->responseDoc->documentElement->appendChild($errorElement);
+        $errorElement = $response->document->createElement('error', $message);
+        $response->document->documentElement->appendChild($errorElement);
         $errorElement->setAttribute('code', $error);
     }
 }
