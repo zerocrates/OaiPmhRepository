@@ -93,8 +93,12 @@ abstract class OaiPmhRepository_Metadata_Abstract extends OaiPmhRepository_XmlGe
             OaiPmhRepository_OaiIdentifier::itemToOaiId($this->item->id);
         //$headerData['datestamp'] =
         //    OaiPmhRepository_UtcDateTime::dbToUtc($this->item->modified);
-        $headerData['datestamp'] =
-            OaiPmhRepository_UtcDateTime::dbToUtc($relation->time);
+        if($relation && $relation->time)
+            $headerData['datestamp'] =
+                OaiPmhRepository_UtcDateTime::dbToUtc($relation->time);
+        else
+            $headerData['datestamp'] =
+                OaiPmhRepository_UtcDateTime::dbToUtc($this->item->added);
         
         release_object($relation);
         
@@ -104,7 +108,7 @@ abstract class OaiPmhRepository_Metadata_Abstract extends OaiPmhRepository_XmlGe
             $headerData['setSpec'] = $collectionId;
         
         $this->createElementWithChildren(
-            $this->parentElement, header, $headerData);
+            $this->parentElement, 'header', $headerData);
     }
     
     /**
