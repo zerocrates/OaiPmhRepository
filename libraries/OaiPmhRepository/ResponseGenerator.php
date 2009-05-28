@@ -494,7 +494,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
                     require_once($pathname);
                     $class = "OaiPmhRepository_Metadata_${match[1]}";
                     $object = new $class(null, null);
-                    $metadataFormats[$object->metadataPrefix] = $class;
+                    $metadataFormats[$object->getMetadataPrefix()] = $class;
                 }
             }
         }

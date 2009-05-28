@@ -19,13 +19,14 @@ require_once HELPERS;
  */
 class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstract
 {
-    /* These three variables must be set to the correct values, with these exact
-       variable names, in any metadata mapping classes.  The abstract class uses
-       these to build the list of available formats. These are variables, not
-       constants because of limitations on their access from parent classes. */
-    public $metadataPrefix = 'cdwalite';    
-    protected $metadataNamespaceUri = 'http://www.getty.edu/CDWA/CDWALite';
-    protected $metadataSchemaUri = 'http://www.getty.edu/CDWA/CDWALite/CDWALite-xsd-public-v1-1.xsd';
+    /** OAI-PMH metadata prefix */
+    const METADATA_PREFIX = 'cdwalite';    
+    
+    /** XML namespace for output format */
+    const METADATA_NAMESPACE = 'http://www.getty.edu/CDWA/CDWALite';
+    
+    /** XML schema for output format */
+    const METADATA_SCHEMA = 'http://www.getty.edu/CDWA/CDWALite/CDWALite-xsd-public-v1-1.xsd';
     
     /**
      * Appends CDWALite metadata. 
@@ -40,16 +41,16 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         $this->parentElement->appendChild($metadataElement);   
         
         $cdwaliteWrap = $this->document->createElementNS(
-            $this->metadataNamespaceUri, 'cdwalite:cdwaliteWrap');
+            self::METADATA_NAMESPACE, 'cdwalite:cdwaliteWrap');
         $metadataElement->appendChild($cdwaliteWrap);
 
         /* Must manually specify XML schema uri per spec, but DOM won't include
          * a redundant xmlns:xsi attribute, so we just set the attribute
          */
-        $cdwaliteWrap->setAttribute('xmlns:cdwalite', $this->metadataNamespaceUri);
+        $cdwaliteWrap->setAttribute('xmlns:cdwalite', self::METADATA_NAMESPACE);
         $cdwaliteWrap->setAttribute('xmlns:xsi', parent::XML_SCHEMA_NAMESPACE_URI);
-        $cdwaliteWrap->setAttribute('xsi:schemaLocation', $this->metadataNamespaceUri.' '.
-            $this->metadataSchemaUri);
+        $cdwaliteWrap->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE
+            .' '.self::METADATA_SCHEMA);
             
         $cdwalite = $this->appendNewElement($cdwaliteWrap, 'cdwalite:cdwalite');
         /* Each of the 16 unqualified Dublin Core elements, in the order
@@ -211,5 +212,35 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
                 }
             }
         }
+    }
+    
+    /**
+     * Returns the OAI-PMH metadata prefix for the output format.
+     *
+     * @return string Metadata prefix
+     */
+    public function getMetadataPrefix()
+    {
+        return self::METADATA_PREFIX;
+    }
+    
+    /**
+     * Returns the XML schema for the output format.
+     *
+     * @return string XML schema URI
+     */
+    public function getMetadataSchema()
+    {
+        return self::METADATA_SCHEMA;
+    }
+    
+    /**
+     * Returns the XML namespace for the output format.
+     *
+     * @return string XML namespace URI
+     */
+    public function getMetadataNamespace()
+    {
+        return self::METADATA_NAMESPACE;
     }
 }

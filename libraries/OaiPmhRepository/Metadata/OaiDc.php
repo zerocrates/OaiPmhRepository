@@ -19,14 +19,16 @@ require_once HELPERS;
  */
 class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
 {
-    /* These three variables must be set to the correct values, with these exact
-       variable names, in any metadata mapping classes.  The abstract class uses
-       these to build the list of available formats. These are variables, not
-       constants because of limitations on their access from parent classes. */
-    public $metadataPrefix = 'oai_dc';    
-    protected $metadataNamespaceUri = 'http://www.openarchives.org/OAI/2.0/oai_dc/';
-    protected $metadataSchemaUri = 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd';
+    /** OAI-PMH metadata prefix */
+    const METADATA_PREFIX = 'oai_dc';
     
+    /** XML namespace for output format */
+    const METADATA_NAMESPACE = 'http://www.openarchives.org/OAI/2.0/oai_dc/';
+    
+    /** XML schema for output format */
+    const METADATA_SCHEMA = 'http://www.openarchives.org/OAI/2.0/oai_dc.xsd';
+    
+    /** XML namespace for unqualified Dublin Core */
     const DC_NAMESPACE_URI = 'http://purl.org/dc/elements/1.1/';
     
     /**
@@ -42,7 +44,7 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
         $this->parentElement->appendChild($metadataElement);   
         
         $oai_dc = $this->document->createElementNS(
-            $this->metadataNamespaceUri, 'oai_dc:dc');
+            self::METADATA_NAMESPACE, 'oai_dc:dc');
         $metadataElement->appendChild($oai_dc);
 
         /* Must manually specify XML schema uri per spec, but DOM won't include
@@ -51,7 +53,7 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
         $oai_dc->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
         $oai_dc->setAttribute('xmlns:xsi', parent::XML_SCHEMA_NAMESPACE_URI);
         $oai_dc->setAttribute('xsi:schemaLocation', self::DC_NAMESPACE_URI.' '.
-            $this->metadataSchemaUri);
+            self::METADATA_SCHEMA);
 
         /* Each of the 16 unqualified Dublin Core elements, in the order
          * specified by the oai_dc XML schema
@@ -92,5 +94,35 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
                 }
             }
         }
+    }
+    
+    /**
+     * Returns the OAI-PMH metadata prefix for the output format.
+     *
+     * @return string Metadata prefix
+     */
+    public function getMetadataPrefix()
+    {
+        return self::METADATA_PREFIX;
+    }
+    
+    /**
+     * Returns the XML schema for the output format.
+     *
+     * @return string XML schema URI
+     */
+    public function getMetadataSchema()
+    {
+        return self::METADATA_SCHEMA;
+    }
+    
+    /**
+     * Returns the XML namespace for the output format.
+     *
+     * @return string XML namespace URI
+     */
+    public function getMetadataNamespace()
+    {
+        return self::METADATA_NAMESPACE;
     }
 }

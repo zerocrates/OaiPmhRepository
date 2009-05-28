@@ -119,12 +119,36 @@ abstract class OaiPmhRepository_Metadata_Abstract extends OaiPmhRepository_XmlGe
      */    
     public function declareMetadataFormat()
     {
-        $elements = array( 'metadataPrefix'    => $this->metadataPrefix,
-                           'schema'            => $this->metadataSchemaUri,
-                           'metadataNamespace' => $this->metadataNamespaceUri );
+        $elements = array( 'metadataPrefix'    => $this->getMetadataPrefix(),
+                           'schema'            => $this->getMetadataSchema(),
+                           'metadataNamespace' => $this->getMetadataNamespace() );
         $this->createElementWithChildren(
             $this->parentElement, 'metadataFormat', $elements);
     }
     
+    /**
+     * Returns the OAI-PMH metadata prefix for the output format.
+     *
+     * @return string Metadata prefix
+     */
+    abstract public function getMetadataPrefix();
+    
+    /**
+     * Returns the XML schema for the output format.
+     *
+     * @return string XML schema URI
+     */
+    abstract public function getMetadataSchema();
+    
+    /**
+     * Returns the XML namespace for the output format.
+     *
+     * @return string XML namespace URI
+     */
+    abstract public function getMetadataNamespace();
+    
+    /**
+     * Appends the metadata for one Omeka item to the XML document.
+     */
     abstract public function appendMetadata();
 }
