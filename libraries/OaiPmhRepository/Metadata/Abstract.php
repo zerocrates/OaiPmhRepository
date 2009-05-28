@@ -7,9 +7,8 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-require_once('OaiPmhRepository/XmlGeneratorAbstract.php');
+require_once('OaiPmhRepository/OaiXmlGeneratorAbstract.php');
 require_once('OaiPmhRepository/OaiIdentifier.php');
-require_once('OaiPmhRepository/UtcDateTime.php');
 
 /**
  * Abstract class on which all other metadata format handlers are based.
@@ -18,22 +17,19 @@ require_once('OaiPmhRepository/UtcDateTime.php');
  * @package OaiPmhRepository
  * @subpackage Metadata Formats
  */
-abstract class OaiPmhRepository_Metadata_Abstract extends OaiPmhRepository_XmlGeneratorAbstract
+abstract class OaiPmhRepository_Metadata_Abstract extends OaiPmhRepository_OaiXmlGeneratorAbstract
 {   
     /**
      * Item object for this record.
+     * @var Item
      */
     protected $item;
     
     /**
      * Parent DOMElement element for XML output.
+     * @var DOMElement
      */
     protected $parentElement;
-    
-    /**
-     * Owner DOMDocument of parent element.
-     */
-    public $document;
     
     /**
      * Metadata_Abstract constructor
@@ -94,11 +90,9 @@ abstract class OaiPmhRepository_Metadata_Abstract extends OaiPmhRepository_XmlGe
         //$headerData['datestamp'] =
         //    OaiPmhRepository_UtcDateTime::dbToUtc($this->item->modified);
         if($relation && $relation->time)
-            $headerData['datestamp'] =
-                OaiPmhRepository_UtcDateTime::dbToUtc($relation->time);
+            $headerData['datestamp'] = self::dbToUtc($relation->time);
         else
-            $headerData['datestamp'] =
-                OaiPmhRepository_UtcDateTime::dbToUtc($this->item->added);
+            $headerData['datestamp'] = self::dbToUtc($this->item->added);
         
         release_object($relation);
         

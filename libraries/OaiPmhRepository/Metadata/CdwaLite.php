@@ -48,7 +48,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
          * a redundant xmlns:xsi attribute, so we just set the attribute
          */
         $cdwaliteWrap->setAttribute('xmlns:cdwalite', self::METADATA_NAMESPACE);
-        $cdwaliteWrap->setAttribute('xmlns:xsi', parent::XML_SCHEMA_NAMESPACE_URI);
+        $cdwaliteWrap->setAttribute('xmlns:xsi', self::XML_SCHEMA_NAMESPACE_URI);
         $cdwaliteWrap->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE
             .' '.self::METADATA_SCHEMA);
             

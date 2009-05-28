@@ -15,7 +15,11 @@ class OaiPmhRepository_XmlGeneratorAbstract
 {
     const XML_SCHEMA_NAMESPACE_URI = 'http://www.w3.org/2001/XMLSchema-instance';
     
-    public $document;
+    /**
+     * The XML document being generated.
+     * @var DomDocument 
+     */
+    protected $document;
     
     /**
      * Creates a new XML element with the specified children
@@ -24,9 +28,9 @@ class OaiPmhRepository_XmlGeneratorAbstract
      * and values as given.  Adds the resulting element as a child of the given
      * element
      *
-     * @param DomElement parent Existing parent of all the new nodes.
-     * @param string name Name of the new parent element.
-     * @param array children Child names and values, as name => value.
+     * @param DomElement $parent Existing parent of all the new nodes.
+     * @param string $name Name of the new parent element.
+     * @param array $children Child names and values, as name => value.
      * @return DomElement The new tree of elements.
      */
     protected function createElementWithChildren($parent, $name, $children)
@@ -46,9 +50,9 @@ class OaiPmhRepository_XmlGeneratorAbstract
      *
      * Adds the resulting element as a child of the given parent node.
      *
-     * @param DomElement parent Existing parent of all the new nodes.
-     * @param string name Name of the new parent element.
-     * @param string text Text of the new element.
+     * @param DomElement $parent Existing parent of all the new nodes.
+     * @param string $name Name of the new parent element.
+     * @param string $text Text of the new element.
      * @return DomElement The new element.
      */
     protected function appendNewElement($parent, $name, $text = null)

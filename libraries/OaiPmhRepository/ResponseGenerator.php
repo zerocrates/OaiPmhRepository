@@ -6,20 +6,10 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-require_once('Error.php');
+require_once('OaiXmlGeneratorAbstract.php');
 require_once('OaiIdentifier.php');
-require_once('UtcDateTime.php');
 require_once('XmlGeneratorAbstract.php');
 require_once('OaiPmhRepositoryToken.php');
-
-// Namespace URIs for XML response document
-define('OAI_PMH_NAMESPACE_URI', 'http://www.openarchives.org/OAI/2.0/');
-
-// XML Schema URIs for XML response document 
-define('OAI_PMH_SCHEMA_URI', 'http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd');
-
-// Version of OAI-PMH protocol the repository plugin complies with.
-define('OAI_PMH_PROTOCOL_VERSION', '2.0');
 
 /**
  * OaiPmhRepository_ResponseGenerator generates the XML responses to OAI-PMH
@@ -28,12 +18,19 @@ define('OAI_PMH_PROTOCOL_VERSION', '2.0');
  *
  * @package OaiPmhRepository
  */
-class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAbstract
+class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGeneratorAbstract
 {
-    public $document;
-    public $error;
-    private $request;
+    /**
+     * HTTP query string or POST vars formatted as an associative array.
+     * @var array
+     */
     private $query;
+    
+    /**
+     * Array of all supported metadata formats.
+     * $metdataFormats['metadataPrefix'] = ImplementingClassName
+     * @var array
+     */
     private $metadataFormats;
 
     /**
@@ -56,21 +53,16 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
         $this->document->formatOutput = true;
         $this->document->xmlStandalone = true;
         
-        $root = $this->document->createElementNS(OAI_PMH_NAMESPACE_URI,
+        $root = $this->document->createElementNS(self::OAI_PMH_NAMESPACE_URI,
             'OAI-PMH');
         $this->document->appendChild($root);
-    
-        $root->setAttributeNS(parent::XML_SCHEMA_NAMESPACE_URI, 'xsi:schemaLocation',
-            OAI_PMH_NAMESPACE_URI.' '.OAI_PMH_SCHEMA_URI);
+        
+        $root->setAttributeNS(self::XML_SCHEMA_NAMESPACE_URI, 'xsi:schemaLocation',
+            self::OAI_PMH_NAMESPACE_URI.' '.self::OAI_PMH_SCHEMA_URI);
     
         $responseDate = $this->document->createElement('responseDate', 
-            OaiPmhRepository_UtcDateTime::unixToUtc(time()));
+            self::unixToUtc(time()));
         $root->appendChild($responseDate);
-
-        $this->request = $this->document->createElement('request',
-            OAI_PMH_BASE_URL);
-
-        $root->appendChild($this->request);
         
         $this->metadataFormats = $this->getFormats();
         
@@ -86,6 +78,10 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
      */
     private function dispatchRequest()
     {
+        $request = $this->document->createElement('request',
+            OAI_PMH_BASE_URL);
+        $this->document->documentElement->appendChild($request);
+        
         $requiredArgs = array();
         $optionalArgs = array();
         
@@ -116,14 +112,14 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
                     $optionalArgs = array('identifier');
                     break;
                 default:
-                    OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_VERB);
+                    $this->throwError(self::OAI_ERR_BAD_VERB);
             }
         
         $this->checkArguments($requiredArgs, $optionalArgs);
         
         if(!$this->error) {
             foreach($this->query as $key => $value)
-                $this->request->setAttribute($key, $value);
+                $request->setAttribute($key, $value);
                 
             if($resumptionToken)
                 $this->resumeListResponse($resumptionToken);
@@ -158,38 +154,32 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
            than in PHP's returned array, if so there were duplicate arguments,
            which is not allowed. */
         if($_SERVER['REQUEST_METHOD'] == 'GET' && (urldecode($_SERVER['QUERY_STRING']) != urldecode(http_build_query($this->query))))
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
-                "Duplicate arguments in request.");
+            $this->throwError(self::OAI_ERR_BAD_ARGUMENT, "Duplicate arguments in request.");
         
         $keys = array_keys($this->query);
         
         foreach(array_diff($requiredArgs, $keys) as $arg)
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
-                "Missing required argument $arg.");
+            $this->throwError(self::OAI_ERR_BAD_ARGUMENT, "Missing required argument $arg.");
         foreach(array_diff($keys, $requiredArgs, $optionalArgs) as $arg)
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
-                "Unknown argument $arg.");
+            $this->throwError(self::OAI_ERR_BAD_ARGUMENT, "Unknown argument $arg.");
                 
         $from = $this->query['from'];
         $until = $this->query['until'];
         
-        $fromGran = OaiPmhRepository_UtcDateTime::getGranularity($from);
-        $untilGran = OaiPmhRepository_UtcDateTime::getGranularity($until);
+        $fromGran = self::getGranularity($from);
+        $untilGran = self::getGranularity($until);
         
         if($from && !$fromGran)
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
-                "Invalid date/time argument.");
+            $this->throwError(self::OAI_ERR_BAD_ARGUMENT, "Invalid date/time argument.");
         if($until && !$untilGran)
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
-                "Invalid date/time argument.");
+            $this->throwError(self::OAI_ERR_BAD_ARGUMENT, "Invalid date/time argument.");
         if($from && $until && $fromGran != $untilGran)
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_ARGUMENT,
-                "Date/time arguments of differing granularity.");
+            $this->throwError(self::OAI_ERR_BAD_ARGUMENT, "Date/time arguments of differing granularity.");
                 
         $metadataPrefix = $this->query['metadataPrefix'];
         
         if($metadataPrefix && !array_key_exists($metadataPrefix, $this->metadataFormats))
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
+            $this->throwError(self::OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
     }
     
     
@@ -202,18 +192,17 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
     {
         if($this->error)
             return;
-        $this->request->setAttribute('verb', 'Identify');
         
         /* according to the schema, this order of elements is required for the
            response to validate */
         $elements = array( 
             'repositoryName'    => get_option('oaipmh_repository_name'),
             'baseURL'           => OAI_PMH_BASE_URL,
-            'protocolVersion'   => OAI_PMH_PROTOCOL_VERSION,
+            'protocolVersion'   => self::OAI_PMH_PROTOCOL_VERSION,
             'adminEmail'        => get_option('administrator_email'),
-            'earliestDatestamp' => OaiPmhRepository_UtcDateTime::unixToUtc(0),
+            'earliestDatestamp' => self::unixToUtc(0),
             'deletedRecord'     => 'no',
-            'granularity'       => OaiPmhRepository_UtcDateTime::OAI_GRANULARITY_STRING);
+            'granularity'       => self::OAI_GRANULARITY_STRING);
         $identify = $this->createElementWithChildren(
             $this->document->documentElement, 'Identify', $elements);
         
@@ -228,7 +217,6 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
      *
      * Outputs the header and metadata in the specified format for the specified
      * identifier.
-     *
      */
     private function getRecord()
     {
@@ -238,14 +226,14 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
         $itemId = OaiPmhRepository_OaiIdentifier::oaiIdToItem($identifier);
         
         if(!$itemId) {
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_ID_DOES_NOT_EXIST);
+            $this->throwError(self::OAI_ERR_ID_DOES_NOT_EXIST);
             return;
         }
         
         $item = get_db()->getTable('Item')->find($itemId);
 
         if(!$item) {
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_ID_DOES_NOT_EXIST);
+            $this->throwError(self::OAI_ERR_ID_DOES_NOT_EXIST);
         }
 
         if(!$this->error) {
@@ -272,7 +260,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
             $itemId = OaiPmhRepository_OaiIdentifier::oaiIdToItem($identifier);
         
             if(!$itemId) {
-                OaiPmhRepository_Error::throwError($this, OAI_ERR_ID_DOES_NOT_EXIST);
+                $this->throwError(self::OAI_ERR_ID_DOES_NOT_EXIST);
                 return;
             }
         }
@@ -298,7 +286,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
         $collections = get_db()->getTable('Collection')->findAll();
         
         if(count($collections) == 0)
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_SET_HIERARCHY);
+            $this->throwError(self::OAI_ERR_NO_SET_HIERARCHY);
             
         $listSets = $this->document->createElement('ListSets');     
 
@@ -353,7 +341,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
         $tokenObject = $tokenTable->find($token);
         
         if(!$tokenObject || ($tokenObject->verb != $this->query['verb']))
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_BAD_RESUMPTION_TOKEN);
+            $this->throwError(self::OAI_ERR_BAD_RESUMPTION_TOKEN);
         else
             $this->listResponse($tokenObject->verb,
                                 $tokenObject->metadata_prefix,
@@ -403,8 +391,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
         $items = $itemTable->fetchObjects($select);  
         
         if(count($items) == 0)
-            OaiPmhRepository_Error::throwError($this, OAI_ERR_NO_RECORDS_MATCH,
-                'No records match the given criteria');
+            $this->throwError(self::OAI_ERR_NO_RECORDS_MATCH, 'No records match the given criteria');
 
         else {
             if($verb == 'ListIdentifiers')
@@ -430,7 +417,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
 
                 $tokenElement = $this->document->createElement('resumptionToken', $token->id);
                 $tokenElement->setAttribute('expirationDate',
-                    OaiPmhRepository_UtcDateTime::dbToUtc($token->expiration));
+                    self::dbToUtc($token->expiration));
                 $tokenElement->setAttribute('completeListSize', $rows);
                 $tokenElement->setAttribute('cursor', $cursor);
                 $verbElement->appendChild($tokenElement);
@@ -467,7 +454,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
             $resumptionToken->from = $from;
         if($until)
             $resumptionToken->until = $until;
-        $resumptionToken->expiration = OaiPmhRepository_UtcDateTime::unixToDb(
+        $resumptionToken->expiration = self::unixToDb(
             time() + (get_option('oaipmh_repository_expiration_time') * 60 ) );
         $resumptionToken->save();
         
