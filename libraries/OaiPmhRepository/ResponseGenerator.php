@@ -1,6 +1,7 @@
 <?php
 /**
  * @package OaiPmhRepository
+ * @subpackage Libraries
  * @author John Flatness, Yu-Hsun Lin
  * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
@@ -17,6 +18,7 @@ require_once('OaiPmhRepositoryToken.php');
  * all the XML output on-the-fly.
  *
  * @package OaiPmhRepository
+ * @subpackage Libraries
  */
 class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGeneratorAbstract
 {

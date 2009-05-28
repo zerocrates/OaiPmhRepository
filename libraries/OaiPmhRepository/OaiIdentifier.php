@@ -1,6 +1,7 @@
 <?php
 /**
  * @package OaiPmhRepository
+ * @subpackage Libraries
  * @author John Flatness, Yu-Hsun Lin
  * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
@@ -19,6 +20,7 @@ define('OAI_PMH_NAMESPACE_ID', get_option('oaipmh_repository_namespace_id'));
  * identifier by specifing the local ID of the item.
  *
  * @package OaiPmhRepository
+ * @subpackage Libraries
  */
 class OaiPmhRepository_OaiIdentifier {
     
@@ -77,4 +79,3 @@ class OaiPmhRepository_OaiIdentifier {
                 OAI_IDENTIFIER_NAMESPACE_URI.' '.OAI_IDENTIFIER_SCHEMA_URI);
    }
 }
-?>

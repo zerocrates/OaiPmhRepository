@@ -14,4 +14,3 @@
 header('Content-Type: text/xml');
 
 echo $response;
-?>

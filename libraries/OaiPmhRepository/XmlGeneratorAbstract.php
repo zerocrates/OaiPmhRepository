@@ -1,6 +1,7 @@
 <?php
 /**
  * @package OaiPmhRepository
+ * @subpackage Libraries
  * @author John Flatness, Yu-Hsun Lin
  * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
@@ -10,6 +11,7 @@
  * Parent class for all XML-generating classes.
  *
  * @package OaiPmhRepository
+ * @subpackage Libraries
  */
 class OaiPmhRepository_XmlGeneratorAbstract
 {

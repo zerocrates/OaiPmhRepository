@@ -116,4 +116,3 @@ function oaipmh_repository_admin_navigation_main($tabs)
     $tabs['OAI-PMH Repository'] = uri('oai-pmh-repository');
     return $tabs;
 }
-?>

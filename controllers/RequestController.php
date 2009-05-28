@@ -35,4 +35,3 @@ class OaiPmhRepository_RequestController extends Omeka_Controller_Action
         $this->view->response = new OaiPmhRepository_ResponseGenerator($query);
     }
 }
-?>
