@@ -92,4 +92,3 @@ class OaiPmhRepository_UtcDateTime
             return false;
     }
 }
-?>

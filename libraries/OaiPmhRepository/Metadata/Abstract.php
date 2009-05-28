@@ -128,4 +128,3 @@ abstract class OaiPmhRepository_Metadata_Abstract extends OaiPmhRepository_XmlGe
     
     abstract public function appendMetadata();
 }
-?>

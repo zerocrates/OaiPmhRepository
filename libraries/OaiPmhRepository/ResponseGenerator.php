@@ -383,13 +383,13 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_XmlGeneratorAb
         if($set)
             $itemTable->filterByCollection($select, $set);
         if($from) {
-            $select->joinLeft(array('er' => 'entities_relations'),
+            $select->joinLeft(array('er' => "{$db->prefix}entities_relations"),
                         'i.id = er.relation_id AND er.type = "Item"', array());
             $select->where('er.time >= ? OR i.added >= ?', $from);
             $select->group('i.id');
         }
         if($until) {
-            $select->joinLeft(array('er' => 'entities_relations'),
+            $select->joinLeft(array('er' => "{$db->prefix}entities_relations"),
                         'i.id = er.relation_id AND er.type = "Item"');
             $select->where('er.time <= ? OR i.added <= ?', $until);
             $select->group('i.id');
