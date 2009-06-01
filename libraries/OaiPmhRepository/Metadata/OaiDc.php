@@ -52,7 +52,7 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
          */
         $oai_dc->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
         $oai_dc->setAttribute('xmlns:xsi', parent::XML_SCHEMA_NAMESPACE_URI);
-        $oai_dc->setAttribute('xsi:schemaLocation', self::DC_NAMESPACE_URI.' '.
+        $oai_dc->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE.' '.
             self::METADATA_SCHEMA);
 
         /* Each of the 16 unqualified Dublin Core elements, in the order
