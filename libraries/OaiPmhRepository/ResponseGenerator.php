@@ -316,9 +316,9 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         $until = $this->query['until'];
         
         if($from)
-            $fromDate = OaiPmhRepository_UtcDateTime::utcToDb($from);
+            $fromDate = self::utcToDb($from);
         if($until)
-            $untilDate = OaiPmhRepository_UtcDateTime::utcToDb($until);
+            $untilDate = self::utcToDb($until);
         
         $this->listResponse($this->query['verb'], 
                             $this->query['metadataPrefix'],
