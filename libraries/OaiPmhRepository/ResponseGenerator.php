@@ -207,7 +207,16 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
             'granularity'       => self::OAI_GRANULARITY_STRING);
         $identify = $this->createElementWithChildren(
             $this->document->documentElement, 'Identify', $elements);
-        
+
+        // Publish support for compression, if appropriate
+        // This defers to compression set in Omeka's paths.php
+        if(extension_loaded('zlib') && ini_get('zlib.output_compression')) {
+            $gzip = $this->document->createElement('compression', 'gzip');
+            $deflate = $this->document->createElement('compression', 'deflate');
+            $identify->appendChild($gzip);
+            $identify->appendChild($deflate);
+        }
+
         $description = $this->document->createElement('description');
         $identify->appendChild($description);
         
