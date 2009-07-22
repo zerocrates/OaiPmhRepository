@@ -422,9 +422,9 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
                 $token = $this->createResumptionToken($verb,
                                                       $metadataPrefix,
                                                       $cursor + $listLimit,
+                                                      $set,
                                                       $from,
-                                                      $until,
-                                                      $set);
+                                                      $until);
 
                 $tokenElement = $this->document->createElement('resumptionToken', $token->id);
                 $tokenElement->setAttribute('expirationDate',
