@@ -10,9 +10,6 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-/** Plugin version: will be stored as an option */
-define('OAIPMH_REPOSITORY_PLUGIN_VERSION', get_plugin_ini('OaiPmhRepository', 'version'));
-
 /** Calculated base URL for the repository. */
 define('OAI_PMH_BASE_URL', WEB_ROOT.'/oai-pmh-repository/request');
 define('OAI_PMH_REPOSITORY_METADATA_DIRECTORY', dirname(__FILE__).'/libraries/OaiPmhRepository/Metadata');
@@ -30,7 +27,6 @@ add_filter('admin_navigation_main', 'oaipmh_repository_admin_navigation_main');
  */
 function oaipmh_repository_install()
 {
-    set_option('oaipmh_repository_plugin_version', OAIPMH_REPOSITORY_PLUGIN_VERSION);
     set_option('oaipmh_repository_name', get_option('site_title'));
     set_option('oaipmh_repository_namespace_id', 'default.must.change');
     set_option('oaipmh_repository_list_limit', 50);
@@ -95,7 +91,6 @@ function oaipmh_repository_config()
  */
 function oaipmh_repository_uninstall()
 {
-    delete_option('oaipmh_repository_plugin_version');
     delete_option('oaipmh_repository_name');
     delete_option('oaipmh_repository_namespace_id');
     delete_option('oaipmh_repository_record_limit');
