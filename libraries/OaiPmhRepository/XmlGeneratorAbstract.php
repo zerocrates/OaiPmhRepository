@@ -41,7 +41,11 @@ class OaiPmhRepository_XmlGeneratorAbstract
         $newElement = $document->createElement($name);
         foreach($children as $tag => $value)
         {
-            $newElement->appendChild($document->createElement($tag, $value));
+            if (is_array($value)) {
+                $this->createElementWithChildren($newElement, $tag, $value);
+            } else {
+                $newElement->appendChild($document->createElement($tag, $value));
+            }
         }
         $parent->appendChild($newElement);
         return $newElement;
