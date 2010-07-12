@@ -219,8 +219,31 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
 
         $description = $this->document->createElement('description');
         $identify->appendChild($description);
-        
         OaiPmhRepository_OaiIdentifier::describeIdentifier($description);
+        
+        $toolkitDescription = $this->document->createElement('description');
+        $identify->appendChild($toolkitDescription);
+        $this->describeToolkit($toolkitDescription);
+    }
+    
+    private function describeToolkit($parentElement)
+    {
+        $toolkitNamespace = 'http://oai.dlib.vt.edu/OAI/metadata/toolkit';
+        $toolkitSchema = 'http://oai.dlib.vt.edu/OAI/metadata/toolkit.xsd';
+        $version = get_db()->getTable('Plugin')->findByDirectoryName('OaiPmhRepository')->getDbVersion();
+        
+        $elements = array(
+            'title' => 'Omeka OAI-PMH Repository Plugin',
+            'author' => array(
+                'name' => 'John Flatness',
+                'email' => 'john@zerocrates.org'
+                ),
+            'version' => $version,
+            'URL' => 'http://omeka.org/codex/Plugins/OaiPmhRepository'
+            );
+        $toolkit = $this->createElementWithChildren($parentElement, 'toolkit', $elements);
+        $toolkit->setAttribute('xsi:schemaLocation', "$toolkitNamespace $toolkitSchema");
+        $toolkit->setAttribute('xmlns', $toolkitNamespace);
     }
     
     /**
