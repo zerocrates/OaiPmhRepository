@@ -74,8 +74,7 @@ class OaiPmhRepository_OaiIdentifier {
         //must set xmlns attribute manually to avoid DOM extension appending 
         //default: prefix to element name
         $oaiIdentifier->setAttribute('xmlns', OAI_IDENTIFIER_NAMESPACE_URI);
-        $oaiIdentifier->setAttributeNS(XML_SCHEMA_NAMESPACE_URI,
-                'xsi:schemaLocation',
+        $oaiIdentifier->setAttribute('xsi:schemaLocation',
                 OAI_IDENTIFIER_NAMESPACE_URI.' '.OAI_IDENTIFIER_SCHEMA_URI);
    }
 }
