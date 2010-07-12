@@ -16,11 +16,16 @@ define('OAI_PMH_REPOSITORY_METADATA_DIRECTORY', dirname(__FILE__).'/libraries/Oa
 
 require_once('OaiPmhRepository/ResponseGenerator.php');
 
-add_plugin_hook('install', 'oaipmh_repository_install');
-add_plugin_hook('config_form', 'oaipmh_repository_config_form');
-add_plugin_hook('config', 'oaipmh_repository_config');
-add_plugin_hook('uninstall', 'oaipmh_repository_uninstall');
-add_filter('admin_navigation_main', 'oaipmh_repository_admin_navigation_main');
+oaipmh_add_hooks_and_filters();
+
+function oaipmh_add_hooks_and_filters()
+{
+    add_plugin_hook('install', 'oaipmh_repository_install');
+    add_plugin_hook('config_form', 'oaipmh_repository_config_form');
+    add_plugin_hook('config', 'oaipmh_repository_config');
+    add_plugin_hook('uninstall', 'oaipmh_repository_uninstall');
+    add_filter('admin_navigation_main', 'oaipmh_repository_admin_navigation_main');
+}
 
 /**
  * install callback
