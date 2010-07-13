@@ -14,8 +14,6 @@
 define('OAI_PMH_BASE_URL', WEB_ROOT.'/oai-pmh-repository/request');
 define('OAI_PMH_REPOSITORY_METADATA_DIRECTORY', dirname(__FILE__).'/libraries/OaiPmhRepository/Metadata');
 
-require_once('OaiPmhRepository/ResponseGenerator.php');
-
 oaipmh_add_hooks_and_filters();
 
 function oaipmh_add_hooks_and_filters()
