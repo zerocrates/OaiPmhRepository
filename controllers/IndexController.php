@@ -16,7 +16,7 @@
  * @package OaiPmhRepository
  * @subpackage Controllers
  */
-class OaiPmhRepository_IndexController extends Omeka_Controller_Action
+class OaiPmhRepository_IndexController extends Zend_Controller_Action
 {
     /**
      * Default (index) action method.

@@ -12,7 +12,9 @@
 
 /** Calculated base URL for the repository. */
 define('OAI_PMH_BASE_URL', WEB_ROOT.'/oai-pmh-repository/request');
-define('OAI_PMH_REPOSITORY_METADATA_DIRECTORY', dirname(__FILE__).'/libraries/OaiPmhRepository/Metadata');
+define('OAI_PMH_REPOSITORY_METADATA_DIRECTORY', dirname(__FILE__)
+                                              . DIRECTORY_SEPARATOR
+                                              . 'metadata');
 
 oaipmh_add_hooks_and_filters();
 

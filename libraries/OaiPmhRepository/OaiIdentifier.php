@@ -7,10 +7,6 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-define('OAI_IDENTIFIER_NAMESPACE_URI', 'http://www.openarchives.org/OAI/2.0/oai-identifier');
-define('OAI_IDENTIFIER_SCHEMA_URI', 'http://www.openarchives.org/OAI/2.0/oai-identifier.xsd');
-define('OAI_PMH_NAMESPACE_ID', get_option('oaipmh_repository_namespace_id'));
-
 /**
  * Utility class for dealing with OAI identifiers
  *
@@ -23,6 +19,14 @@ define('OAI_PMH_NAMESPACE_ID', get_option('oaipmh_repository_namespace_id'));
  * @subpackage Libraries
  */
 class OaiPmhRepository_OaiIdentifier {
+    const OAI_IDENTIFIER_NAMESPACE_URI = 'http://www.openarchives.org/OAI/2.0/oai-identifier';
+    const OAI_IDENTIFIER_SCHEMA_URI = 'http://www.openarchives.org/OAI/2.0/oai-identifier.xsd';
+    
+    private static $namespaceId;
+    
+    public static function initializeNamespace($namespaceId) {
+        self::$namespaceId = $namespaceId;
+    }
     
     /**
      * Converts the given OAI identifier to an Omeka item ID.
@@ -34,9 +38,7 @@ class OaiPmhRepository_OaiIdentifier {
         $scheme = strtok($oaiId, ':');
         $namespaceId = strtok(':');
         $localId = strtok(':');
-        if( $scheme != 'oai' || 
-            $namespaceId != OAI_PMH_NAMESPACE_ID ||
-            $localId < 0) {
+        if ($scheme != 'oai' || $namespaceId != self::$namespaceId || $localId < 0) {
            return NULL;
         }
         return $localId;
@@ -49,7 +51,7 @@ class OaiPmhRepository_OaiIdentifier {
      * @return string OAI identifier.
      */
     public static function itemToOaiId($itemId) {
-        return 'oai:'.OAI_PMH_NAMESPACE_ID.':'.$itemId;
+        return 'oai:' . self::$namespaceId . ':' . $itemId;
     }
     
     /**
@@ -61,7 +63,7 @@ class OaiPmhRepository_OaiIdentifier {
     public static function describeIdentifier($parentElement) {
         $elements = array(
             'scheme'               => 'oai',
-            'repositoryIdentifier' => OAI_PMH_NAMESPACE_ID,
+            'repositoryIdentifier' => self::$namespaceId,
             'delimiter'            => ':',
             'sampleIdentifier'     => self::itemtoOaiId(1) );
         $oaiIdentifier = $parentElement->ownerDocument->createElement('oai-identifier');
@@ -73,8 +75,8 @@ class OaiPmhRepository_OaiIdentifier {
         
         //must set xmlns attribute manually to avoid DOM extension appending 
         //default: prefix to element name
-        $oaiIdentifier->setAttribute('xmlns', OAI_IDENTIFIER_NAMESPACE_URI);
+        $oaiIdentifier->setAttribute('xmlns', self::OAI_IDENTIFIER_NAMESPACE_URI);
         $oaiIdentifier->setAttribute('xsi:schemaLocation',
-                OAI_IDENTIFIER_NAMESPACE_URI.' '.OAI_IDENTIFIER_SCHEMA_URI);
+            self::OAI_IDENTIFIER_NAMESPACE_URI . ' ' . self::OAI_IDENTIFIER_SCHEMA_URI);
    }
 }

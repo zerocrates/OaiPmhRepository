@@ -14,6 +14,8 @@ require_once('OaiPmhRepository/OaiIdentifier.php');
  * Abstract class on which all other metadata format handlers are based.
  * Includes logic for all metadata-independent record output.
  *
+ * @todo Migration to PHP 5.3 will allow the abstract getter functions to be
+ *       static, as they should be.
  * @package OaiPmhRepository
  * @subpackage Metadata Formats
  */
@@ -39,11 +41,15 @@ abstract class OaiPmhRepository_Metadata_Abstract extends OaiPmhRepository_OaiXm
      * @param Item item Item object whose metadata will be output.
      * @param DOMElement element Parent element for XML output.
      */
-    public function __construct($item, $element)
+    public function __construct($item = null, $element = null)
     {
-        $this->item = $item;
-        $this->parentElement = $element;
-        $this->document = $element->ownerDocument;
+        if($item) {
+            $this->item = $item;
+        }
+        if($element) {
+            $this->parentElement = $element;
+            $this->document = $element->ownerDocument;
+        }
     }
     
     /**

@@ -6,11 +6,10 @@
  * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
-
-require_once('OaiXmlGeneratorAbstract.php');
-require_once('OaiIdentifier.php');
-require_once('XmlGeneratorAbstract.php');
-require_once('OaiPmhRepositoryToken.php');
+ 
+require_once 'OaiXmlGeneratorAbstract.php';
+require_once 'OaiIdentifier.php';
+require_once 'Metadata/Abstract.php';
 
 /**
  * OaiPmhRepository_ResponseGenerator generates the XML responses to OAI-PMH
@@ -50,6 +49,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         $this->query = $query;
         $this->document = new DomDocument('1.0', 'UTF-8');
         
+        OaiPmhRepository_OaiIdentifier::initializeNamespace(get_option('oaipmh_repository_namespace_id'));
+        
         //formatOutput makes DOM output "pretty" XML.  Good for debugging, but
         //adds some overhead, especially on large outputs.
         $this->document->formatOutput = true;
@@ -86,14 +87,16 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         
         $requiredArgs = array();
         $optionalArgs = array();
-        
-        $verb = $this->query['verb'];
-        $resumptionToken = $this->query['resumptionToken'];
+        if (!($verb = $this->_getParam('verb'))) {
+            $this->throwError(self::OAI_ERR_BAD_VERB, 'No verb specified.');
+            return;
+        }
+        $resumptionToken = $this->_getParam('resumptionToken');
         
         if($resumptionToken)
             $requiredArgs = array('resumptionToken');
         else
-            switch($verb)
+            switch($this->query['verb'])
             {
                 case 'Identify':
                     break;
@@ -165,8 +168,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         foreach(array_diff($keys, $requiredArgs, $optionalArgs) as $arg)
             $this->throwError(self::OAI_ERR_BAD_ARGUMENT, "Unknown argument $arg.");
                 
-        $from = $this->query['from'];
-        $until = $this->query['until'];
+        $from = $this->_getParam('from');
+        $until = $this->_getParam('until');
         
         $fromGran = self::getGranularity($from);
         $untilGran = self::getGranularity($until);
@@ -178,7 +181,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         if($from && $until && $fromGran != $untilGran)
             $this->throwError(self::OAI_ERR_BAD_ARGUMENT, "Date/time arguments of differing granularity.");
                 
-        $metadataPrefix = $this->query['metadataPrefix'];
+        $metadataPrefix = $this->_getParam('metadataPrefix');
         
         if($metadataPrefix && !array_key_exists($metadataPrefix, $this->metadataFormats))
             $this->throwError(self::OAI_ERR_CANNOT_DISSEMINATE_FORMAT);
@@ -254,8 +257,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
      */
     private function getRecord()
     {
-        $identifier = $this->query['identifier'];
-        $metadataPrefix = $this->query['metadataPrefix'];
+        $identifier = $this->_getParam('identifier');
+        $metadataPrefix = $this->_getParam('metadataPrefix');
         
         $itemId = OaiPmhRepository_OaiIdentifier::oaiIdToItem($identifier);
         
@@ -288,7 +291,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
      */
     private function listMetadataFormats()
     {
-        $identifier = $this->query['identifier'];
+        $identifier = $this->_getParam('identifier');
         /* Items are not used for lookup, simply checks for an invalid id */
         if($identifier) {
             $itemId = OaiPmhRepository_OaiIdentifier::oaiIdToItem($identifier);
@@ -344,8 +347,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
      */
     private function initListResponse()
     {
-        $from = $this->query['from'];
-        $until = $this->query['until'];
+        $from = $this->_getParam('from');
+        $until = $this->_getParam('until');
         
         if($from)
             $fromDate = self::utcToDb($from);
@@ -511,15 +514,22 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
                 $filename = $dirEntry->getFilename();
                 $pathname = $dirEntry->getPathname();
                 // Check for all PHP files, ignore the abstract class
-                if(preg_match('/^(.+)\.php$/', $filename, $match) && $match[1] != 'Abstract') {
+                if(preg_match('/^(.+)\.php$/', $filename, $match)) {
                     require_once($pathname);
                     $class = "OaiPmhRepository_Metadata_${match[1]}";
-                    $object = new $class(null, null);
+                    $object = new $class;
                     $metadataFormats[$object->getMetadataPrefix()] = $class;
                 }
             }
         }
         return $metadataFormats;
+    }
+    
+    private function _getParam($param) {
+        if (array_key_exists($param, $this->query)) {
+            return $this->query[$param];
+        }
+        return null;
     }
     
     /**

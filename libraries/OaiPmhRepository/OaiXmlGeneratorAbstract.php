@@ -7,6 +7,8 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
+require_once 'XmlGeneratorAbstract.php';
+
 /**
  * Abstract class containing functions for tasks common to all OAI-PMH
  * responses.

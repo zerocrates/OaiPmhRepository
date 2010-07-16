@@ -17,7 +17,7 @@
  * @subpackage Controllers
  * @uses OaiPmhRepository_ResponseGenerator
  */
-class OaiPmhRepository_RequestController extends Omeka_Controller_Action
+class OaiPmhRepository_RequestController extends Zend_Controller_Action
 {    
     /**
      * Passes POST/GET variables over to response generator and results out to
