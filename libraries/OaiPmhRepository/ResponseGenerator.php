@@ -34,6 +34,10 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
      */
     private $metadataFormats;
 
+    private $_listLimit;
+
+    private $_tokenExpirationTime;
+
     /**
      * Constructor
      *
@@ -45,6 +49,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
      */
     public function __construct($query)
     {
+        $this->_loadConfig();
+
         $this->error = false;
         $this->query = $query;
         $this->document = new DomDocument('1.0', 'UTF-8');
@@ -70,6 +76,18 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         $this->metadataFormats = $this->getFormats();
         
         $this->dispatchRequest();
+    }
+
+    private function _loadConfig()
+    {
+        $iniFile = OAI_PMH_REPOSITORY_PLUGIN_DIRECTORY
+                 . DIRECTORY_SEPARATOR
+                 . 'config.ini';
+
+        $ini = new Zend_Config_Ini($iniFile, 'oai-pmh-repository');
+
+        $this->_listLimit = $ini->list_limit;
+        $this->_tokenExpirationTime = $ini->token_expiration_time;
     }
     
     /**
@@ -400,7 +418,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
      * @uses createResumptionToken()
      */
     private function listResponse($verb, $metadataPrefix, $cursor, $set, $from, $until) {
-        $listLimit = get_option('oaipmh_repository_list_limit');
+        $listLimit = $this->_listLimit;
         
         $itemTable = get_db()->getTable('Item');
         $select = $itemTable->getSelect();
@@ -492,7 +510,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         if($until)
             $resumptionToken->until = $until;
         $resumptionToken->expiration = self::unixToDb(
-            time() + (get_option('oaipmh_repository_expiration_time') * 60 ) );
+            time() + ($this->_tokenExpirationTime * 60 ) );
         $resumptionToken->save();
         
         return $resumptionToken;

@@ -25,20 +25,6 @@
     invalid identifiers.</p>
 </div>
 <div class="field">
-    <label for="oaipmh_repository_list_limit">List response limit</label>
-    <?php echo __v()->formText('oaipmh_repository_list_limit', $listLimit);?>
-    <p class="explanation">Number of individual items that can be returned in a
-    response at once.  Larger values will increase memory usage but reduce the
-    number of database queries and HTTP requests.  Smaller values will reduce
-    memory usage but increase the number of DB queries and requests.</p>
-</div>
-<div class="field">
-    <label for="oaipmh_repository_expiration_time">List expiration time</label>
-    <?php echo __v()->formText('oaipmh_repository_expiration_time', $expirationTime);?>
-    <p class="explanation">Amount of time in minutes a resumptionToken is valid for.
-    The specification suggests a number in the tens of minutes.</p>
-</div>
-<div class="field">
     <label for="oaipmh_repository_expose_files">Expose files</label>
     <?php echo __v()->formCheckbox('oaipmh_repository_expose_files', $exposeFiles, null, 
         array('checked' => '1', 'unChecked' => '0'));?>
