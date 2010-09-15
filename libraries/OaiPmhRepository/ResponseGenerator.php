@@ -425,16 +425,12 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         $itemTable->filterByPublic($select, true);
         if($set)
             $itemTable->filterByCollection($select, $set);
-        if($from || $until) {
-            $select->joinLeft(array('er' => "{$db->prefix}entities_relations"),
-                        'i.id = er.relation_id AND er.type = "Item"', array());
-        }
         if($from) {
-            $select->where('er.time >= ? OR i.added >= ?', $from);
+            $select->where('i.modified >= ? OR i.added >= ?', $from);
             $select->group('i.id');
         }
         if($until) {
-            $select->where('er.time <= ? OR i.added <= ?', $until);
+            $select->where('i.modified <= ? OR i.added <= ?', $until);
             $select->group('i.id');
         }
         
