@@ -25,7 +25,7 @@ function oaipmh_add_hooks_and_filters()
     add_plugin_hook('config_form', 'oaipmh_repository_config_form');
     add_plugin_hook('config', 'oaipmh_repository_config');
     add_plugin_hook('uninstall', 'oaipmh_repository_uninstall');
-    add_filter('admin_navigation_main', 'oaipmh_repository_admin_navigation_main');
+    add_plugin_hook('admin_append_to_dashboard_secondary', 'oaipmh_repository_admin_append_to_dashboard_secondary');
 }
 
 /**
@@ -103,11 +103,14 @@ function oaipmh_repository_uninstall()
 }
 
 /**
- * admin_navigation_main filter
- * @param array $tabs array of admin navigation tabs
+ * admin dashboard secondary hook
  */
-function oaipmh_repository_admin_navigation_main($tabs)
+function oaipmh_repository_admin_append_to_dashboard_secondary()
 {
-    $tabs['OAI-PMH Repository'] = uri('oai-pmh-repository');
-    return $tabs;
+?>
+<div id="oai-pmh-repository" class="info-panel">
+    <h2>OAI-PMH Repository</h2>
+    <p>Harvesters can access metadata from this site at <a href="<?php echo OAI_PMH_BASE_URL ?>"><?php echo OAI_PMH_BASE_URL ?></a></p>.
+</div>
+<?php
 }

@@ -10,6 +10,7 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 ?>
+
 <div class="field">
     <label for="oaipmh_repository_name">Repository name</label>
     <?php echo __v()->formText('oaipmh_repository_name', $repoName);?>
@@ -18,8 +19,7 @@
 <div class="field">
     <label for="oaipmh_repository_namespace_id">Namespace identifier</label>
     <?php echo __v()->formText('oaipmh_repository_namespace_id', $namespaceID);?>
-    <p class="explanation">The oai-identifier specification requires
-    repositories to specify a namespace identifier.  This will be used to form
+    <p class="explanation">This will be used to form
     globally unique IDs for the exposed metadata items.  This value is required
     to be a domain name you have registered.  Using other values will generate
     invalid identifiers.</p>
