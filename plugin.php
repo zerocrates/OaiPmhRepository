@@ -34,7 +34,7 @@ function oaipmh_add_hooks_and_filters()
 function oaipmh_repository_install()
 {
     set_option('oaipmh_repository_name', get_option('site_title'));
-    set_option('oaipmh_repository_namespace_id', 'default.must.change');
+    set_option('oaipmh_repository_namespace_id', oaipmh_repository_get_server_name());
     set_option('oaipmh_repository_expose_files', 1);
     
     $db = get_db();
@@ -113,4 +113,17 @@ function oaipmh_repository_admin_append_to_dashboard_secondary()
     <p>Harvesters can access metadata from this site at <a href="<?php echo OAI_PMH_BASE_URL ?>"><?php echo OAI_PMH_BASE_URL ?></a></p>.
 </div>
 <?php
+}
+
+/**
+ * Gets the domain name of the server.
+ * @return string  
+ */
+function oaipmh_repository_get_server_name()
+{
+    $name = preg_replace('/[^a-z0-9\-\.]/i', '', $_SERVER['SERVER_NAME']);
+    if ($name == 'localhost') {
+        $name = 'default.must.change';
+    }
+    return $name;
 }
