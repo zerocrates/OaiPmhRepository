@@ -106,7 +106,9 @@ class OaiPmhRepository_Metadata_Mods extends OaiPmhRepository_Metadata_Abstract
         $languages = $this->item->getElementTextsByElementNameAndSetName('Language', 'Dublin Core');
         foreach($languages as $language)
         {
-            $this->appendNewElement($mods, 'language', $language->text);
+            $language = $this->appendNewElement($mods, 'language');
+            $languageTerm = $this->appendNewElement($language, 'languageTerm', $language->text);
+            $languageTerm->setAttribute('type', 'text');
         }
         
         $rights = $this->item->getElementTextsByElementNameAndSetName('Rights', 'Dublin Core');
