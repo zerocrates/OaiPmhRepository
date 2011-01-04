@@ -138,14 +138,14 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         $locationSet = $this->appendNewElement($locationWrap, 'cdwalite:locationSet');
         $this->appendNewElement($locationSet, 'cdwalite:locationName', 'location unknown');
 
-        /* Subject => classificationWrap->classification
+        /* Subject => classWrap->classification
          * Not required.
          */
         $subjects = $this->item->getElementTextsByElementNameAndSetName('Subject', 'Dublin Core');
-        $classificationWrap = $this->appendNewElement($descriptive, 'cdwalite:classificationWrap');
+        $classWrap = $this->appendNewElement($descriptive, 'cdwalite:classWrap');
         foreach($subjects as $subject)
         {
-            $this->appendNewElement($classificationWrap, 'cdwalite:classification', $subject->text);
+            $this->appendNewElement($classWrap, 'cdwalite:classification', $subject->text);
         }
         
         /* Description => descriptiveNoteWrap->descriptiveNoteSet->descriptiveNote
@@ -185,8 +185,8 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         $recordWrap = $this->appendNewElement($descriptive, 'cdwalite:recordWrap');
         $this->appendNewElement($recordWrap, 'cdwalite:recordID', $this->item->id);
         $this->appendNewElement($recordWrap, 'cdwalite:recordType', 'item');
-        $recordMetadataWrap = $this->appendNewElement($recordWrap, 'cdwalite:recordMetadataWrap');
-        $recordInfoID = $this->appendNewElement($recordMetadataWrap, 'cdwalite:recordInfoID', OaiPmhRepository_OaiIdentifier::itemToOaiId($this->item->id));
+        $recordInfoWrap = $this->appendNewElement($recordWrap, 'cdwalite:recordInfoWrap');
+        $recordInfoID = $this->appendNewElement($recordInfoWrap, 'cdwalite:recordInfoID', OaiPmhRepository_OaiIdentifier::itemToOaiId($this->item->id));
         $recordInfoID->setAttribute('cdwalite:type', 'oai');
         
         /* file link => resourceWrap->resourceSet->linkResource
