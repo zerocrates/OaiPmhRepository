@@ -182,7 +182,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
          * 'item' => recordWrap-recordType
          * Required.
          */     
-        $recordWrap = $this->appendNewElement($descriptive, 'cdwalite:recordWrap');
+        $recordWrap = $this->appendNewElement($administrative, 'cdwalite:recordWrap');
         $this->appendNewElement($recordWrap, 'cdwalite:recordID', $this->item->id);
         $this->appendNewElement($recordWrap, 'cdwalite:recordType', 'item');
         $recordInfoWrap = $this->appendNewElement($recordWrap, 'cdwalite:recordInfoWrap');
