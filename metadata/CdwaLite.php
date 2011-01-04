@@ -52,14 +52,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
             .' '.self::METADATA_SCHEMA);
             
         $cdwalite = $this->appendNewElement($cdwaliteWrap, 'cdwalite:cdwalite');
-        /* Each of the 16 unqualified Dublin Core elements, in the order
-         * specified by the oai_dc XML schema
-         */
-        /*$dcElementNames = array( 
-                                 'publisher', 'contributor',
-                                 'format', 'identifier', 'source', 'language',
-                                 'relation', 'coverage', 'rights' );
-                                 */
+        
         /* ====================
          * DESCRIPTIVE METADATA
          * ====================
@@ -76,16 +69,6 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         foreach($types as $type)
         {
             $this->appendNewElement($objectWorkTypeWrap, 'cdwalite:objectWorkType', $type->text);
-        }      
-        
-        /* Subject => classificationWrap->classification
-         * Not required.
-         */
-        $subjects = $this->item->getElementTextsByElementNameAndSetName('Subject', 'Dublin Core');
-        $classificationWrap = $this->appendNewElement($descriptive, 'cdwalite:classificationWrap');
-        foreach($subjects as $subject)
-        {
-            $this->appendNewElement($classificationWrap, 'cdwalite:classification', $subject->text);
         }
         
         /* Title => titleWrap->titleSet->title
@@ -99,7 +82,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
             $titleSet = $this->appendNewElement($titleWrap, 'cdwalite:titleSet');
             $this->appendNewElement($titleSet, 'cdwalite:title', $title->text);
         }
-        
+
         /* Creator => displayCreator
          * Required.  Fill with 'Unknown' if omitted.
          * Non-repeatable, implode for inclusion of many creators.
@@ -154,6 +137,16 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         $locationWrap = $this->appendNewElement($descriptive, 'cdwalite:locationWrap');
         $locationSet = $this->appendNewElement($locationWrap, 'cdwalite:locationSet');
         $this->appendNewElement($locationSet, 'cdwalite:locationName', 'location unknown');
+
+        /* Subject => classificationWrap->classification
+         * Not required.
+         */
+        $subjects = $this->item->getElementTextsByElementNameAndSetName('Subject', 'Dublin Core');
+        $classificationWrap = $this->appendNewElement($descriptive, 'cdwalite:classificationWrap');
+        foreach($subjects as $subject)
+        {
+            $this->appendNewElement($classificationWrap, 'cdwalite:classification', $subject->text);
+        }
         
         /* Description => descriptiveNoteWrap->descriptiveNoteSet->descriptiveNote
          * Not required.
@@ -194,7 +187,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         $this->appendNewElement($recordWrap, 'cdwalite:recordType', 'item');
         $recordMetadataWrap = $this->appendNewElement($recordWrap, 'cdwalite:recordMetadataWrap');
         $recordInfoID = $this->appendNewElement($recordMetadataWrap, 'cdwalite:recordInfoID', OaiPmhRepository_OaiIdentifier::itemToOaiId($this->item->id));
-        $recordInfoID->setAttribute('type', 'oai');
+        $recordInfoID->setAttribute('cdwalite:type', 'oai');
         
         /* file link => resourceWrap->resourceSet->linkResource
          * Not required.
