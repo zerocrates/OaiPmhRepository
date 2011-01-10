@@ -81,8 +81,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
     private function _loadConfig()
     {
         $iniFile = OAI_PMH_REPOSITORY_PLUGIN_DIRECTORY
-                 . DIRECTORY_SEPARATOR
-                 . 'config.ini';
+                 . '/config.ini';
 
         $ini = new Zend_Config_Ini($iniFile, 'oai-pmh-repository');
 
