@@ -83,21 +83,9 @@ abstract class OaiPmhRepository_Metadata_Abstract extends OaiPmhRepository_OaiXm
      */
     public function appendHeader()
     {
-        $table = get_db()->getTable('EntitiesRelations');
-        $select = $table->getSelect();
-        $select->where('relationship_id = 1 OR relationship_id = 2')
-               ->where('type = ?', 'Item')
-               ->where('relation_id = ?', $this->item->id)
-               ->order('time DESC');
-        $relation = $table->fetchObject($select);
-        
         $headerData['identifier'] = 
             OaiPmhRepository_OaiIdentifier::itemToOaiId($this->item->id);
-        // $headerData['datestamp'] = self::dbToUtc($this->item->modified);
-        if($relation && $relation->time)
-            $headerData['datestamp'] = self::dbToUtc($relation->time);
-        else
-            $headerData['datestamp'] = self::dbToUtc($this->item->added);
+        $headerData['datestamp'] = self::dbToUtc($this->item->modified);
         
         release_object($relation);
         
