@@ -137,7 +137,7 @@ class OaiPmhRepository_Metadata_Mods extends OaiPmhRepository_Metadata_Abstract
         }
         
         $recordInfo = $this->appendNewElement($mods, 'recordInfo');
-        $this->appendNewElement($recordInfo, 'recordIdentifier', $item->id);
+        $this->appendNewElement($recordInfo, 'recordIdentifier', $this->item->id);
     }
     
     /**

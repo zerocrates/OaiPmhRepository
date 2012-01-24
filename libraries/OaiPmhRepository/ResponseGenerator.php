@@ -364,18 +364,18 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
      */
     private function initListResponse()
     {
-        $from = $this->_getParam('from');
-        $until = $this->_getParam('until');
+        $fromDate = null;
+        $untilDate = null;
         
-        if($from)
+        if(($from = $this->_getParam('from')))
             $fromDate = self::utcToDb($from);
-        if($until)
+        if(($until= $this->_getParam('until')))
             $untilDate = self::utcToDb($until);
         
         $this->listResponse($this->query['verb'], 
                             $this->query['metadataPrefix'],
                             0,
-                            $this->query['set'],
+                            $this->_getParam('set'),
                             $fromDate,
                             $untilDate);
     }
