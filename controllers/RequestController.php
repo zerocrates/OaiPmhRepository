@@ -29,9 +29,12 @@ class OaiPmhRepository_RequestController extends Zend_Controller_Action
         {
             case 'GET': $query = &$_GET; break;
             case 'POST': $query = &$_POST; break;
-            default: die('Error determining request type.');
+            default: throw new Exception('Error determining request type.');
         }
-        
-        $this->view->response = new OaiPmhRepository_ResponseGenerator($query);
+
+        $this->_helper->viewRenderer->setNoRender();
+        $response = $this->getResponse();
+        $response->setHeader('Content-Type', 'text/xml');
+        $response->appendBody(new OaiPmhRepository_ResponseGenerator($query));
     }
 }
