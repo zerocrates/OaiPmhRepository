@@ -70,7 +70,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
             self::OAI_PMH_NAMESPACE_URI.' '.self::OAI_PMH_SCHEMA_URI);
     
         $responseDate = $this->document->createElement('responseDate', 
-            self::unixToUtc(time()));
+            OaiPmhRepository_Date::unixToUtc(time()));
         $root->appendChild($responseDate);
         
         $this->metadataFormats = $this->getFormats();
@@ -222,7 +222,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
             'baseURL'           => OAI_PMH_BASE_URL,
             'protocolVersion'   => self::OAI_PMH_PROTOCOL_VERSION,
             'adminEmail'        => get_option('administrator_email'),
-            'earliestDatestamp' => self::unixToUtc(0),
+            'earliestDatestamp' => OaiPmhRepository_Date::unixToUtc(0),
             'deletedRecord'     => 'no',
             'granularity'       => self::OAI_GRANULARITY_STRING);
         $identify = $this->createElementWithChildren(
@@ -368,9 +368,9 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         $untilDate = null;
         
         if(($from = $this->_getParam('from')))
-            $fromDate = self::utcToDb($from);
+            $fromDate = OaiPmhRepository_Date::utcToDb($from);
         if(($until= $this->_getParam('until')))
-            $untilDate = self::utcToDb($until);
+            $untilDate = OaiPmhRepository_Date::utcToDb($until);
         
         $this->listResponse($this->query['verb'], 
                             $this->query['metadataPrefix'],
@@ -467,7 +467,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
 
                 $tokenElement = $this->document->createElement('resumptionToken', $token->id);
                 $tokenElement->setAttribute('expirationDate',
-                    self::dbToUtc($token->expiration));
+                    OaiPmhRepository_Date::dbToUtc($token->expiration));
                 $tokenElement->setAttribute('completeListSize', $rows);
                 $tokenElement->setAttribute('cursor', $cursor);
                 $verbElement->appendChild($tokenElement);
@@ -504,7 +504,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
             $resumptionToken->from = $from;
         if($until)
             $resumptionToken->until = $until;
-        $resumptionToken->expiration = self::unixToDb(
+        $resumptionToken->expiration = OaiPmhRepository_Date::unixToDb(
             time() + ($this->_tokenExpirationTime * 60 ) );
         $resumptionToken->save();
         

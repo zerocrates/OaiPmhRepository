@@ -85,7 +85,7 @@ abstract class OaiPmhRepository_Metadata_Abstract extends OaiPmhRepository_OaiXm
     {
         $headerData['identifier'] = 
             OaiPmhRepository_OaiIdentifier::itemToOaiId($this->item->id);
-        $headerData['datestamp'] = self::dbToUtc($this->item->modified);
+        $headerData['datestamp'] = OaiPmhRepository_Date::dbToUtc($this->item->modified);
         
         release_object($relation);
         

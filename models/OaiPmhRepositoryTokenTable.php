@@ -19,9 +19,10 @@ class OaiPmhRepositoryTokenTable extends Omeka_Db_Table
      */
     public function purgeExpiredTokens()
     {
-        /* This really should just use $this->_name, but that property only
-           seems to be set sporadically, particularly for plugin tables.  For
-           now, the table name is hardcoded. */
-        $this->getDb()->delete($this->getTableName(), 'expiration <= NOW()');
+        $db = $this->getDb();
+        $db->delete(
+            $this->getTableName(),
+            'expiration <= ' . $db->quote(OaiPmhRepository_Date::unixToDb(time()))
+        );
     }
 }
