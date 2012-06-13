@@ -421,16 +421,17 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         
         $itemTable = get_db()->getTable('Item');
         $select = $itemTable->getSelect();
+        $alias = $itemTable->getTableAlias();
         $itemTable->filterByPublic($select, true);
         if($set)
             $itemTable->filterByCollection($select, $set);
         if($from) {
-            $select->where('i.modified >= ? OR i.added >= ?', $from);
-            $select->group('i.id');
+            $select->where("$alias.modified >= ? OR $alias.added >= ?", $from);
+            $select->group("$alias.id");
         }
         if($until) {
-            $select->where('i.modified <= ? OR i.added <= ?', $until);
-            $select->group('i.id');
+            $select->where("$alias.modified <= ? OR $alias.added <= ?", $until);
+            $select->group("$alias.id");
         }
         
         // Total number of rows that would be returned
