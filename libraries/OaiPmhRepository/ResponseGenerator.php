@@ -293,8 +293,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         if(!$this->error) {
             $getRecord = $this->document->createElement('GetRecord');
             $this->document->documentElement->appendChild($getRecord);
-            $record = new $this->metadataFormats[$metadataPrefix]($item, $getRecord);
-            $record->appendRecord();
+            $record = new $this->metadataFormats[$metadataPrefix]($item, $this->document);
+            $record->appendRecord($getRecord);
         }
     }
     
@@ -322,8 +322,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
             $listMetadataFormats = $this->document->createElement('ListMetadataFormats');
             $this->document->documentElement->appendChild($listMetadataFormats);
             foreach($this->metadataFormats as $format) {
-                $formatObject = new $format(null, $listMetadataFormats);
-                $formatObject->declareMetadataFormat();
+                $formatObject = new $format(null, $this->document);
+                $formatObject->declareMetadataFormat($listMetadataFormats);
             }
         }
     }
@@ -453,8 +453,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
             $verbElement = $this->document->createElement($verb);
             $this->document->documentElement->appendChild($verbElement);
             foreach($items as $item) {
-                $record = new $this->metadataFormats[$metadataPrefix]($item, $verbElement);
-                $record->$method();
+                $record = new $this->metadataFormats[$metadataPrefix]($item, $this->document);
+                $record->$method($verbElement);
                 // Drop Item from memory explicitly
                 release_object($this->item);
             }

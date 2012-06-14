@@ -36,11 +36,8 @@ class OaiPmhRepository_Metadata_Mods extends OaiPmhRepository_Metadata_Abstract
      *
      * @link http://www.loc.gov/standards/mods/dcsimple-mods.html
      */
-    public function appendMetadata() 
+    public function appendMetadata($metadataElement) 
     {
-        $metadataElement = $this->document->createElement('metadata');
-        $this->parentElement->appendChild($metadataElement);   
-        
         $mods = $this->document->createElementNS(
             self::METADATA_NAMESPACE, 'mods');
         $metadataElement->appendChild($mods);

@@ -35,11 +35,8 @@ class OaiPmhRepository_Metadata_Mets extends OaiPmhRepository_Metadata_Abstract
      * and further children for each of the Dublin Core fields present in the
      * item.
      */
-    public function appendMetadata()
+    public function appendMetadata($metadataElement)
     {
-        $metadataElement = $this->document->createElement('metadata');
-        $this->parentElement->appendChild($metadataElement);
-
         $mets = $this->document->createElementNS(
             self::METADATA_NAMESPACE, 'mets');
         $metadataElement->appendChild($mets);

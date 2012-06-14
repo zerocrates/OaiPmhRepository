@@ -34,11 +34,8 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
      * and further children for each of the Dublin Core fields present in the
      * item.
      */
-    public function appendMetadata() 
+    public function appendMetadata($metadataElement) 
     {
-        $metadataElement = $this->document->createElement('metadata');
-        $this->parentElement->appendChild($metadataElement);   
-        
         $cdwaliteWrap = $this->document->createElementNS(
             self::METADATA_NAMESPACE, 'cdwalite:cdwaliteWrap');
         $metadataElement->appendChild($cdwaliteWrap);

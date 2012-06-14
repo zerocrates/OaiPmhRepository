@@ -28,11 +28,8 @@ class OaiPmhRepository_Metadata_OmekaXml extends OaiPmhRepository_Metadata_Abstr
      * and further children for each of the Dublin Core fields present in the
      * item.
      */
-    public function appendMetadata()
+    public function appendMetadata($metadataElement)
     {
-        $metadataElement = $this->document->createElement('metadata');
-        $this->parentElement->appendChild($metadataElement);
-
         $omekaXml = new Omeka_Output_Xml_Item($this->item, 'item');
 
         $node = $omekaXml->getDoc()->documentElement;

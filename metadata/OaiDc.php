@@ -37,11 +37,8 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
      * and further children for each of the Dublin Core fields present in the
      * item.
      */
-    public function appendMetadata() 
+    public function appendMetadata($metadataElement) 
     {
-        $metadataElement = $this->document->createElement('metadata');
-        $this->parentElement->appendChild($metadataElement);   
-        
         $oai_dc = $this->document->createElementNS(
             self::METADATA_NAMESPACE, 'oai_dc:dc');
         $metadataElement->appendChild($oai_dc);
