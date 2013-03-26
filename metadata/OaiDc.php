@@ -7,7 +7,7 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-require_once HELPERS;
+//require_once HELPERS;
 
 /**
  * Class implmenting metadata output for the required oai_dc metadata format.

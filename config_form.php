@@ -13,12 +13,12 @@
 
 <div class="field">
     <label for="oaipmh_repository_name">Repository name</label>
-    <?php echo __v()->formText('oaipmh_repository_name', $repoName);?>
+    <?php echo get_view()->formText('oaipmh_repository_name', $repoName);?>
     <p class="explanation">Name for this OAI-PMH repository.</p>
 </div>
 <div class="field">
     <label for="oaipmh_repository_namespace_id">Namespace identifier</label>
-    <?php echo __v()->formText('oaipmh_repository_namespace_id', $namespaceID);?>
+    <?php echo get_view()->formText('oaipmh_repository_namespace_id', $namespaceID);?>
     <p class="explanation">This will be used to form
     globally unique IDs for the exposed metadata items.  This value is required
     to be a domain name you have registered.  Using other values will generate
@@ -26,7 +26,7 @@
 </div>
 <div class="field">
     <label for="oaipmh_repository_expose_files">Expose files</label>
-    <?php echo __v()->formCheckbox('oaipmh_repository_expose_files', $exposeFiles, null, 
+    <?php echo get_view()->formCheckbox('oaipmh_repository_expose_files', $exposeFiles, null, 
         array('checked' => '1', 'unChecked' => '0'));?>
     <p class="explanation">Whether the plugin should include identifiers for the
     files associated with items.  This provides harvesters with direct access to

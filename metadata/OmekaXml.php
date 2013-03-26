@@ -7,7 +7,7 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-require_once HELPERS;
+//require_once HELPERS;
 
 /**
  * Class implmenting metadata output for the required oai_dc metadata format.
@@ -55,7 +55,7 @@ class OaiPmhRepository_Metadata_OmekaXml extends OaiPmhRepository_Metadata_Abstr
      */
     public function getMetadataSchema()
     {
-        return Omeka_Output_Xml_Abstract::XMLNS_SCHEMALOCATION;
+        return Omeka_Output_OmekaXml_AbstractOmekaXml::XMLNS_SCHEMALOCATION;
     }
 
     /**
@@ -65,7 +65,7 @@ class OaiPmhRepository_Metadata_OmekaXml extends OaiPmhRepository_Metadata_Abstr
      */
     public function getMetadataNamespace()
     {
-        return Omeka_Output_Xml_Abstract::XMLNS;
+        return Omeka_Output_OmekaXml_AbstractOmekaXml::XMLNS;
     }
 }
 
