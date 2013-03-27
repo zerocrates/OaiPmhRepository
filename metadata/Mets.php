@@ -66,8 +66,8 @@ class OaiPmhRepository_Metadata_Mets extends OaiPmhRepository_Metadata_Abstract
         foreach($dcElementNames as $elementName)
         {
             $upperName = Inflector::camelize($elementName);
-            $dcElements = $this->item->getElementTextsByElementNameAndSetName(
-                $upperName, 'Dublin Core');
+            $dcElements = $this->item->getElementTexts(
+               'Dublin Core', $upperName);
             foreach($dcElements as $elementText)
             {
                 $this->appendNewElement($dcXml,
@@ -75,7 +75,7 @@ class OaiPmhRepository_Metadata_Mets extends OaiPmhRepository_Metadata_Abstract
             }
         }
 
-        if ($this->item->hasFiles()) {
+        if (metadata($this->item,'has files')) {
             $fileSection = $this->appendNewElement($mets, 'fileSec');
             $fileGroup = $this->appendNewElement($fileSection, 'fileGrp');
             $fileGroup->setAttribute('USE', 'ORIGINAL');
