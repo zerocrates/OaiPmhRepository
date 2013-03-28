@@ -89,7 +89,7 @@
 	 {
 		 set_option('oaipmh_repository_name',$_POST['oaipmh_repository_name']);
 		 set_option('oaipmh_repository_namespace_id',$_POST['oaipmh_repository_namespace_id']);
-		 set_option('oaipmh_repository_expose_files',$_POST['oaipmh_repositor_expose_files']);
+		 set_option('oaipmh_repository_expose_files',$_POST['oaipmh_repository_expose_files']);
 
 
 	 }

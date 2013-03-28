@@ -7,7 +7,6 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-//require_once HELPERS;
 
 /**
  * Class implmenting metadata output CDWA Lite.
@@ -60,18 +59,20 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         /* Type => objectWorkTypeWrap->objectWorkType 
          * Required.  Fill with 'Unknown' if omitted.
          */
-        $types = $this->item->getElementTextsByElementNameAndSetName('Type', 'Dublin Core');
+        $types = $this->item->getElementTexts('Dublin Core','Type');
         $objectWorkTypeWrap = $this->appendNewElement($descriptive, 'cdwalite:objectWorkTypeWrap');
-        if(count($types) == 0) $types[] = 'Unknown';
+        //print_r($objectWorkTypeWrap);
+        if(count($types) == 0) $types[] = 'Unknown'; 
         foreach($types as $type)
-        {
-            $this->appendNewElement($objectWorkTypeWrap, 'cdwalite:objectWorkType', $type->text);
+        {  
+            $this->appendNewElement($objectWorkTypeWrap, 'cdwalite:objectWorkTypeWrap', ($type == 'Unknown')? $type: $type->text );
+
         }
         
         /* Title => titleWrap->titleSet->title
          * Required.  Fill with 'Unknown' if omitted.
          */        
-        $titles = $this->item->getElementTextsByElementNameAndSetName('Title', 'Dublin Core');
+        $titles = $this->item->getElementTexts('Dublin Core','Title');
         $titleWrap = $this->appendNewElement($descriptive, 'cdwalite:titleWrap');
         if(count($types) == 0) $types[] = 'Unknown';
         foreach($titles as $title)
@@ -84,7 +85,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
          * Required.  Fill with 'Unknown' if omitted.
          * Non-repeatable, implode for inclusion of many creators.
          */
-        $creators = $this->item->getElementTextsByElementNameAndSetName('Creator', 'Dublin Core');
+        $creators = $this->item->getElementTexts('Dublin Core','Creator');
 
         $creatorTexts = array();
         foreach($creators as $creator) $creatorTexts[] = $creator->text;
@@ -115,7 +116,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
          * Required. Fill with 'Unknown' if omitted.
          * Non-repeatable, include only first date.
          */
-        $dates = $this->item->getElementTextsByElementNameAndSetName('Date', 'Dublin Core');
+        $dates = $this->item->getElementTexts('Dublin Core','Date');
         $dateText = count($dates) > 0 ? $dates[0]->text : 'Unknown';
         $this->appendNewElement($descriptive, 'cdwalite:displayCreationDate', $dateText);
         
@@ -141,7 +142,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         /* Subject => classWrap->classification
          * Not required.
          */
-        $subjects = $this->item->getElementTextsByElementNameAndSetName('Subject', 'Dublin Core');
+        $subjects = $this->item->getElementTexts('Dublin Core','Subject');
         $classWrap = $this->appendNewElement($descriptive, 'cdwalite:classWrap');
         foreach($subjects as $subject)
         {
@@ -151,7 +152,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         /* Description => descriptiveNoteWrap->descriptiveNoteSet->descriptiveNote
          * Not required.
          */
-        $descriptions = $this->item->getElementTextsByElementNameAndSetName('Description', 'Dublin Core');
+        $descriptions = $this->item->getElementTexts('Dublin Core','Description');
         if(count($descriptions) > 0)
         {
             $descriptiveNoteWrap = $this->appendNewElement($descriptive, 'cdwalite:descriptiveNoteWrap');
@@ -172,7 +173,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
         /* Rights => rightsWork
          * Not required.
          */
-        $rights = $this->item->getElementTextsByElementNameAndSetName('Rights', 'Dublin Core');
+        $rights = $this->item->getElementTexts('Dublin Core','Rights');
         foreach($rights as $right)
         {
             $this->appendNewElement($administrative, 'cdwalite:rightsWork', $right->text);
@@ -200,7 +201,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
                 {
                     $resourceSet = $this->appendNewElement($resourceWrap, 'cdwalite:resourceSet');
                     $this->appendNewElement($resourceSet, 
-                        'cdwalite:linkResource', $file->getWebPath('archive'));
+                        'cdwalite:linkResource', __(WEB_FILES.'/original/'.$file->filename));
                 }
             }
         }

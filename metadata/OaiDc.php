@@ -7,7 +7,7 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-//require_once HELPERS;
+
 
 /**
  * Class implmenting metadata output for the required oai_dc metadata format.
@@ -85,7 +85,7 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
                     foreach($files as $file) 
                     {
                         $this->appendNewElement($oai_dc, 
-                            'dc:identifier', $file->getWebPath('archive'));
+                            'dc:identifier', __(WEB_FILES.'/original/'.$file->filename));
                     }
                 }
             }

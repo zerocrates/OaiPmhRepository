@@ -89,7 +89,8 @@ class OaiPmhRepository_Metadata_Mets extends OaiPmhRepository_Metadata_Abstract
                 $location = $this->appendNewElement($fileElement, 'FLocat');
                 $location->setAttribute('LOCTYPE', 'URL');
                 $location->setAttribute('xlink:type', 'simple');
-                $location->setAttribute('xlink:href', $file->getWebPath('archive'));
+                $location->setAttribute('xlink:href',__(WEB_FILES.'/original/'.$file->filename));
+
                 release_object($file);
             }
         }
