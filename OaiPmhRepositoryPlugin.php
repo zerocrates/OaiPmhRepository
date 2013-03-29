@@ -102,11 +102,13 @@
 	 }
      public function hookAdminDashboard()
      {
-     ?>
-       <div id="oai-pmh-repository" class="info-panel">
-          <h2>OAI-PMH Repository</h2>
-	  <p>Harvester can access metadata from this site <a href="<?php echo OAI_PMH_BASE_URL; ?>"><?php echo OAI_PMH_BASE_URL; ?></a></p>.
-       </div>
+     ?> 
+         <section class="five columns omega">
+             <div class="panel">
+               <h2>OAI-PMH Repository</h2>
+               <p>Harvester can access metadata from this site <a href="<?php echo OAI_PMH_BASE_URL; ?>"><?php echo OAI_PMH_BASE_URL; ?></a>.</p>
+             </div> 
+         </section>
      <?php
      }
 
