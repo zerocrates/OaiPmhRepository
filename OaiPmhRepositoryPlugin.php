@@ -101,14 +101,14 @@
 		 include('config_form.php');
 	 }
      public function hookAdminDashboard()
-	 {
+     {
      ?>
-      <div id="oai-pmh-repository" class="info-panel">
-	  <h2>OAI-PMH Repository</h2>
+       <div id="oai-pmh-repository" class="info-panel">
+          <h2>OAI-PMH Repository</h2>
 	  <p>Harvester can access metadata from this site <a href="<?php echo OAI_PMH_BASE_URL; ?>"><?php echo OAI_PMH_BASE_URL; ?></a></p>.
-	  </div>
-	 <?php
-	 }
+       </div>
+     <?php
+     }
 
 	 private function oaipmh_repository_get_server_name(){
 		 $name = preg_replace('/[^a-z0-9\-\.]/i','',$_SERVER['SERVER_NAME']);
