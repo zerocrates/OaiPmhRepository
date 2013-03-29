@@ -29,7 +29,8 @@ class OaiPmhRepository_Metadata_OmekaXml extends OaiPmhRepository_Metadata_Abstr
      */
     public function appendMetadata($metadataElement)
     {
-        $omekaXml = new Omeka_Output_Xml_Item($this->item, 'item');
+  
+        $omekaXml = new Output_ItemOmekaXml($this->item, 'item');
 
         $node = $omekaXml->getDoc()->documentElement;
         $node = $this->document->importNode($node, true);
