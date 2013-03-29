@@ -201,7 +201,7 @@ class OaiPmhRepository_Metadata_CdwaLite extends OaiPmhRepository_Metadata_Abstr
                 {
                     $resourceSet = $this->appendNewElement($resourceWrap, 'cdwalite:resourceSet');
                     $this->appendNewElement($resourceSet, 
-                        'cdwalite:linkResource', __(WEB_FILES.'/original/'.$file->filename));
+                        'cdwalite:linkResource',$file->getWebPath('original'));
                 }
             }
         }
