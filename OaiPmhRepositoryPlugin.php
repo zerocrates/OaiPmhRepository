@@ -23,11 +23,13 @@
         'install',
         'config_form',
         'config',
-        'uninstall',
-        'admin_dashboard'
+        'uninstall'
+        //'admin_dashboard'
     );
     
-    protected $_filters = array();
+    protected $_filters = array(
+        'admin_dashboard_panels'
+    );
     
     protected $_options = array(
         'oaipmh_repository_name',
@@ -100,17 +102,19 @@
 		 $exposeFiles = get_option('oaipmh_repository_expose_files');
 		 include('config_form.php');
 	 }
-     public function hookAdminDashboard()
-     {
-     ?> 
-         <section class="five columns omega">
-             <div class="panel">
-               <h2>OAI-PMH Repository</h2>
-               <p>Harvester can access metadata from this site <a href="<?php echo OAI_PMH_BASE_URL; ?>"><?php echo OAI_PMH_BASE_URL; ?></a>.</p>
-             </div> 
-         </section>
-     <?php
-     }
+         public function filterAdminDashboardPanels($panels)
+         {
+             ob_start();
+             ?>
+            <h2>OAI-PMH Repository</h2>
+            <p>Harvester can access metadata from this site 
+                <a href="<?php echo OAI_PMH_BASE_URL; ?>"><?php echo OAI_PMH_BASE_URL; ?></a></p>
+            <?php
+             
+             $panels[] = ob_get_clean();
+             
+             return $panels;
+         }
 
 	 private function oaipmh_repository_get_server_name(){
 		 $name = preg_replace('/[^a-z0-9\-\.]/i','',$_SERVER['SERVER_NAME']);
