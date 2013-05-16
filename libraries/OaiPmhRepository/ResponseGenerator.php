@@ -348,7 +348,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
             $this->document->documentElement->appendChild($listSets); 
             foreach ($collections as $collection) {
                 $elements = array( 'setSpec' => $collection->id,
-                                   'setName' => $collection->name );
+                                   'setName' => metadata($collection,array('Dublin Core','Title')));
                 $this->createElementWithChildren($listSets, 'set', $elements);
             }
         }

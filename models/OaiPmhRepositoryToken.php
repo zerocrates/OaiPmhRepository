@@ -14,7 +14,7 @@ require_once('OaiPmhRepositoryTokenTable.php');
  * @package OaiPmhRepository
  * @subpackage Models
  */
-class OaiPmhRepositoryToken extends Omeka_Record
+class OaiPmhRepositoryToken extends Omeka_Record_AbstractRecord
 {
     public $id;
     public $verb;
