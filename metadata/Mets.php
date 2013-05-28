@@ -81,16 +81,32 @@ class OaiPmhRepository_Metadata_Mets extends OaiPmhRepository_Metadata_Abstract
             $fileGroup->setAttribute('USE', 'ORIGINAL');
             foreach ($this->item->getFiles() as $file) {
                 $fileElement = $this->appendNewElement($fileGroup, 'file');
+                 $fileElement->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
                 $fileElement->setAttribute('ID', 'file-' . $file->id);
                 $fileElement->setAttribute('MIMETYPE', $file->mime_type);
                 $fileElement->setAttribute('CHECKSUM', $file->authentication);
                 $fileElement->setAttribute('CHECKSUMTYPE', 'MD5');
-
+                     
                 $location = $this->appendNewElement($fileElement, 'FLocat');
+                
                 $location->setAttribute('LOCTYPE', 'URL');
                 $location->setAttribute('xlink:type', 'simple');
                 $location->setAttribute('xlink:title', $file->original_filename);
                 $location->setAttribute('xlink:href',$file->getWebPath('original'));
+               
+                
+                foreach($dcElementNames as $elementName)
+                {
+                    $upperName = Inflector::camelize($elementName);
+                    $dcElements = metadata($file,array('Dublin Core',$upperName));
+                    //foreach($dcElements as $elementText)
+                    //{
+                    if(isset($dcElements)){
+                    $this->appendNewElement($fileElement,
+                    'dc:'.$elementName, $dcElements);
+                    }
+                }
+  
               
                 release_object($file);
             }
@@ -128,5 +144,10 @@ class OaiPmhRepository_Metadata_Mets extends OaiPmhRepository_Metadata_Abstract
     public function getMetadataNamespace()
     {
         return self::METADATA_NAMESPACE;
+    }
+    protected function getFileMetadata($file)
+    {
+        $db = get_db()->getTable('ElementTexts');
+        return $db->findBy(array('record_type'=>'file','record_id' => $file->id));
     }
 }
