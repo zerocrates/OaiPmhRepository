@@ -94,15 +94,19 @@ class OaiPmhRepository_Metadata_Mets extends OaiPmhRepository_Metadata_Abstract
                 $location->setAttribute('xlink:title', $file->original_filename);
                 $location->setAttribute('xlink:href',$file->getWebPath('original'));
                
+                $FContent = $this->appendNewElement($fileElement, 'FContent');
+
+                
+                  $dcXml = $this->appendNewElement($FContent, 'xmlData');
+                  $dcXml->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
                 
                 foreach($dcElementNames as $elementName)
                 {
                     $upperName = Inflector::camelize($elementName);
                     $dcElements = metadata($file,array('Dublin Core',$upperName));
-                    //foreach($dcElements as $elementText)
-                    //{
+              
                     if(isset($dcElements)){
-                    $this->appendNewElement($fileElement,
+                    $this->appendNewElement($dcXml,
                     'dc:'.$elementName, $dcElements);
                     }
                 }
