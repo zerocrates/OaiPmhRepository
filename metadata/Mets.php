@@ -51,10 +51,12 @@ class OaiPmhRepository_Metadata_Mets extends OaiPmhRepository_Metadata_Abstract
         $mets->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 
         $metadataSection = $this->appendNewElement($mets, 'dmdSec');
-        $metadataSection->setAttribute('ID', 'dmd-' . $this->item->id);
+        $itemDmdId = 'dmd-' . $this->item->id;
+        $metadataSection->setAttribute('ID', $itemDmdId);
         $dcWrap = $this->appendNewElement($metadataSection, 'mdWrap');
-        $dcWrap->setAttribute('MDTYPE', 'DC');
-
+        $dcWrap->setAttribute('MDTYPE', 'DC');       
+        
+        
         $dcXml = $this->appendNewElement($dcWrap, 'xmlData');
         $dcXml->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
 
@@ -74,40 +76,50 @@ class OaiPmhRepository_Metadata_Mets extends OaiPmhRepository_Metadata_Abstract
                     'dc:'.$elementName, $elementText->text);
             }
         }
-
-        if (metadata($this->item,'has files')) {
+        $fileIds = array();
+        if (metadata($this->item,'has files')) {          
             $fileSection = $this->appendNewElement($mets, 'fileSec');
             $fileGroup = $this->appendNewElement($fileSection, 'fileGrp');
             $fileGroup->setAttribute('USE', 'ORIGINAL');
-            foreach ($this->item->getFiles() as $file) {
+            
+            foreach ($this->item->getFiles() as $file) {               
+                $fileDmdId = "dmd-file-" . $file->id;
+                $fileId = 'file-' . $file->id;
+                
                 $fileElement = $this->appendNewElement($fileGroup, 'file');
-                 $fileElement->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
-                $fileElement->setAttribute('ID', 'file-' . $file->id);
+                $fileElement->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
+                $fileElement->setAttribute('ID', $fileId);
                 $fileElement->setAttribute('MIMETYPE', $file->mime_type);
                 $fileElement->setAttribute('CHECKSUM', $file->authentication);
                 $fileElement->setAttribute('CHECKSUMTYPE', 'MD5');
+                $fileElement->setAttribute('DMDID', $fileDmdId);
                      
                 $location = $this->appendNewElement($fileElement, 'FLocat');
                 
                 $location->setAttribute('LOCTYPE', 'URL');
                 $location->setAttribute('xlink:type', 'simple');
                 $location->setAttribute('xlink:title', $file->original_filename);
-                $location->setAttribute('xlink:href',$file->getWebPath('original'));
+                $location->setAttribute('xlink:href',$file->getWebPath('original'));              
                
-                $FContent = $this->appendNewElement($fileElement, 'FContent');
-
+                $fileContentMetadata = $this->appendNewElement($mets, 'dmdSec');
+                $fileContentMetadata->setAttribute('ID' , $fileDmdId);
                 
-                  $dcXml = $this->appendNewElement($FContent, 'xmlData');
-                  $dcXml->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
+                $fileDcWrap = $this->appendNewElement($fileContentMetadata, 'mdWrap');
+                $fileDcWrap->setAttribute('MDTYPE', 'DC');         
                 
+                $fileDcXml = $this->appendNewElement($fileDcWrap, 'xmlData');
+                $fileDcXml->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
+                
+                $fileIds[] = $fileId;
+                        
                 foreach($dcElementNames as $elementName)
                 {
                     $upperName = Inflector::camelize($elementName);
                     $dcElements = metadata($file,array('Dublin Core',$upperName));
-              
+                     
                     if(isset($dcElements)){
-                    $this->appendNewElement($dcXml,
-                    'dc:'.$elementName, $dcElements);
+                          $this->appendNewElement($fileDcXml,
+                          'dc:'.$elementName, $dcElements);
                     }
                 }
   
@@ -117,7 +129,12 @@ class OaiPmhRepository_Metadata_Mets extends OaiPmhRepository_Metadata_Abstract
         }
 
         $structMap = $this->appendNewElement($mets, 'structMap');
-        $this->appendNewElement($structMap, 'div');
+        $topDiv = $this->appendNewElement($structMap, 'div');
+        $topDiv->setAttribute('DMDID', $itemDmdId);
+        foreach($fileIds as $id){
+            $fptr = $this->appendNewElement($topDiv, 'fptr');
+            $fptr->setAttribute('FILEID', $id);
+        }
     }
 
     /**
@@ -149,6 +166,8 @@ class OaiPmhRepository_Metadata_Mets extends OaiPmhRepository_Metadata_Abstract
     {
         return self::METADATA_NAMESPACE;
     }
+    
+    
     protected function getFileMetadata($file)
     {
         $db = get_db()->getTable('ElementTexts');
