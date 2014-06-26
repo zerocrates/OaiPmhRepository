@@ -4,45 +4,54 @@
  * @copyright John Flatness, Center for History and New Media, 2013-2014
  * @package OaiPmhRepository
  */
- 
-define('OAI_PMH_BASE_URL',WEB_ROOT.'/oai-pmh-repository/request');
-define('OAI_PMH_REPOSITORY_PLUGIN_DIRECTORY',dirname(__FILE__));
-define('OAI_PMH_REPOSITORY_METADATA_DIRECTORY',OAI_PMH_REPOSITORY_PLUGIN_DIRECTORY.'/metadata');
- 
- /**
-  * OaiPmhRepository plugin class
-  *
-  * @package OaiPmhRepository
-  */
+
+define('OAI_PMH_BASE_URL', WEB_ROOT . '/oai-pmh-repository/request');
+define('OAI_PMH_REPOSITORY_PLUGIN_DIRECTORY', dirname(__FILE__));
+define('OAI_PMH_REPOSITORY_METADATA_DIRECTORY', OAI_PMH_REPOSITORY_PLUGIN_DIRECTORY . '/metadata');
+
+/**
+ * OaiPmhRepository plugin class
+ *
+ * @package OaiPmhRepository
+ */
 class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
 {
+    /**
+     * @var array Hooks for the plugin.
+     */
     protected $_hooks = array(
         'install',
+        'uninstall',
         'config_form',
         'config',
-        'uninstall'
     );
-    
+
+    /**
+     * @var array Filters for the plugin.
+     */
     protected $_filters = array(
-        'admin_dashboard_panels'
+        'admin_dashboard_panels',
     );
-    
+
+    /**
+     * @var array Options and their default values.
+     */
     protected $_options = array(
         'oaipmh_repository_name',
         'oaipmh_repository_namespace_id',
-        'oaipmh_repository_expose_files',
+        'oaipmh_repository_expose_files' => 1,
         'oaipmh_repository_expose_empty_collections' => 1,
         'oaipmh_repository_expose_item_type' => 0,
     );
-    
+
     /**
      * OaiPmhRepository install hook.
      */
     public function hookInstall()
     {
-        set_option('oaipmh_repository_name', get_option('site_title'));
-        set_option('oaipmh_repository_namespace_id', $this->_getServerName());
-        set_option('oaipmh_repository_namespace_expose_files', 1);
+        $this->_options['oaipmh_repository_name'] = get_option('site_title');
+        $this->_options['oaipmh_repository_namespace_id'] = $this->_getServerName();
+        $this->_installOptions();
 
         $db = get_db();
         /* Table: Stores currently active resumptionTokens
@@ -56,63 +65,72 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
            set: Optional set argument of original request
            expiration: Datestamp after which token is expired
         */
-        $sql = <<<SQL
-CREATE TABLE IF NOT EXISTS `{$db->prefix}oai_pmh_repository_tokens` (
-    `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-    `verb` ENUM('ListIdentifiers', 'ListRecords', 'ListSets') COLLATE utf8_unicode_ci NOT NULL,
-    `metadata_prefix` TEXT COLLATE utf8_unicode_ci NOT NULL,
-    `cursor` INT(10) UNSIGNED NOT NULL,
-    `from` DATETIME DEFAULT NULL,
-    `until` DATETIME DEFAULT NULL,
-    `set` INT(10) UNSIGNED DEFAULT NULL,
-    `expiration` DATETIME NOT NULL,
-    PRIMARY KEY  (`id`),
-    INDEX(`expiration`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
-SQL;
+        $sql = "
+        CREATE TABLE IF NOT EXISTS `{$db->prefix}oai_pmh_repository_tokens` (
+            `id` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+            `verb` ENUM('ListIdentifiers', 'ListRecords', 'ListSets') COLLATE utf8_unicode_ci NOT NULL,
+            `metadata_prefix` TEXT COLLATE utf8_unicode_ci NOT NULL,
+            `cursor` INT(10) UNSIGNED NOT NULL,
+            `from` DATETIME DEFAULT NULL,
+            `until` DATETIME DEFAULT NULL,
+            `set` INT(10) UNSIGNED DEFAULT NULL,
+            `expiration` DATETIME NOT NULL,
+            PRIMARY KEY  (`id`),
+            INDEX(`expiration`)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+        ";
         $db->query($sql);
     }
 
+    /**
+     * Uninstall the plugin.
+     */
     public function hookUninstall()
     {
-        delete_option('oaipmh_repository_name');
-        delete_option('oaipmh_repository_namespace_id');
+        // Old options in config.ini.
         delete_option('oaipmh_repository_record_limit');
         delete_option('oaipmh_repository_expiration_time');
-        delete_option('oaipmh_repository_expose_files');
-        delete_option('oaipmh_repository_expose_item_type');
+        $this->_uninstallOptions();
 
         $db = get_db();
         $sql = "DROP TABLE IF EXISTS `{$db->prefix}oai_pmh_repository_tokens`;";
         $db->query($sql);
     }
 
-    public function hookConfig()
+    /**
+     * Display the config form.
+     */
+    public function hookConfigForm($args)
     {
-        set_option('oaipmh_repository_name', $_POST['oaipmh_repository_name']);
-        set_option('oaipmh_repository_namespace_id', $_POST['oaipmh_repository_namespace_id']);
-        set_option('oaipmh_repository_expose_files', $_POST['oaipmh_repository_expose_files']);
-        set_option('oaipmh_repository_expose_empty_collections', $_POST['oaipmh_repository_expose_empty_collections']);
-        set_option('oaipmh_repository_expose_item_type', $_POST['oaipmh_repository_expose_item_type']);
+        $view = $args['view'];
+        echo $view->partial(
+            'plugins/oai-pmh-repository-config-form.php',
+            array(
+                'view' => $view,
+            )
+        );
     }
 
-    public function hookConfigForm()
+    /**
+      * Handle the config form.
+      */
+    public function hookConfig($args)
     {
-        $repoName = get_option('oaipmh_repository_name');
-        $namespaceID = get_option('oaipmh_repository_namespace_id');
-        $exposeFiles = get_option('oaipmh_repository_expose_files');
-        include('config_form.php');
+        $post = $args['post'];
+        foreach ($post as $key => $value) {
+            set_option($key, $value);
+        }
     }
 
+    /**
+     * Filter to add a dashboard panel.
+     */
     public function filterAdminDashboardPanels($panels)
     {
-        ob_start();
-?>
-<h2>OAI-PMH Repository</h2>
-<p>Harvester can access metadata from this site
-<a href="<?php echo OAI_PMH_BASE_URL; ?>"><?php echo OAI_PMH_BASE_URL; ?></a></p>
-<?php
-        $panels[] = ob_get_clean();
+        $html = '<h2>' . __('OAI-PMH Repository') . '</h2>';
+        $html .= '<p>' . __('Harvester can access metadata from this site: %s.', sprintf('<a href="%s">%s</a>', OAI_PMH_BASE_URL, OAI_PMH_BASE_URL)) . '</p>';
+        $panels[] = $html;
+
         return $panels;
     }
 
