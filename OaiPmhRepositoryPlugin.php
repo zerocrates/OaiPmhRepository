@@ -5,7 +5,11 @@
  * @package OaiPmhRepository
  */
 
-define('OAI_PMH_BASE_URL', WEB_ROOT . '/oai-pmh-repository/request');
+define('OAI_PMH_BASE_URL',
+    WEB_ROOT . '/'
+    . (($baseUrl = get_option('oaipmh_repository_base_url'))
+        ? $baseUrl
+        : 'oai-pmh-repository/request'));
 define('OAI_PMH_REPOSITORY_PLUGIN_DIRECTORY', dirname(__FILE__));
 define('OAI_PMH_REPOSITORY_METADATA_DIRECTORY', OAI_PMH_REPOSITORY_PLUGIN_DIRECTORY . '/metadata');
 
@@ -24,6 +28,7 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
         'uninstall',
         'config_form',
         'config',
+        'define_routes',
     );
 
     /**
@@ -37,6 +42,7 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
      * @var array Options and their default values.
      */
     protected $_options = array(
+        'oaipmh_repository_base_url' => 'oai-pmh-repository/request',
         'oaipmh_repository_name',
         'oaipmh_repository_namespace_id',
         'oaipmh_repository_expose_files' => 1,
@@ -120,6 +126,33 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
         foreach ($post as $key => $value) {
             set_option($key, $value);
         }
+    }
+
+    /**
+     * Define routes.
+     *
+     * @param Zend_Controller_Router_Rewrite $router
+     */
+    public function hookDefineRoutes($args)
+    {
+        if (is_admin_theme()) {
+            return;
+        }
+
+        $route = get_option('oaipmh_repository_base_url');
+
+        // If base url is not set, use the default controller/action.
+        if (empty($route)) {
+            return;
+        }
+
+        $args['router']->addRoute('oai-pmh-repository', new Zend_Controller_Router_Route(
+            $route,
+            array(
+                'module' => 'oai-pmh-repository',
+                'controller' => 'request',
+                'action' => 'index',
+        )));
     }
 
     /**
