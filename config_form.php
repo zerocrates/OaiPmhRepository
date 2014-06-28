@@ -18,6 +18,22 @@ $view = get_view();
 
 <div class="field">
     <div class="two columns alpha">
+        <?php echo $view->formLabel('oaipmh_repository_base_url',
+            __('Repository base url')); ?>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation">
+            <?php echo __('Base URL for this OAI-PMH repository.');
+            echo ' ' . __('Default is "oai-pmh-repository/request" (always available), but it can be "oai/request" or simply "oai-pmh".'); ?>
+        </p>
+        <p class="explanation">
+            <?php echo __('Currently, harvesters can access metadata from this url: %s.', sprintf('<a href="%s">%s</a>', OAI_PMH_BASE_URL, OAI_PMH_BASE_URL)); ?></p>
+        </p>
+        <?php echo $view->formText('oaipmh_repository_base_url', get_option('oaipmh_repository_base_url')); ?>
+    </div>
+</div>
+<div class="field">
+    <div class="two columns alpha">
         <label for="oaipmh_repository_name"><?php echo __('Repository name'); ?></label>
     </div>
     <div class="inputs five columns omega">
@@ -95,4 +111,3 @@ $view = get_view();
             array('checked' => (boolean) get_option('oaipmh_repository_add_human_stylesheet'))); ?>
     </div>
 </div>
-
