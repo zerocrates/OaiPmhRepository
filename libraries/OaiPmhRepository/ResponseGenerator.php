@@ -218,7 +218,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
             'baseURL'           => OAI_PMH_BASE_URL,
             'protocolVersion'   => self::OAI_PMH_PROTOCOL_VERSION,
             'adminEmail'        => get_option('administrator_email'),
-            'earliestDatestamp' => OaiPmhRepository_Date::unixToUtc(0),
+            'earliestDatestamp' => $this->_getEarliestDatestamp(),
             'deletedRecord'     => 'no',
             'granularity'       => OaiPmhRepository_Date::OAI_GRANULARITY_STRING
         );
@@ -624,5 +624,22 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
     public function __toString()
     {
         return $this->document->saveXML();
+    }
+
+    /**
+     * Helper to get the earlieast datestamp of the repository.
+     *
+     * @return string OAI-PMH date stamp.
+     */
+    private function _getEarliestDatestamp()
+    {
+        $earliestItem = get_record('Item', array(
+            'public' => 1,
+            'sort_field' => 'added',
+            'sort_dir' => 'a',
+        ));
+        return $earliestItem
+            ? OaiPmhRepository_Date::dbToUtc($earliestItem->added)
+            : OaiPmhRepository_Date::unixToUtc(0);
     }
 }
