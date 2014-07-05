@@ -315,7 +315,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
     {
         $db = get_db();
         if ((boolean) get_option('oaipmh_repository_expose_empty_collections')) {
-            $collections = $db->getTable('Collection')->findAll();
+            $collections = get_db()->getTable('Collection')
+                ->findBy(array('public' => '1'));
         }
         else {
             $select = new Omeka_Db_Select();
