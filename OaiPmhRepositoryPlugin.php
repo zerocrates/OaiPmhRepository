@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS `{$db->prefix}oai_pmh_repository_tokens` (
     `expiration` DATETIME NOT NULL,
     PRIMARY KEY  (`id`),
     INDEX(`expiration`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
 SQL;
         $db->query($sql);
     }
