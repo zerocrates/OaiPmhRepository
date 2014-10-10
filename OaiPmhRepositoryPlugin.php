@@ -39,7 +39,7 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
     public function hookInstall()
     {
         set_option('oaipmh_repository_name', get_option('site_title'));
-        set_option('oaipmh_repository_namespace_id', $this->oaipmh_repository_get_server_name());
+        set_option('oaipmh_repository_namespace_id', $this->_getServerName());
         set_option('oaipmh_repository_namespace_expose_files', 1);
 
         $db = get_db();
@@ -111,7 +111,7 @@ SQL;
         return $panels;
     }
 
-    private function oaipmh_repository_get_server_name()
+    private function _getServerName()
     {
         $name = preg_replace('/[^a-z0-9\-\.]/i', '', $_SERVER['SERVER_NAME']);
         if ($name == 'localhost') {
