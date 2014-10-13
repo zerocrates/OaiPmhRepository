@@ -44,3 +44,16 @@
             array('checked' => '1', 'unChecked' => '0'));?>
     </div>
 </div>
+<div class="field">
+    <div class="two columns alpha">
+        <?php echo $view->formLabel('oaipmh_repository_expose_empty_collections',
+            __('Expose empty collections')); ?>
+    </div>
+    <div class='inputs five columns omega'>
+        <?php echo get_view()->formCheckbox('oaipmh_repository_expose_empty_collections', true,
+            array('checked' => (boolean) get_option('oaipmh_repository_expose_empty_collections'))); ?>
+        <p class="explanation">
+            <?php echo __('Whether the plugin should expose empty public collections.'); ?>
+        </p>
+    </div>
+</div>

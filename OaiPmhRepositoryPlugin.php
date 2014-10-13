@@ -31,6 +31,7 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
         'oaipmh_repository_name',
         'oaipmh_repository_namespace_id',
         'oaipmh_repository_expose_files',
+        'oaipmh_repository_expose_empty_collections' => 1,
     );
     
     /**
@@ -89,6 +90,7 @@ SQL;
         set_option('oaipmh_repository_name', $_POST['oaipmh_repository_name']);
         set_option('oaipmh_repository_namespace_id', $_POST['oaipmh_repository_namespace_id']);
         set_option('oaipmh_repository_expose_files', $_POST['oaipmh_repository_expose_files']);
+        set_option('oaipmh_repository_expose_empty_collections', $_POST['oaipmh_repository_expose_empty_collections']);
     }
 
     public function hookConfigForm()

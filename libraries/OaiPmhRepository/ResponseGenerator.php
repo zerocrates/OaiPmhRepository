@@ -313,8 +313,21 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
      */
     private function listSets()
     {
-        $collections = get_db()->getTable('Collection')->findAll();
-        
+        $db = get_db();
+        if ((boolean) get_option('oaipmh_repository_expose_empty_collections')) {
+            $collections = $db->getTable('Collection')->findAll();
+        }
+        else {
+            $select = new Omeka_Db_Select();
+            $select
+                ->from(array('collections' => $db->Collection))
+                ->joinInner(array('items' => $db->Item), 'collections.id = items.collection_id', array())
+                ->where('collections.public = 1')
+                ->where('items.public = 1')
+                ->group('collections.id');
+            $collections = get_db()->getTable('Collection')->fetchObjects($select);
+        }
+
         if(count($collections) == 0)
             $this->throwError(self::OAI_ERR_NO_SET_HIERARCHY);
             
