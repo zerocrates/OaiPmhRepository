@@ -370,7 +370,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         if(($from = $this->_getParam('from')))
             $fromDate = OaiPmhRepository_Date::utcToDb($from);
         if(($until= $this->_getParam('until')))
-            $untilDate = OaiPmhRepository_Date::utcToDb($until);
+            $untilDate = OaiPmhRepository_Date::utcToDb($until, true);
         
         $this->listResponse($this->query['verb'], 
                             $this->query['metadataPrefix'],
@@ -430,7 +430,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
             $select->group("$alias.id");
         }
         if($until) {
-            $select->where("$alias.modified <= ? OR $alias.added <= ?", $until);
+            $select->where("$alias.modified < ? OR $alias.added < ?", $until);
             $select->group("$alias.id");
         }
         

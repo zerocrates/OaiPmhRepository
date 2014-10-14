@@ -62,11 +62,27 @@ class OaiPmhRepository_Date {
      * Converts the given time string to the Omeka database's format.
      *
      * @param string $databaseTime Database time string
+     * @param bool $until Whether this is an "until" date (one unit of granularity is added).
      * @return string Time in Omeka DB format
      * @uses unixToDb()
      */
-    static function utcToDb($utcDateTime)
+    static function utcToDb($utcDateTime, $until = false)
     {
-       return self::unixToDb(strtotime($utcDateTime));
+        // Make sure day-granularity dates are interpreted as UTC
+        $day = substr($utcDateTime, -1) != 'Z';
+        if ($day) {
+            $utcDateTime .= 'Z';
+        }
+
+        // Interpret an "until" date as being the next-latest granularity unit
+        // (until dates are compared using an exclusive operator but must act inclusive)
+        if ($until) {
+            if ($day) {
+                $utcDateTime .= ' +1 day';
+            } else {
+                $utcDateTime .= ' +1 second';
+            }
+        }
+        return self::unixToDb(strtotime($utcDateTime));
     }
 }
