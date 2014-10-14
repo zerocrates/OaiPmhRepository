@@ -419,19 +419,33 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
     private function listResponse($verb, $metadataPrefix, $cursor, $set, $from, $until) {
         $listLimit = $this->_listLimit;
         
-        $itemTable = get_db()->getTable('Item');
+        $db = get_db();
+        $itemTable = $db->getTable('Item');
         $select = $itemTable->getSelect();
         $alias = $itemTable->getTableAlias();
         $itemTable->filterByPublic($select, true);
         if($set)
             $itemTable->filterByCollection($select, $set);
+
+        $modifiedClause = $addedClause = '';
         if($from) {
-            $select->where("$alias.modified >= ? OR $alias.added >= ?", $from);
-            $select->group("$alias.id");
+            $quotedFromDate = $db->quote($from);
+            $modifiedClause = "$alias.modified >= $quotedFromDate";
+            $addedClause = "$alias.added >= $quotedFromDate";
         }
         if($until) {
-            $select->where("$alias.modified < ? OR $alias.added < ?", $until);
-            $select->group("$alias.id");
+            if ($from) {
+                $modifiedClause .= ' AND ';
+                $addedClause .= ' AND ';
+            }
+            $quotedUntilDate = $db->quote($until);
+            $modifiedClause .= "$alias.modified < $quotedUntilDate";
+            $addedClause .= "$alias.added < $quotedUntilDate";
+        }
+
+
+        if ($from || $until) {
+            $select->where("($modifiedClause) OR ($addedClause)");
         }
         
         // Total number of rows that would be returned
