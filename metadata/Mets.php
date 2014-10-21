@@ -77,7 +77,7 @@ class OaiPmhRepository_Metadata_Mets extends OaiPmhRepository_Metadata_Abstract
             }
         }
         $fileIds = array();
-        if (metadata($this->item,'has files')) {          
+        if (get_option('oaipmh_repository_expose_files') && metadata($this->item, 'has files')) {
             $fileSection = $this->appendNewElement($mets, 'fileSec');
             $fileGroup = $this->appendNewElement($fileSection, 'fileGrp');
             $fileGroup->setAttribute('USE', 'ORIGINAL');
