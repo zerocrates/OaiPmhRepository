@@ -526,6 +526,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
                 }
             }
         }
+        $metadataFormats = apply_filters('oaipmh_repository_metadata_formats', $metadataFormats);
         return $metadataFormats;
     }
     
