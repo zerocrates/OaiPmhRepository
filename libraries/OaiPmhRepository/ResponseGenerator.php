@@ -63,8 +63,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
             'OAI-PMH');
         $this->document->appendChild($root);
         
-        $root->setAttributeNS(self::XML_SCHEMA_NAMESPACE_URI, 'xsi:schemaLocation',
-            self::OAI_PMH_NAMESPACE_URI.' '.self::OAI_PMH_SCHEMA_URI);
+        $root->declareSchemaLocation(self::OAI_PMH_NAMESPACE_URI, self::OAI_PMH_SCHEMA_URI);
     
         $responseDate = $this->document->createElement('responseDate', 
             OaiPmhRepository_Date::unixToUtc(time()));

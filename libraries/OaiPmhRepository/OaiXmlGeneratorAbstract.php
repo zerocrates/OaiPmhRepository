@@ -15,8 +15,6 @@
  */
 class OaiPmhRepository_OaiXmlGeneratorAbstract
 {
-    const XML_SCHEMA_NAMESPACE_URI = 'http://www.w3.org/2001/XMLSchema-instance';
-
     // =========================
     // General OAI-PMH constants
     // =========================

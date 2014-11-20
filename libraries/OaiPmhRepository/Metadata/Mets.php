@@ -41,12 +41,7 @@ class OaiPmhRepository_Metadata_Mets implements OaiPmhRepository_Metadata_Format
             self::METADATA_NAMESPACE, 'mets');
         $metadataElement->appendChild($mets);
 
-        /* Must manually specify XML schema uri per spec, but DOM won't include
-         * a redundant xmlns:xsi attribute, so we just set the attribute
-         */
-        $mets->setAttribute('xmlns:xsi', OaiPmhRepository_OaiXmlGeneratorAbstract::XML_SCHEMA_NAMESPACE_URI);
-        $mets->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE
-            .' '.self::METADATA_SCHEMA);
+        $mets->declareSchemaLocation(self::METADATA_NAMESPACE, self::METADATA_SCHEMA);
 
         $mets->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 

@@ -41,13 +41,8 @@ class OaiPmhRepository_Metadata_OaiDc implements OaiPmhRepository_Metadata_Forma
             self::METADATA_NAMESPACE, 'oai_dc:dc');
         $metadataElement->appendChild($oai_dc);
 
-        /* Must manually specify XML schema uri per spec, but DOM won't include
-         * a redundant xmlns:xsi attribute, so we just set the attribute
-         */
         $oai_dc->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
-        $oai_dc->setAttribute('xmlns:xsi', OaiPmhRepository_OaiXmlGeneratorAbstract::XML_SCHEMA_NAMESPACE_URI);
-        $oai_dc->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE.' '.
-            self::METADATA_SCHEMA);
+        $oai_dc->declareSchemaLocation(self::METADATA_NAMESPACE, self::METADATA_SCHEMA);
 
         /* Each of the 16 unqualified Dublin Core elements, in the order
          * specified by the oai_dc XML schema

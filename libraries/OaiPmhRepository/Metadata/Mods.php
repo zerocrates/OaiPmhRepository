@@ -40,12 +40,7 @@ class OaiPmhRepository_Metadata_Mods implements OaiPmhRepository_Metadata_Format
             self::METADATA_NAMESPACE, 'mods');
         $metadataElement->appendChild($mods);
 
-        /* Must manually specify XML schema uri per spec, but DOM won't include
-         * a redundant xmlns:xsi attribute, so we just set the attribute
-         */
-        $mods->setAttribute('xmlns:xsi', OaiPmhRepository_OaiXmlGeneratorAbstract::XML_SCHEMA_NAMESPACE_URI);
-        $mods->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE
-            .' '.self::METADATA_SCHEMA);
+        $mods->declareSchemaLocation(self::METADATA_NAMESPACE, self::METADATA_SCHEMA);
             
         $titles = $item->getElementTexts( 'Dublin Core','Title');
         foreach($titles as $title)

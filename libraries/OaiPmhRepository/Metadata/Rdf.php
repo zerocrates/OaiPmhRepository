@@ -39,13 +39,9 @@ class OaiPmhRepository_Metadata_Rdf implements OaiPmhRepository_Metadata_FormatI
             self::METADATA_NAMESPACE, 'rdf:RDF');
         $metadataElement->appendChild($rdf);
 
-        // Must manually specify XML schema uri per spec, but DOM won't include
-        // a redundant xmlns:xsi attribute, so we just set the attribute
         $rdf->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
         $rdf->setAttribute('xmlns:dcterms', self::DCTERMS_NAMESPACE_URI);
-        $rdf->setAttribute('xmlns:xsi', OaiPmhRepository_OaiXmlGeneratorAbstract::XML_SCHEMA_NAMESPACE_URI);
-        $rdf->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE.' '.
-            self::METADATA_SCHEMA);
+        $rdf->declareSchemaLocation(self::METADATA_NAMESPACE, self::METADATA_SCHEMA);
 
         $description = $rdf->appendNewElement('rdf:Description');
 

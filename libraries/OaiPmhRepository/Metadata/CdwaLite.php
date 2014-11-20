@@ -40,13 +40,8 @@ class OaiPmhRepository_Metadata_CdwaLite implements OaiPmhRepository_Metadata_Fo
             self::METADATA_NAMESPACE, 'cdwalite:cdwaliteWrap');
         $metadataElement->appendChild($cdwaliteWrap);
 
-        /* Must manually specify XML schema uri per spec, but DOM won't include
-         * a redundant xmlns:xsi attribute, so we just set the attribute
-         */
         $cdwaliteWrap->setAttribute('xmlns:cdwalite', self::METADATA_NAMESPACE);
-        $cdwaliteWrap->setAttribute('xmlns:xsi', OaiPmhRepository_OaiXmlGeneratorAbstract::XML_SCHEMA_NAMESPACE_URI);
-        $cdwaliteWrap->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE
-            .' '.self::METADATA_SCHEMA);
+        $cdwaliteWrap->declareSchemaLocation(self::METADATA_NAMESPACE, self::METADATA_SCHEMA);
             
         $cdwalite = $cdwaliteWrap->appendNewElement('cdwalite:cdwalite');
         

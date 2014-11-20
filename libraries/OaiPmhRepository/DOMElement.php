@@ -64,4 +64,19 @@ class OaiPmhRepository_DOMElement extends DOMElement
         $this->appendChild($newElement);
         return $newElement;
     }
+
+    /**
+     * Add an xsi:schemaLocation to this element.
+     *
+     * The OAI-PMH spec requires the xmlns attribute reappear even when its
+     * redundant, so we can't simply use setAttributeNS.
+     *
+     * @param string $namespace Namespace URI
+     * @param string $schema Schema location URI
+     */
+    public function declareSchemaLocation($namespace, $schema)
+    {
+        $this->setAttribute('xmlns:xsi', self::XML_SCHEMA_NAMESPACE_URI);
+        $this->setAttribute('xsi:schemaLocation', "$namespace $schema");
+    }
 }
