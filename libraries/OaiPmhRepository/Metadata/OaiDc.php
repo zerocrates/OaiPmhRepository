@@ -7,8 +7,6 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
-
-
 /**
  * Class implmenting metadata output for the required oai_dc metadata format.
  * oai_dc is output of the 15 unqualified Dublin Core fields.
@@ -16,7 +14,7 @@
  * @package OaiPmhRepository
  * @subpackage Metadata Formats
  */
-class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
+class OaiPmhRepository_Metadata_OaiDc implements OaiPmhRepository_Metadata_FormatInterface
 {
     /** OAI-PMH metadata prefix */
     const METADATA_PREFIX = 'oai_dc';
@@ -37,9 +35,10 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
      * and further children for each of the Dublin Core fields present in the
      * item.
      */
-    public function appendMetadata($metadataElement) 
+    public function appendMetadata($item, $metadataElement, $generator)
     {
-        $oai_dc = $this->document->createElementNS(
+        $document = $generator->getDocument();
+        $oai_dc = $document->createElementNS(
             self::METADATA_NAMESPACE, 'oai_dc:dc');
         $metadataElement->appendChild($oai_dc);
 
@@ -47,7 +46,7 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
          * a redundant xmlns:xsi attribute, so we just set the attribute
          */
         $oai_dc->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
-        $oai_dc->setAttribute('xmlns:xsi', parent::XML_SCHEMA_NAMESPACE_URI);
+        $oai_dc->setAttribute('xmlns:xsi', OaiPmhRepository_XmlGeneratorAbstract::XML_SCHEMA_NAMESPACE_URI);
         $oai_dc->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE.' '.
             self::METADATA_SCHEMA);
 
@@ -66,59 +65,29 @@ class OaiPmhRepository_Metadata_OaiDc extends OaiPmhRepository_Metadata_Abstract
         foreach($dcElementNames as $elementName)
         {   
             $upperName = Inflector::camelize($elementName);
-            $dcElements = $this->item->getElementTexts(
+            $dcElements = $item->getElementTexts(
                 'Dublin Core',$upperName );
             foreach($dcElements as $elementText)
             {
-                $this->appendNewElement($oai_dc, 
+                $generator->appendNewElement($oai_dc, 
                     'dc:'.$elementName, $elementText->text);
             }
             // Append the browse URI to all results
             if($elementName == 'identifier') 
             {
-                $this->appendNewElement($oai_dc, 
-                    'dc:identifier', record_url($this->item,'show',true));
+                $generator->appendNewElement($oai_dc, 
+                    'dc:identifier', record_url($item,'show',true));
                 
                 // Also append an identifier for each file
                 if(get_option('oaipmh_repository_expose_files')) {
-                    $files = $this->item->getFiles();
+                    $files = $item->getFiles();
                     foreach($files as $file) 
                     {
-                        $this->appendNewElement($oai_dc, 
+                        $generator->appendNewElement($oai_dc, 
                             'dc:identifier', $file->getWebPath('original'));
                     }
                 }
             }
         }
-    }
-    
-    /**
-     * Returns the OAI-PMH metadata prefix for the output format.
-     *
-     * @return string Metadata prefix
-     */
-    public function getMetadataPrefix()
-    {
-        return self::METADATA_PREFIX;
-    }
-    
-    /**
-     * Returns the XML schema for the output format.
-     *
-     * @return string XML schema URI
-     */
-    public function getMetadataSchema()
-    {
-        return self::METADATA_SCHEMA;
-    }
-    
-    /**
-     * Returns the XML namespace for the output format.
-     *
-     * @return string XML namespace URI
-     */
-    public function getMetadataNamespace()
-    {
-        return self::METADATA_NAMESPACE;
     }
 }

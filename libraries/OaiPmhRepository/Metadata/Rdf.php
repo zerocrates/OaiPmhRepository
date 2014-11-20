@@ -12,7 +12,7 @@
  * @package OaiPmhRepository
  * @subpackage Metadata Formats
  */
-class OaiPmhRepository_Metadata_Rdf extends OaiPmhRepository_Metadata_Abstract
+class OaiPmhRepository_Metadata_Rdf implements OaiPmhRepository_Metadata_FormatInterface
 {
     /** OAI-PMH metadata prefix */
     const METADATA_PREFIX = 'rdf';
@@ -32,9 +32,10 @@ class OaiPmhRepository_Metadata_Rdf extends OaiPmhRepository_Metadata_Abstract
     /**
      * Append RDF metadata.
      */
-    public function appendMetadata($metadataElement)
+    public function appendMetadata($item, $metadataElement, $generator)
     {
-        $rdf = $this->document->createElementNS(
+        $document = $generator->getDocument();
+        $rdf = $document->createElementNS(
             self::METADATA_NAMESPACE, 'rdf:RDF');
         $metadataElement->appendChild($rdf);
 
@@ -42,13 +43,13 @@ class OaiPmhRepository_Metadata_Rdf extends OaiPmhRepository_Metadata_Abstract
         // a redundant xmlns:xsi attribute, so we just set the attribute
         $rdf->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
         $rdf->setAttribute('xmlns:dcterms', self::DCTERMS_NAMESPACE_URI);
-        $rdf->setAttribute('xmlns:xsi', parent::XML_SCHEMA_NAMESPACE_URI);
+        $rdf->setAttribute('xmlns:xsi', OaiPmhRepository_XmlGeneratorAbstract::XML_SCHEMA_NAMESPACE_URI);
         $rdf->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE.' '.
             self::METADATA_SCHEMA);
 
-        $description = $this->appendNewElement($rdf, 'rdf:Description');
+        $description = $generator->appendNewElement($rdf, 'rdf:Description');
 
-        $oaiId = OaiPmhRepository_OaiIdentifier::itemToOaiId($this->item->id);
+        $oaiId = OaiPmhRepository_OaiIdentifier::itemToOaiId($item->id);
         $description->setAttribute('rdf:about', $oaiId);
 
         $dcExtendedElements = array(
@@ -109,48 +110,18 @@ class OaiPmhRepository_Metadata_Rdf extends OaiPmhRepository_Metadata_Abstract
             'Date Valid' => 'dcterms:valid'
         );
 
-        $elementTexts = $this->item->getAllElementTexts();
-        $elements = $this->item->getElementsBySetName('Dublin Core');
+        $elementTexts = $item->getAllElementTexts();
+        $elements = $item->getElementsBySetName('Dublin Core');
 
         foreach ($dcExtendedElements as $elementName => $propertyName) {
             try {
-                $texts = $this->item->getElementTexts('Dublin Core', $elementName);
+                $texts = $item->getElementTexts('Dublin Core', $elementName);
             } catch (Omeka_Record_Exception $e) {
                 continue;
             }
             foreach ($texts as $text) {
-                $this->appendNewElement($description, $propertyName, $text->text);
+                $generator->appendNewElement($description, $propertyName, $text->text);
             }
         }
-    }
-
-    /**
-     * Returns the OAI-PMH metadata prefix for the output format.
-     *
-     * @return string Metadata prefix
-     */
-    public function getMetadataPrefix()
-    {
-        return self::METADATA_PREFIX;
-    }
-
-    /**
-     * Returns the XML schema for the output format.
-     *
-     * @return string XML schema URI
-     */
-    public function getMetadataSchema()
-    {
-        return self::METADATA_SCHEMA;
-    }
-
-    /**
-     * Returns the XML namespace for the output format.
-     *
-     * @return string XML namespace URI
-     */
-    public function getMetadataNamespace()
-    {
-        return self::METADATA_NAMESPACE;
     }
 }

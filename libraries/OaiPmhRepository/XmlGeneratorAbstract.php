@@ -3,7 +3,7 @@
  * @package OaiPmhRepository
  * @subpackage Libraries
  * @author John Flatness, Yu-Hsun Lin
- * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
+ * @copyright Copyright 2009-2014 John Flatness, Yu-Hsun Lin
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
@@ -35,7 +35,7 @@ class OaiPmhRepository_XmlGeneratorAbstract
      * @param array $children Child names and values, as name => value.
      * @return DomElement The new tree of elements.
      */
-    protected function createElementWithChildren($parent, $name, $children)
+    public function createElementWithChildren($parent, $name, $children)
     {
         $document = $this->document;
         $newElement = $document->createElement($name);
@@ -61,7 +61,7 @@ class OaiPmhRepository_XmlGeneratorAbstract
      * @param string $text Text of the new element.
      * @return DomElement The new element.
      */
-    protected function appendNewElement($parent, $name, $text = null)
+    public function appendNewElement($parent, $name, $text = null)
     {
         $document = $this->document;
         $newElement = $document->createElement($name);
@@ -72,5 +72,13 @@ class OaiPmhRepository_XmlGeneratorAbstract
         }
         $parent->appendChild($newElement);
         return $newElement;
-     }
+    }
+    
+    /**
+     * Get the DOMDocument for this generator.
+     */
+    public function getDocument()
+    {
+        return $this->document;
+    }
 }
