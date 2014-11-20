@@ -34,9 +34,9 @@ class OaiPmhRepository_Metadata_OaiDc implements OaiPmhRepository_Metadata_Forma
      * and further children for each of the Dublin Core fields present in the
      * item.
      */
-    public function appendMetadata($item, $metadataElement, $generator)
+    public function appendMetadata($item, $metadataElement)
     {
-        $document = $generator->getDocument();
+        $document = $metadataElement->ownerDocument;
         $oai_dc = $document->createElementNS(
             self::METADATA_NAMESPACE, 'oai_dc:dc');
         $metadataElement->appendChild($oai_dc);

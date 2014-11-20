@@ -33,9 +33,9 @@ class OaiPmhRepository_Metadata_Mods implements OaiPmhRepository_Metadata_Format
      *
      * @link http://www.loc.gov/standards/mods/dcsimple-mods.html
      */
-    public function appendMetadata($item, $metadataElement, $generator)
+    public function appendMetadata($item, $metadataElement)
     {
-        $document = $generator->getDocument();
+        $document = $metadataElement->ownerDocument;
         $mods = $document->createElementNS(
             self::METADATA_NAMESPACE, 'mods');
         $metadataElement->appendChild($mods);

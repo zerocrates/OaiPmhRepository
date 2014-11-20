@@ -32,9 +32,9 @@ class OaiPmhRepository_Metadata_Rdf implements OaiPmhRepository_Metadata_FormatI
     /**
      * Append RDF metadata.
      */
-    public function appendMetadata($item, $metadataElement, $generator)
+    public function appendMetadata($item, $metadataElement)
     {
-        $document = $generator->getDocument();
+        $document = $metadataElement->ownerDocument;
         $rdf = $document->createElementNS(
             self::METADATA_NAMESPACE, 'rdf:RDF');
         $metadataElement->appendChild($rdf);

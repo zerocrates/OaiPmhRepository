@@ -517,7 +517,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         
         $formatClass = $this->metadataFormats[$metadataPrefix]['class'];
         $format = new $formatClass;
-        $format->appendMetadata($item, $metadata, $this);
+        $format->appendMetadata($item, $metadata);
     }
         
     /**

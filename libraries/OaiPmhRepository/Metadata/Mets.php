@@ -34,9 +34,9 @@ class OaiPmhRepository_Metadata_Mets implements OaiPmhRepository_Metadata_Format
      * and further children for each of the Dublin Core fields present in the
      * item.
      */
-    public function appendMetadata($item, $metadataElement, $generator)
+    public function appendMetadata($item, $metadataElement)
     {
-        $document = $generator->getDocument();
+        $document = $metadataElement->ownerDocument;
         $mets = $document->createElementNS(
             self::METADATA_NAMESPACE, 'mets');
         $metadataElement->appendChild($mets);

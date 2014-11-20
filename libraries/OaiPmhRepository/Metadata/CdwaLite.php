@@ -33,9 +33,9 @@ class OaiPmhRepository_Metadata_CdwaLite implements OaiPmhRepository_Metadata_Fo
      * and further children for each of the Dublin Core fields present in the
      * item.
      */
-    public function appendMetadata($item, $metadataElement, $generator)
+    public function appendMetadata($item, $metadataElement)
     {
-        $document = $generator->getDocument();
+        $document = $metadataElement->ownerDocument;
         $cdwaliteWrap = $document->createElementNS(
             self::METADATA_NAMESPACE, 'cdwalite:cdwaliteWrap');
         $metadataElement->appendChild($cdwaliteWrap);

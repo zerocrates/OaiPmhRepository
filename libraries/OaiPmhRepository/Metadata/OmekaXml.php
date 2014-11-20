@@ -26,12 +26,12 @@ class OaiPmhRepository_Metadata_OmekaXml implements OaiPmhRepository_Metadata_Fo
      * and further children for each of the Dublin Core fields present in the
      * item.
      */
-    public function appendMetadata($item, $metadataElement, $generator)
+    public function appendMetadata($item, $metadataElement)
     {
         $omekaXml = new Output_ItemOmekaXml($item, 'item');
 
         $node = $omekaXml->getDoc()->documentElement;
-        $node = $generator->getDocument()->importNode($node, true);
+        $node = $metadataElement->ownerDocument->importNode($node, true);
 
         $metadataElement->appendChild($node);
     }

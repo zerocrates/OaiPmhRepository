@@ -20,7 +20,6 @@ interface OaiPmhRepository_Metadata_FormatInterface
      *
      * @param Item $item
      * @param DOMElement $parentElement
-     * @param OaiPmhRepository_ResponseGenerator $generator
      */
-    public function appendMetadata($item, $parentElement, $generator);
+    public function appendMetadata($item, $parentElement);
 }
