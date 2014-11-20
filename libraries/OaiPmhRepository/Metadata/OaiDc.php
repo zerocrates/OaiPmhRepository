@@ -2,8 +2,7 @@
 /**
  * @package OaiPmhRepository
  * @subpackage MetadataFormats
- * @author John Flatness, Yu-Hsun Lin
- * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
+ * @copyright Copyright 2009-2014 John Flatness, Yu-Hsun Lin
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
@@ -46,7 +45,7 @@ class OaiPmhRepository_Metadata_OaiDc implements OaiPmhRepository_Metadata_Forma
          * a redundant xmlns:xsi attribute, so we just set the attribute
          */
         $oai_dc->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
-        $oai_dc->setAttribute('xmlns:xsi', OaiPmhRepository_XmlGeneratorAbstract::XML_SCHEMA_NAMESPACE_URI);
+        $oai_dc->setAttribute('xmlns:xsi', OaiPmhRepository_OaiXmlGeneratorAbstract::XML_SCHEMA_NAMESPACE_URI);
         $oai_dc->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE.' '.
             self::METADATA_SCHEMA);
 
@@ -69,22 +68,19 @@ class OaiPmhRepository_Metadata_OaiDc implements OaiPmhRepository_Metadata_Forma
                 'Dublin Core',$upperName );
             foreach($dcElements as $elementText)
             {
-                $generator->appendNewElement($oai_dc, 
-                    'dc:'.$elementName, $elementText->text);
+                $oai_dc->appendNewElement('dc:'.$elementName, $elementText->text);
             }
             // Append the browse URI to all results
             if($elementName == 'identifier') 
             {
-                $generator->appendNewElement($oai_dc, 
-                    'dc:identifier', record_url($item,'show',true));
+                $oai_dc->appendNewElement('dc:identifier', record_url($item, 'show', true));
                 
                 // Also append an identifier for each file
                 if(get_option('oaipmh_repository_expose_files')) {
                     $files = $item->getFiles();
                     foreach($files as $file) 
                     {
-                        $generator->appendNewElement($oai_dc, 
-                            'dc:identifier', $file->getWebPath('original'));
+                        $oai_dc->appendNewElement('dc:identifier', $file->getWebPath('original'));
                     }
                 }
             }

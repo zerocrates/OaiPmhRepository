@@ -65,13 +65,9 @@ class OaiPmhRepository_OaiIdentifier {
             'scheme'               => 'oai',
             'repositoryIdentifier' => self::$namespaceId,
             'delimiter'            => ':',
-            'sampleIdentifier'     => self::itemtoOaiId(1) );
-        $oaiIdentifier = $parentElement->ownerDocument->createElement('oai-identifier');
-        foreach($elements as $tag => $value)
-        {
-            $oaiIdentifier->appendChild($parentElement->ownerDocument->createElement($tag, $value));
-        }
-        $parentElement->appendChild($oaiIdentifier);
+            'sampleIdentifier'     => self::itemtoOaiId(1)
+        );
+        $oaiIdentifier = $parentElement->appendNewElementWithChildren('oai-identifier', $elements);
         
         //must set xmlns attribute manually to avoid DOM extension appending 
         //default: prefix to element name

@@ -44,29 +44,29 @@ class OaiPmhRepository_Metadata_CdwaLite implements OaiPmhRepository_Metadata_Fo
          * a redundant xmlns:xsi attribute, so we just set the attribute
          */
         $cdwaliteWrap->setAttribute('xmlns:cdwalite', self::METADATA_NAMESPACE);
-        $cdwaliteWrap->setAttribute('xmlns:xsi', OaiPmhRepository_XmlGeneratorAbstract::XML_SCHEMA_NAMESPACE_URI);
+        $cdwaliteWrap->setAttribute('xmlns:xsi', OaiPmhRepository_OaiXmlGeneratorAbstract::XML_SCHEMA_NAMESPACE_URI);
         $cdwaliteWrap->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE
             .' '.self::METADATA_SCHEMA);
             
-        $cdwalite = $generator->appendNewElement($cdwaliteWrap, 'cdwalite:cdwalite');
+        $cdwalite = $cdwaliteWrap->appendNewElement('cdwalite:cdwalite');
         
         /* ====================
          * DESCRIPTIVE METADATA
          * ====================
          */
 
-        $descriptive = $generator->appendNewElement($cdwalite, 'cdwalite:descriptiveMetadata');
+        $descriptive = $cdwalite->appendNewElement('cdwalite:descriptiveMetadata');
         
         /* Type => objectWorkTypeWrap->objectWorkType 
          * Required.  Fill with 'Unknown' if omitted.
          */
         $types = $item->getElementTexts('Dublin Core','Type');
-        $objectWorkTypeWrap = $generator->appendNewElement($descriptive, 'cdwalite:objectWorkTypeWrap');
+        $objectWorkTypeWrap = $descriptive->appendNewElement('cdwalite:objectWorkTypeWrap');
         //print_r($objectWorkTypeWrap);
         if(count($types) == 0) $types[] = 'Unknown'; 
         foreach($types as $type)
         {  
-            $generator->appendNewElement($objectWorkTypeWrap, 'cdwalite:objectWorkTypeWrap', ($type == 'Unknown')? $type: $type->text );
+            $objectWorkTypeWrap->appendNewElement('cdwalite:objectWorkTypeWrap', ($type == 'Unknown')? $type: $type->text );
 
         }
         
@@ -74,12 +74,12 @@ class OaiPmhRepository_Metadata_CdwaLite implements OaiPmhRepository_Metadata_Fo
          * Required.  Fill with 'Unknown' if omitted.
          */        
         $titles = $item->getElementTexts('Dublin Core','Title');
-        $titleWrap = $generator->appendNewElement($descriptive, 'cdwalite:titleWrap');
+        $titleWrap = $descriptive->appendNewElement('cdwalite:titleWrap');
         if(count($types) == 0) $types[] = 'Unknown';
         foreach($titles as $title)
         {
-            $titleSet = $generator->appendNewElement($titleWrap, 'cdwalite:titleSet');
-            $generator->appendNewElement($titleSet, 'cdwalite:title', $title->text);
+            $titleSet = $titleWrap->appendNewElement('cdwalite:titleSet');
+            $titleSet->appendNewElement('cdwalite:title', $title->text);
         }
 
         /* Creator => displayCreator
@@ -93,25 +93,25 @@ class OaiPmhRepository_Metadata_CdwaLite implements OaiPmhRepository_Metadata_Fo
         if (count($creatorTexts) == 0) $creatorTexts[] = 'Unknown';
         
         $creatorText = implode(', ', $creatorTexts);
-        $generator->appendNewElement($descriptive, 'cdwalite:displayCreator', $creatorText);
+        $descriptive->appendNewElement('cdwalite:displayCreator', $creatorText);
         
         /* Creator => indexingCreatorWrap->indexingCreatorSet->nameCreatorSet->nameCreator
          * Required.  Fill with 'Unknown' if omitted.
          * Also include roleCreator, fill with 'Unknown', required.
          */
-        $indexingCreatorWrap = $generator->appendNewElement($descriptive, 'cdwalite:indexingCreatorWrap');
+        $indexingCreatorWrap = $descriptive->appendNewElement('cdwalite:indexingCreatorWrap');
         foreach($creatorTexts as $creator) 
         {
-            $indexingCreatorSet = $generator->appendNewElement($indexingCreatorWrap, 'cdwalite:indexingCreatorSet');
-            $nameCreatorSet = $generator->appendNewElement($indexingCreatorSet, 'cdwalite:nameCreatorSet');
-            $generator->appendNewElement($nameCreatorSet, 'cdwalite:nameCreator', $creator);
-            $generator->appendNewElement($indexingCreatorSet, 'cdwalite:roleCreator', 'Unknown');
+            $indexingCreatorSet = $indexingCreatorWrap->appendNewElement('cdwalite:indexingCreatorSet');
+            $nameCreatorSet = $indexingCreatorSet->appendNewElement('cdwalite:nameCreatorSet');
+            $nameCreatorSet->appendNewElement('cdwalite:nameCreator', $creator);
+            $indexingCreatorSet->appendNewElement('cdwalite:roleCreator', 'Unknown');
         }
         
         /* displayMaterialsTech
          * Required.  No corresponding metadata, fill with 'not applicable'.
          */
-        $generator->appendNewElement($descriptive, 'cdwalite:displayMaterialsTech', 'not applicable');
+        $descriptive->appendNewElement('cdwalite:displayMaterialsTech', 'not applicable');
         
         /* Date => displayCreationDate
          * Required. Fill with 'Unknown' if omitted.
@@ -119,35 +119,35 @@ class OaiPmhRepository_Metadata_CdwaLite implements OaiPmhRepository_Metadata_Fo
          */
         $dates = $item->getElementTexts('Dublin Core','Date');
         $dateText = count($dates) > 0 ? $dates[0]->text : 'Unknown';
-        $generator->appendNewElement($descriptive, 'cdwalite:displayCreationDate', $dateText);
+        $descriptive->appendNewElement('cdwalite:displayCreationDate', $dateText);
         
         /* Date => indexingDatesWrap->indexingDatesSet
          * Map to both earliest and latest date
          * Required.  Fill with 'Unknown' if omitted.
          */
-        $indexingDatesWrap = $generator->appendNewElement($descriptive, 'cdwalite:indexingDatesWrap');   
+        $indexingDatesWrap = $descriptive->appendNewElement('cdwalite:indexingDatesWrap');   
         foreach($dates as $date)
         {
-            $indexingDatesSet = $generator->appendNewElement($indexingDatesWrap, 'cdwalite:indexingDatesSet');
-            $generator->appendNewElement($indexingDatesSet, 'cdwalite:earliestDate', $date->text);
-            $generator->appendNewElement($indexingDatesSet, 'cdwalite:latestDate', $date->text);
+            $indexingDatesSet = $indexingDatesWrap->appendNewElement('cdwalite:indexingDatesSet');
+            $indexingDatesSet->appendNewElement('cdwalite:earliestDate', $date->text);
+            $indexingDatesSet->appendNewElement('cdwalite:latestDate', $date->text);
         }
         
         /* locationWrap->locationSet->locationName
          * Required. No corresponding metadata, fill with 'location unknown'.
          */
-        $locationWrap = $generator->appendNewElement($descriptive, 'cdwalite:locationWrap');
-        $locationSet = $generator->appendNewElement($locationWrap, 'cdwalite:locationSet');
-        $generator->appendNewElement($locationSet, 'cdwalite:locationName', 'location unknown');
+        $locationWrap = $descriptive->appendNewElement('cdwalite:locationWrap');
+        $locationSet = $locationWrap->appendNewElement('cdwalite:locationSet');
+        $locationSet->appendNewElement('cdwalite:locationName', 'location unknown');
 
         /* Subject => classWrap->classification
          * Not required.
          */
         $subjects = $item->getElementTexts('Dublin Core','Subject');
-        $classWrap = $generator->appendNewElement($descriptive, 'cdwalite:classWrap');
+        $classWrap = $descriptive->appendNewElement('cdwalite:classWrap');
         foreach($subjects as $subject)
         {
-            $generator->appendNewElement($classWrap, 'cdwalite:classification', $subject->text);
+            $classWrap->appendNewElement('cdwalite:classification', $subject->text);
         }
         
         /* Description => descriptiveNoteWrap->descriptiveNoteSet->descriptiveNote
@@ -156,11 +156,11 @@ class OaiPmhRepository_Metadata_CdwaLite implements OaiPmhRepository_Metadata_Fo
         $descriptions = $item->getElementTexts('Dublin Core','Description');
         if(count($descriptions) > 0)
         {
-            $descriptiveNoteWrap = $generator->appendNewElement($descriptive, 'cdwalite:descriptiveNoteWrap');
+            $descriptiveNoteWrap = $descriptive->appendNewElement('cdwalite:descriptiveNoteWrap');
             foreach($descriptions as $description)
             {
-                $descriptiveNoteSet = $generator->appendNewElement($descriptiveNoteWrap, 'cdwalite:descriptiveNoteSet');
-                $generator->appendNewElement($descriptiveNoteSet, 'cdwalite:descriptiveNote', $description->text);
+                $descriptiveNoteSet = $descriptiveNoteWrap->appendNewElement('cdwalite:descriptiveNoteSet');
+                $descriptiveNoteSet->appendNewElement('cdwalite:descriptiveNote', $description->text);
             }
         }
         
@@ -169,7 +169,7 @@ class OaiPmhRepository_Metadata_CdwaLite implements OaiPmhRepository_Metadata_Fo
          * =======================
          */
          
-        $administrative = $generator->appendNewElement($cdwalite, 'cdwalite:administrativeMetadata');
+        $administrative = $cdwalite->appendNewElement('cdwalite:administrativeMetadata');
         
         /* Rights => rightsWork
          * Not required.
@@ -177,18 +177,18 @@ class OaiPmhRepository_Metadata_CdwaLite implements OaiPmhRepository_Metadata_Fo
         $rights = $item->getElementTexts('Dublin Core','Rights');
         foreach($rights as $right)
         {
-            $generator->appendNewElement($administrative, 'cdwalite:rightsWork', $right->text);
+            $administrative->appendNewElement('cdwalite:rightsWork', $right->text);
         }
         
         /* id => recordWrap->recordID
          * 'item' => recordWrap-recordType
          * Required.
          */     
-        $recordWrap = $generator->appendNewElement($administrative, 'cdwalite:recordWrap');
-        $generator->appendNewElement($recordWrap, 'cdwalite:recordID', $item->id);
-        $generator->appendNewElement($recordWrap, 'cdwalite:recordType', 'item');
-        $recordInfoWrap = $generator->appendNewElement($recordWrap, 'cdwalite:recordInfoWrap');
-        $recordInfoID = $generator->appendNewElement($recordInfoWrap, 'cdwalite:recordInfoID', OaiPmhRepository_OaiIdentifier::itemToOaiId($item->id));
+        $recordWrap = $administrative->appendNewElement('cdwalite:recordWrap');
+        $recordWrap->appendNewElement('cdwalite:recordID', $item->id);
+        $recordWrap->appendNewElement('cdwalite:recordType', 'item');
+        $recordInfoWrap = $recordWrap->appendNewElement('cdwalite:recordInfoWrap');
+        $recordInfoID = $recordInfoWrap->appendNewElement('cdwalite:recordInfoID', OaiPmhRepository_OaiIdentifier::itemToOaiId($item->id));
         $recordInfoID->setAttribute('cdwalite:type', 'oai');
         
         /* file link => resourceWrap->resourceSet->linkResource
@@ -197,12 +197,11 @@ class OaiPmhRepository_Metadata_CdwaLite implements OaiPmhRepository_Metadata_Fo
         if(get_option('oaipmh_repository_expose_files')) {
             $files = $item->getFiles();
             if(count($files) > 0) {
-                $resourceWrap = $generator->appendNewElement($administrative, 'cdwalite:resourceWrap');
+                $resourceWrap = $administrative->appendNewElement('cdwalite:resourceWrap');
                 foreach($files as $file) 
                 {
-                    $resourceSet = $generator->appendNewElement($resourceWrap, 'cdwalite:resourceSet');
-                    $generator->appendNewElement($resourceSet, 
-                        'cdwalite:linkResource',$file->getWebPath('original'));
+                    $resourceSet = $resourceWrap->appendNewElement('cdwalite:resourceSet');
+                    $resourceSet->appendNewElement('cdwalite:linkResource', $file->getWebPath('original'));
                 }
             }
         }

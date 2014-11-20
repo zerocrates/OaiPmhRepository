@@ -2,8 +2,7 @@
 /**
  * @package OaiPmhRepository
  * @subpackage Libraries
- * @author John Flatness, Yu-Hsun Lin
- * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
+ * @copyright Copyright 2009-2014 John Flatness, Yu-Hsun Lin
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
 
@@ -50,6 +49,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         $this->error = false;
         $this->query = $query;
         $this->document = new DomDocument('1.0', 'UTF-8');
+        $this->document->registerNodeClass('DOMElement',
+            'OaiPmhRepository_DOMElement');
         
         OaiPmhRepository_OaiIdentifier::initializeNamespace(get_option('oaipmh_repository_namespace_id'));
         
@@ -221,8 +222,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
             'earliestDatestamp' => OaiPmhRepository_Date::unixToUtc(0),
             'deletedRecord'     => 'no',
             'granularity'       => self::OAI_GRANULARITY_STRING);
-        $identify = $this->createElementWithChildren(
-            $this->document->documentElement, 'Identify', $elements);
+        $identify = $this->document->documentElement->appendNewElementWithChildren(
+            'Identify', $elements);
 
         // Publish support for compression, if appropriate
         // This defers to compression set in Omeka's paths.php
@@ -300,7 +301,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
                     'schema' => $format['schema'],
                     'metadataNamespace' => $format['namespace']
                 );
-                $this->createElementWithChildren($listMetadataFormats, 'metadataFormat', $elements);
+                $listMetadataFormats->appendNewElementWithChildren('metadataFormat', $elements);
             }
         }
     }
@@ -326,7 +327,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
             foreach ($collections as $collection) {
                 $elements = array( 'setSpec' => $collection->id,
                                    'setName' => metadata($collection,array('Dublin Core','Title')));
-                $this->createElementWithChildren($listSets, 'set', $elements);
+                $listSets->appendNewElementWithChildren('set', $elements);
             }
         }
     }
@@ -490,7 +491,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         if ($collectionId)
             $headerData['setSpec'] = $collectionId;
         
-        $this->createElementWithChildren($parentElement, 'header', $headerData);
+        $parentElement->appendNewElementWithChildren('header', $headerData);
     }
     
     /**

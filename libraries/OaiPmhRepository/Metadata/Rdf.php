@@ -43,11 +43,11 @@ class OaiPmhRepository_Metadata_Rdf implements OaiPmhRepository_Metadata_FormatI
         // a redundant xmlns:xsi attribute, so we just set the attribute
         $rdf->setAttribute('xmlns:dc', self::DC_NAMESPACE_URI);
         $rdf->setAttribute('xmlns:dcterms', self::DCTERMS_NAMESPACE_URI);
-        $rdf->setAttribute('xmlns:xsi', OaiPmhRepository_XmlGeneratorAbstract::XML_SCHEMA_NAMESPACE_URI);
+        $rdf->setAttribute('xmlns:xsi', OaiPmhRepository_OaiXmlGeneratorAbstract::XML_SCHEMA_NAMESPACE_URI);
         $rdf->setAttribute('xsi:schemaLocation', self::METADATA_NAMESPACE.' '.
             self::METADATA_SCHEMA);
 
-        $description = $generator->appendNewElement($rdf, 'rdf:Description');
+        $description = $rdf->appendNewElement('rdf:Description');
 
         $oaiId = OaiPmhRepository_OaiIdentifier::itemToOaiId($item->id);
         $description->setAttribute('rdf:about', $oaiId);
@@ -120,7 +120,7 @@ class OaiPmhRepository_Metadata_Rdf implements OaiPmhRepository_Metadata_FormatI
                 continue;
             }
             foreach ($texts as $text) {
-                $generator->appendNewElement($description, $propertyName, $text->text);
+                $description->appendNewElement($propertyName, $text->text);
             }
         }
     }

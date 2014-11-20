@@ -2,12 +2,9 @@
 /**
  * @package OaiPmhRepository
  * @subpackage Libraries
- * @author John Flatness, Yu-Hsun Lin
- * @copyright Copyright 2009 John Flatness, Yu-Hsun Lin
+ * @copyright Copyright 2009-2014 John Flatness, Yu-Hsun Lin
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
-
-require_once 'XmlGeneratorAbstract.php';
 
 /**
  * Abstract class containing functions for tasks common to all OAI-PMH
@@ -16,8 +13,10 @@ require_once 'XmlGeneratorAbstract.php';
  * @package OaiPmhRepository
  * @subpackage Libraries
  */
-class OaiPmhRepository_OaiXmlGeneratorAbstract extends OaiPmhRepository_XmlGeneratorAbstract {
-    
+class OaiPmhRepository_OaiXmlGeneratorAbstract
+{
+    const XML_SCHEMA_NAMESPACE_URI = 'http://www.w3.org/2001/XMLSchema-instance';
+
     // =========================
     // General OAI-PMH constants
     // =========================
@@ -55,6 +54,12 @@ class OaiPmhRepository_OaiXmlGeneratorAbstract extends OaiPmhRepository_XmlGener
      * @var bool
      */
     protected $error;
+
+    /**
+     * The XML document being generated.
+     * @var DOMDocument
+     */
+    protected $document;
     
     /**
      * Throws an OAI-PMH error on the given response.
@@ -85,5 +90,15 @@ class OaiPmhRepository_OaiXmlGeneratorAbstract extends OaiPmhRepository_XmlGener
             return self::OAI_GRANULARITY_DATETIME;
         else 
             return false;
+    }
+    
+    /**
+     * Get the DOMDocument for this generator.
+     *
+     * @return DOMDocument
+     */
+    public function getDocument()
+    {
+        return $this->document;
     }
 }
