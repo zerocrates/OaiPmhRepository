@@ -42,13 +42,6 @@ class OaiPmhRepository_OaiXmlGeneratorAbstract
     // Date/time constants
     // =========================
     
-    const OAI_DATE_PCRE     = "/^\\d{4}\\-\\d{2}\\-\\d{2}$/";
-    const OAI_DATETIME_PCRE = "/^\\d{4}\\-\\d{2}\\-\\d{2}T\\d{2}\\:\\d{2}\\:\\d{2}Z$/";
-    
-    const OAI_GRANULARITY_STRING   = 'YYYY-MM-DDThh:mm:ssZ';
-    const OAI_GRANULARITY_DATE     = 1;
-    const OAI_GRANULARITY_DATETIME = 2;
-    
     /**
      * Flags if an error has occurred during the response.
      * @var bool
@@ -73,23 +66,6 @@ class OaiPmhRepository_OaiXmlGeneratorAbstract
         $errorElement = $this->document->createElement('error', $message);
         $this->document->documentElement->appendChild($errorElement);
         $errorElement->setAttribute('code', $error);
-    }
-    
-    /**
-     * Returns the granularity of the given utcDateTime string.  Returns zero
-     * if the given string is not in utcDateTime format.
-     *
-     * @param string $dateTime Time string
-     * @return int OAI_GRANULARITY_DATE, OAI_GRANULARITY_DATETIME, or zero
-     */
-    static function getGranularity($dateTime)
-    {
-        if(preg_match(self::OAI_DATE_PCRE, $dateTime))
-            return self::OAI_GRANULARITY_DATE;
-        else if(preg_match(self::OAI_DATETIME_PCRE, $dateTime))
-            return self::OAI_GRANULARITY_DATETIME;
-        else 
-            return false;
     }
     
     /**

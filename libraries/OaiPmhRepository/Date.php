@@ -15,7 +15,14 @@
  * @subpackage Libraries
  */
 class OaiPmhRepository_Date {
+
+    const OAI_DATE_PCRE     = "/^\\d{4}\\-\\d{2}\\-\\d{2}$/";
+    const OAI_DATETIME_PCRE = "/^\\d{4}\\-\\d{2}\\-\\d{2}T\\d{2}\\:\\d{2}\\:\\d{2}Z$/";
     
+    const OAI_GRANULARITY_STRING   = 'YYYY-MM-DDThh:mm:ssZ';
+    const OAI_GRANULARITY_DATE     = 1;
+    const OAI_GRANULARITY_DATETIME = 2;
+
     /**
      * PHP date() format string to produce the required date format.
      * Must be used with gmdate() to conform to spec.
@@ -29,7 +36,7 @@ class OaiPmhRepository_Date {
      * @param int $timestamp Unix timestamp
      * @return string Time in ISO 8601 format
      */
-    static function unixToUtc($timestamp)
+    public static function unixToUtc($timestamp)
     {
         return gmdate(self::OAI_DATE_FORMAT, $timestamp);
     }
@@ -40,7 +47,7 @@ class OaiPmhRepository_Date {
      * @param int $timestamp Unix timestamp
      * @return string Time in Omeka DB format
      */
-    static function unixToDb($timestamp)
+    public static function unixToDb($timestamp)
     {
        return date(self::DB_DATE_FORMAT, $timestamp);
     }
@@ -53,7 +60,7 @@ class OaiPmhRepository_Date {
      * @return string Time in ISO 8601 format
      * @uses unixToUtc()
      */
-    static function dbToUtc($databaseTime)
+    public static function dbToUtc($databaseTime)
     {
         return self::unixToUtc(strtotime($databaseTime));
     }
@@ -66,7 +73,7 @@ class OaiPmhRepository_Date {
      * @return string Time in Omeka DB format
      * @uses unixToDb()
      */
-    static function utcToDb($utcDateTime, $until = false)
+    public static function utcToDb($utcDateTime, $until = false)
     {
         // Make sure day-granularity dates are interpreted as UTC
         $day = substr($utcDateTime, -1) != 'Z';
@@ -84,5 +91,23 @@ class OaiPmhRepository_Date {
             }
         }
         return self::unixToDb(strtotime($utcDateTime));
+    }
+
+    /**
+     * Returns the granularity of the given utcDateTime string.  Returns zero
+     * if the given string is not in utcDateTime format.
+     *
+     * @param string $dateTime Time string
+     * @return int OAI_GRANULARITY_DATE, OAI_GRANULARITY_DATETIME, or zero
+     */
+    public static function getGranularity($dateTime)
+    {
+        if (preg_match(self::OAI_DATE_PCRE, $dateTime)) {
+            return self::OAI_GRANULARITY_DATE;
+        } else if (preg_match(self::OAI_DATETIME_PCRE, $dateTime)) {
+            return self::OAI_GRANULARITY_DATETIME;
+        } else {
+            return false;
+        }
     }
 }

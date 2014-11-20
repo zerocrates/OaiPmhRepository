@@ -185,8 +185,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         $from = $this->_getParam('from');
         $until = $this->_getParam('until');
         
-        $fromGran = self::getGranularity($from);
-        $untilGran = self::getGranularity($until);
+        $fromGran = OaiPmhRepository_Date::getGranularity($from);
+        $untilGran = OaiPmhRepository_Date::getGranularity($until);
         
         if($from && !$fromGran)
             $this->throwError(self::OAI_ERR_BAD_ARGUMENT, "Invalid date/time argument.");
@@ -221,7 +221,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
             'adminEmail'        => get_option('administrator_email'),
             'earliestDatestamp' => OaiPmhRepository_Date::unixToUtc(0),
             'deletedRecord'     => 'no',
-            'granularity'       => self::OAI_GRANULARITY_STRING);
+            'granularity'       => OaiPmhRepository_Date::OAI_GRANULARITY_STRING
+        );
         $identify = $this->document->documentElement->appendNewElementWithChildren(
             'Identify', $elements);
 
