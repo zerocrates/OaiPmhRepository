@@ -9,6 +9,8 @@
  * @copyright Copyright 2009-2014 John Flatness, Yu-Hsun Lin
  * @license http://www.gnu.org/licenses/gpl-3.0.txt
  */
+
+$view = get_view();
 ?>
 
 <div class="field">
@@ -17,7 +19,7 @@
     </div>
     <div class="inputs five columns omega">
         <p class="explanation">Name for this OAI-PMH repository.</p>
-        <?php echo get_view()->formText('oaipmh_repository_name', $repoName);?>
+        <?php echo $view->formText('oaipmh_repository_name', $repoName);?>
     </div>
 </div>
 <div class="field">
@@ -29,7 +31,7 @@
         globally unique IDs for the exposed metadata items.  This value is required
         to be a domain name you have registered.  Using other values will generate
         invalid identifiers.</p>
-        <?php echo get_view()->formText('oaipmh_repository_namespace_id', $namespaceID);?>
+        <?php echo $view->formText('oaipmh_repository_namespace_id', $namespaceID);?>
     </div>
 </div>
 <div class="field">
@@ -40,7 +42,7 @@
         <p class="explanation">Whether the plugin should include identifiers for the
         files associated with items.  This provides harvesters with direct access to
         files.</p>
-        <?php echo get_view()->formCheckbox('oaipmh_repository_expose_files', $exposeFiles, null, 
+        <?php echo $view->formCheckbox('oaipmh_repository_expose_files', $exposeFiles, null, 
             array('checked' => '1', 'unChecked' => '0'));?>
     </div>
 </div>
@@ -50,7 +52,7 @@
             __('Expose empty collections')); ?>
     </div>
     <div class='inputs five columns omega'>
-        <?php echo get_view()->formCheckbox('oaipmh_repository_expose_empty_collections', true,
+        <?php echo $view->formCheckbox('oaipmh_repository_expose_empty_collections', true,
             array('checked' => (boolean) get_option('oaipmh_repository_expose_empty_collections'))); ?>
         <p class="explanation">
             <?php echo __('Whether the plugin should expose empty public collections.'); ?>
