@@ -52,10 +52,10 @@ $view = get_view();
             __('Expose empty collections')); ?>
     </div>
     <div class='inputs five columns omega'>
-        <?php echo $view->formCheckbox('oaipmh_repository_expose_empty_collections', true,
-            array('checked' => (boolean) get_option('oaipmh_repository_expose_empty_collections'))); ?>
         <p class="explanation">
             <?php echo __('Whether the plugin should expose empty public collections.'); ?>
         </p>
+        <?php echo $view->formCheckbox('oaipmh_repository_expose_empty_collections', true,
+            array('checked' => (boolean) get_option('oaipmh_repository_expose_empty_collections'))); ?>
     </div>
 </div>
