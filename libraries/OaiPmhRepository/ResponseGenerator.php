@@ -264,11 +264,9 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         }
 
         if(!$this->error) {
-            $getRecord = $this->document->createElement('GetRecord');
-            $this->document->documentElement->appendChild($getRecord);
-            $formatClass = $this->metadataFormats[$metadataPrefix]['class'];
-            $record = new $formatClass($item, $this->document);
-            $record->appendRecord($getRecord);
+            $verbElement = $this->document->createElement('GetRecord');
+            $this->document->documentElement->appendChild($verbElement);
+            $this->appendRecord($verbElement, $item, $metadataPrefix);
         }
     }
     
