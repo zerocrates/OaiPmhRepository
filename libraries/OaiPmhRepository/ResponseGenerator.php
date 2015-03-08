@@ -462,7 +462,11 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
                 // Drop Item from memory explicitly
                 release_object($item);
             }
-            if($rows > ($cursor + $listLimit)) {
+            // No token for a full list.
+            if (empty($listLimit)) {
+            }
+            // Token.
+            elseif ($rows > ($cursor + $listLimit)) {
                 $token = $this->createResumptionToken($verb,
                                                       $metadataPrefix,
                                                       $cursor + $listLimit,
@@ -477,7 +481,8 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
                 $tokenElement->setAttribute('cursor', $cursor);
                 $verbElement->appendChild($tokenElement);
             }
-            else if($cursor != 0) {
+            // Last token.
+            elseif ($cursor != 0) {
                 $tokenElement = $this->document->createElement('resumptionToken');
                 $verbElement->appendChild($tokenElement);
             }
