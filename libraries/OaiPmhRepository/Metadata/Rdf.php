@@ -115,6 +115,14 @@ class OaiPmhRepository_Metadata_Rdf implements OaiPmhRepository_Metadata_FormatI
             } catch (Omeka_Record_Exception $e) {
                 continue;
             }
+
+            // Prepend the item type, if any.
+            if ($elementName == 'Type') {
+                if ($dcType = $item->getProperty('item_type_name')) {
+                    $description->appendNewElement('dc:type', $dcType);
+                }
+            }
+
             foreach ($texts as $text) {
                 $description->appendNewElement($propertyName, $text->text);
             }

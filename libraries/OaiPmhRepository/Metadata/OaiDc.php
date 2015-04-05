@@ -61,6 +61,14 @@ class OaiPmhRepository_Metadata_OaiDc implements OaiPmhRepository_Metadata_Forma
             $upperName = Inflector::camelize($elementName);
             $dcElements = $item->getElementTexts(
                 'Dublin Core',$upperName );
+
+            // Prepend the item type, if any.
+            if ($elementName == 'type') {
+                if ($dcType = $item->getProperty('item_type_name')) {
+                    $oai_dc->appendNewElement('dc:type', $dcType);
+                }
+            }
+
             foreach($dcElements as $elementText)
             {
                 $oai_dc->appendNewElement('dc:'.$elementName, $elementText->text);

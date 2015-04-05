@@ -103,6 +103,11 @@ class OaiPmhRepository_Metadata_Mods implements OaiPmhRepository_Metadata_Format
             $mods->appendNewElement('accessCondition', $right->text);
         }
 
+        // Prepend the item type, if any.
+        if ($dcType = $item->getProperty('item_type_name')) {
+            $mods->appendNewElement('genre', $dcType);
+        }
+
         $types = $item->getElementTexts('Dublin Core','Type');
         foreach ($types as $type)
         {

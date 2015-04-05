@@ -55,10 +55,13 @@ class OaiPmhRepository_Metadata_CdwaLite implements OaiPmhRepository_Metadata_Fo
         /* Type => objectWorkTypeWrap->objectWorkType 
          * Required.  Fill with 'Unknown' if omitted.
          */
+        if ($dcType = $item->getProperty('item_type_name')) {
+            $objectWorkTypeWrap->appendNewElement('cdwalite:objectWorkTypeWrap', $dcType);
+        }
         $types = $item->getElementTexts('Dublin Core','Type');
         $objectWorkTypeWrap = $descriptive->appendNewElement('cdwalite:objectWorkTypeWrap');
         //print_r($objectWorkTypeWrap);
-        if(count($types) == 0) $types[] = 'Unknown'; 
+        if (empty($dcType) && count($types) == 0) $types[] = 'Unknown';
         foreach($types as $type)
         {  
             $objectWorkTypeWrap->appendNewElement('cdwalite:objectWorkTypeWrap', ($type == 'Unknown')? $type: $type->text );
