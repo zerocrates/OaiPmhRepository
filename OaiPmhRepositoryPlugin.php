@@ -139,10 +139,9 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
             return;
         }
 
+        // If base url is not set, use the default module/controller/action.
         $route = get_option('oaipmh_repository_base_url');
-
-        // If base url is not set, use the default controller/action.
-        if (empty($route)) {
+        if (empty($route) || $route == 'oai-pmh-repository/request') {
             return;
         }
 
