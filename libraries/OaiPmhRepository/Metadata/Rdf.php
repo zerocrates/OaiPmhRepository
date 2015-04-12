@@ -117,7 +117,7 @@ class OaiPmhRepository_Metadata_Rdf implements OaiPmhRepository_Metadata_FormatI
             }
 
             // Prepend the item type, if any.
-            if ($elementName == 'Type') {
+            if ($elementName == 'Type' && get_option('oaipmh_repository_expose_item_type')) {
                 if ($dcType = $item->getProperty('item_type_name')) {
                     $description->appendNewElement('dc:type', $dcType);
                 }

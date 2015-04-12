@@ -63,7 +63,7 @@ class OaiPmhRepository_Metadata_OaiDc implements OaiPmhRepository_Metadata_Forma
                 'Dublin Core',$upperName );
 
             // Prepend the item type, if any.
-            if ($elementName == 'type') {
+            if ($elementName == 'type' && get_option('oaipmh_repository_expose_item_type')) {
                 if ($dcType = $item->getProperty('item_type_name')) {
                     $oai_dc->appendNewElement('dc:type', $dcType);
                 }

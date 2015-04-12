@@ -104,7 +104,7 @@ class OaiPmhRepository_Metadata_Mods implements OaiPmhRepository_Metadata_Format
         }
 
         // Prepend the item type, if any.
-        if ($dcType = $item->getProperty('item_type_name')) {
+        if (get_option('oaipmh_repository_expose_item_type') && $dcType = $item->getProperty('item_type_name')) {
             $mods->appendNewElement('genre', $dcType);
         }
 
