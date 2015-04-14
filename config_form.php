@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * Config form include
  *
@@ -42,7 +42,7 @@ $view = get_view();
         <p class="explanation">Whether the plugin should include identifiers for the
         files associated with items.  This provides harvesters with direct access to
         files.</p>
-        <?php echo $view->formCheckbox('oaipmh_repository_expose_files', $exposeFiles, null, 
+        <?php echo $view->formCheckbox('oaipmh_repository_expose_files', $exposeFiles, null,
             array('checked' => '1', 'unChecked' => '0'));?>
     </div>
 </div>
@@ -57,5 +57,18 @@ $view = get_view();
         </p>
         <?php echo $view->formCheckbox('oaipmh_repository_expose_empty_collections', true,
             array('checked' => (boolean) get_option('oaipmh_repository_expose_empty_collections'))); ?>
+    </div>
+</div>
+<div class="field">
+    <div class="two columns alpha">
+        <?php echo $view->formLabel('oaipmh_repository_expose_item_type',
+            __('Expose item type')); ?>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation">
+            <?php echo __('Whether the plugin should expose the item type as Dublin Core Type.'); ?>
+        </p>
+        <?php echo $view->formCheckbox('oaipmh_repository_expose_item_type', true,
+            array('checked' => (boolean) get_option('oaipmh_repository_expose_item_type'))); ?>
     </div>
 </div>

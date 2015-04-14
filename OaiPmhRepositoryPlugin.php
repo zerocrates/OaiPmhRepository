@@ -32,6 +32,7 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
         'oaipmh_repository_namespace_id',
         'oaipmh_repository_expose_files',
         'oaipmh_repository_expose_empty_collections' => 1,
+        'oaipmh_repository_expose_item_type' => 0,
     );
     
     /**
@@ -79,6 +80,7 @@ SQL;
         delete_option('oaipmh_repository_record_limit');
         delete_option('oaipmh_repository_expiration_time');
         delete_option('oaipmh_repository_expose_files');
+        delete_option('oaipmh_repository_expose_item_type');
 
         $db = get_db();
         $sql = "DROP TABLE IF EXISTS `{$db->prefix}oai_pmh_repository_tokens`;";
@@ -91,6 +93,7 @@ SQL;
         set_option('oaipmh_repository_namespace_id', $_POST['oaipmh_repository_namespace_id']);
         set_option('oaipmh_repository_expose_files', $_POST['oaipmh_repository_expose_files']);
         set_option('oaipmh_repository_expose_empty_collections', $_POST['oaipmh_repository_expose_empty_collections']);
+        set_option('oaipmh_repository_expose_item_type', $_POST['oaipmh_repository_expose_item_type']);
     }
 
     public function hookConfigForm()
