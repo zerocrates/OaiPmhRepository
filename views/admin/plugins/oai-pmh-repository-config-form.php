@@ -94,4 +94,18 @@
             array('checked' => (boolean) get_option('oaipmh_repository_expose_item_type'))); ?>
     </div>
 </div>
+<div class="field">
+    <div class="two columns alpha">
+        <?php echo $view->formLabel('oaipmh_repository_add_human_stylesheet',
+            __('Human display')); ?>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation">
+            <?php echo __('If checked, a stylesheet will be added to the output, so humans will be able to browse the repository through a themable %sBootstrap%s responsive interface.',
+                    '<a href="http://getbootstrap.com/">', '</a>'); ?>
+        </p>
+        <?php echo $view->formCheckbox('oaipmh_repository_add_human_stylesheet', true,
+            array('checked' => (boolean) get_option('oaipmh_repository_add_human_stylesheet'))); ?>
+    </div>
+</div>
 </fieldset>
