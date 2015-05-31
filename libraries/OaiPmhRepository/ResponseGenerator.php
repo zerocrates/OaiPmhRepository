@@ -503,11 +503,11 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         $headerData['identifier'] = 
             OaiPmhRepository_OaiIdentifier::itemToOaiId($item->id);
         $headerData['datestamp'] = OaiPmhRepository_Date::dbToUtc($item->modified);
-        
-        $collectionId = $item->collection_id;
-        if ($collectionId)
-            $headerData['setSpec'] = $collectionId;
-        
+
+        $collection = $item->getCollection();
+        if ($collection && $collection->public)
+            $headerData['setSpec'] = $collection->id;
+
         $parentElement->appendNewElementWithChildren('header', $headerData);
     }
     
