@@ -58,7 +58,13 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         //adds some overhead, especially on large outputs.
         $this->document->formatOutput = true;
         $this->document->xmlStandalone = true;
-        
+
+        if (get_option('oaipmh_repository_add_human_stylesheet')) {
+            $stylesheet = src('oai-pmh-repository', 'xsl', 'xsl');
+            $xslt = $this->document->createProcessingInstruction('xml-stylesheet', 'type="text/xsl" href="' . $stylesheet . '"');
+            $this->document->appendChild($xslt);
+        }
+
         $root = $this->document->createElementNS(self::OAI_PMH_NAMESPACE_URI,
             'OAI-PMH');
         $this->document->appendChild($root);
