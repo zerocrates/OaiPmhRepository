@@ -516,7 +516,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         $items = $itemTable->fetchObjects($select);  
         
         if(count($items) == 0)
-            $this->throwError(self::OAI_ERR_NO_RECORDS_MATCH, 'No records match the given criteria');
+            $this->throwError(self::OAI_ERR_NO_RECORDS_MATCH, 'No records match the given criteria.');
 
         else {
 
