@@ -337,9 +337,79 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         if(!$this->error) {
             $this->document->documentElement->appendChild($listSets); 
             foreach ($collections as $collection) {
-                $elements = array( 'setSpec' => $collection->id,
-                                   'setName' => metadata($collection,array('Dublin Core','Title')));
-                $listSets->appendNewElementWithChildren('set', $elements);
+                $name = metadata($collection, array('Dublin Core', 'Title')) ?: __('[Untitled]');
+                $elements = array(
+                    'setSpec' => $collection->id,
+                    'setName' => $name,
+                );
+                $set = $listSets->appendNewElementWithChildren('set', $elements);
+                $this->_addSetDescription($set, $collection);
+            }
+        }
+    }
+
+    /**
+     * Prepare the set description for the collection / set, if any.
+     *
+     * @see OaiPmhRepository_Metadata_OaiDc::appendMetadata()
+     *
+     * @param Dom $set
+     * @param Collection $collection
+     * @return Dom
+     */
+    protected function _addSetDescription($set, $collection)
+    {
+        // Prepare the list of Dublin Core element texts, except the first title.
+        $elementTexts = array();
+
+        // List of the Dublin Core terms, needed to removed qualified ones.
+        $dcTerms = array(
+            'title' => 'Title',
+            'creator' => 'Creator',
+            'subject' => 'Subject',
+            'description' => 'Description',
+            'publisher' => 'Publisher',
+            'contributor' => 'Contributor',
+            'date' => 'Date',
+            'type' => 'Type',
+            'format' => 'Format',
+            'identifier' => 'Identifier',
+            'source' => 'Source',
+            'language' => 'Language',
+            'relation' => 'Relation',
+            'coverage' => 'Coverage',
+            'rights' => 'Rights',
+        );
+
+        foreach ($dcTerms as $name => $elementName) {
+            $elTexts = $collection->getElementTexts('Dublin Core', $elementName);
+            // Remove the first title.
+            if ($elementName == 'Title' && isset($elTexts[0])) {
+                unset($elTexts[0]);
+            }
+            if ($elTexts) {
+                $elementTexts[$name] = $elTexts;
+            }
+        }
+
+        if (empty($elementTexts)) {
+            return $set;
+        }
+
+        $setDescription = $this->document->createElement('setDescription');
+        $set->appendChild($setDescription);
+        $oai_dc = $this->document->createElementNS(
+            OaiPmhRepository_Metadata_OaiDc::METADATA_NAMESPACE, 'oai_dc:dc');
+        $setDescription->appendChild($oai_dc);
+
+        $oai_dc->setAttribute('xmlns:dc', OaiPmhRepository_Metadata_OaiDc::DC_NAMESPACE_URI);
+        $oai_dc->declareSchemaLocation(
+            OaiPmhRepository_Metadata_OaiDc::METADATA_NAMESPACE,
+            OaiPmhRepository_Metadata_OaiDc::METADATA_SCHEMA);
+
+        foreach ($elementTexts as $name => $elTexts) {
+            foreach ($elTexts as $elementText) {
+                $oai_dc->appendNewElement('dc:'.$name, $elementText->text);
             }
         }
     }
