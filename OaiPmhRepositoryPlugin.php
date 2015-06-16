@@ -30,7 +30,7 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
     protected $_options = array(
         'oaipmh_repository_name',
         'oaipmh_repository_namespace_id',
-        'oaipmh_repository_expose_files',
+        'oaipmh_repository_expose_files' => 1,
         'oaipmh_repository_expose_empty_collections' => 1,
         'oaipmh_repository_expose_item_type' => 0,
     );
@@ -40,9 +40,9 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
      */
     public function hookInstall()
     {
-        set_option('oaipmh_repository_name', get_option('site_title'));
-        set_option('oaipmh_repository_namespace_id', $this->_getServerName());
-        set_option('oaipmh_repository_namespace_expose_files', 1);
+        $this->_options['oaipmh_repository_name'] = get_option('site_title');
+        $this->_options['oaipmh_repository_namespace_id'] = $this->_getServerName();
+        $this->_installOptions();
 
         $db = get_db();
         /* Table: Stores currently active resumptionTokens
@@ -75,25 +75,28 @@ SQL;
 
     public function hookUninstall()
     {
-        delete_option('oaipmh_repository_name');
-        delete_option('oaipmh_repository_namespace_id');
+        // Remove potential leftover options moved to config file
         delete_option('oaipmh_repository_record_limit');
         delete_option('oaipmh_repository_expiration_time');
-        delete_option('oaipmh_repository_expose_files');
-        delete_option('oaipmh_repository_expose_item_type');
+
+        $this->_uninstallOptions();
 
         $db = get_db();
         $sql = "DROP TABLE IF EXISTS `{$db->prefix}oai_pmh_repository_tokens`;";
         $db->query($sql);
     }
 
-    public function hookConfig()
+    public function hookConfig($args)
     {
-        set_option('oaipmh_repository_name', $_POST['oaipmh_repository_name']);
-        set_option('oaipmh_repository_namespace_id', $_POST['oaipmh_repository_namespace_id']);
-        set_option('oaipmh_repository_expose_files', $_POST['oaipmh_repository_expose_files']);
-        set_option('oaipmh_repository_expose_empty_collections', $_POST['oaipmh_repository_expose_empty_collections']);
-        set_option('oaipmh_repository_expose_item_type', $_POST['oaipmh_repository_expose_item_type']);
+        $post = $args['post'];
+        foreach ($this->_options as $optionKey => $optionValue) {
+            if (is_numeric($optionKey)) {
+                $optionKey = $optionValue;
+            }
+            if (isset($post[$optionKey])) {
+                set_option($optionKey, $post[$optionKey]);
+            }
+        }
     }
 
     public function hookConfigForm()
