@@ -58,7 +58,14 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         //adds some overhead, especially on large outputs.
         $this->document->formatOutput = true;
         $this->document->xmlStandalone = true;
-        
+        $this->document->preserveWhiteSpace = false;
+
+        if (get_option('oaipmh_repository_add_human_stylesheet')) {
+            $stylesheet = src('oai-pmh-repository', 'xsl', 'xsl');
+            $xslt = $this->document->createProcessingInstruction('xml-stylesheet', 'type="text/xsl" href="' . $stylesheet . '"');
+            $this->document->appendChild($xslt);
+        }
+
         $root = $this->document->createElementNS(self::OAI_PMH_NAMESPACE_URI,
             'OAI-PMH');
         $this->document->appendChild($root);
@@ -337,9 +344,79 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         if(!$this->error) {
             $this->document->documentElement->appendChild($listSets); 
             foreach ($collections as $collection) {
-                $elements = array( 'setSpec' => $collection->id,
-                                   'setName' => metadata($collection,array('Dublin Core','Title')));
-                $listSets->appendNewElementWithChildren('set', $elements);
+                $name = metadata($collection, array('Dublin Core', 'Title')) ?: __('[Untitled]');
+                $elements = array(
+                    'setSpec' => $collection->id,
+                    'setName' => $name,
+                );
+                $set = $listSets->appendNewElementWithChildren('set', $elements);
+                $this->_addSetDescription($set, $collection);
+            }
+        }
+    }
+
+    /**
+     * Prepare the set description for the collection / set, if any.
+     *
+     * @see OaiPmhRepository_Metadata_OaiDc::appendMetadata()
+     *
+     * @param Dom $set
+     * @param Collection $collection
+     * @return Dom
+     */
+    protected function _addSetDescription($set, $collection)
+    {
+        // Prepare the list of Dublin Core element texts, except the first title.
+        $elementTexts = array();
+
+        // List of the Dublin Core terms, needed to removed qualified ones.
+        $dcTerms = array(
+            'title' => 'Title',
+            'creator' => 'Creator',
+            'subject' => 'Subject',
+            'description' => 'Description',
+            'publisher' => 'Publisher',
+            'contributor' => 'Contributor',
+            'date' => 'Date',
+            'type' => 'Type',
+            'format' => 'Format',
+            'identifier' => 'Identifier',
+            'source' => 'Source',
+            'language' => 'Language',
+            'relation' => 'Relation',
+            'coverage' => 'Coverage',
+            'rights' => 'Rights',
+        );
+
+        foreach ($dcTerms as $name => $elementName) {
+            $elTexts = $collection->getElementTexts('Dublin Core', $elementName);
+            // Remove the first title.
+            if ($elementName == 'Title' && isset($elTexts[0])) {
+                unset($elTexts[0]);
+            }
+            if ($elTexts) {
+                $elementTexts[$name] = $elTexts;
+            }
+        }
+
+        if (empty($elementTexts)) {
+            return $set;
+        }
+
+        $setDescription = $this->document->createElement('setDescription');
+        $set->appendChild($setDescription);
+        $oai_dc = $this->document->createElementNS(
+            OaiPmhRepository_Metadata_OaiDc::METADATA_NAMESPACE, 'oai_dc:dc');
+        $setDescription->appendChild($oai_dc);
+
+        $oai_dc->setAttribute('xmlns:dc', OaiPmhRepository_Metadata_OaiDc::DC_NAMESPACE_URI);
+        $oai_dc->declareSchemaLocation(
+            OaiPmhRepository_Metadata_OaiDc::METADATA_NAMESPACE,
+            OaiPmhRepository_Metadata_OaiDc::METADATA_SCHEMA);
+
+        foreach ($elementTexts as $name => $elTexts) {
+            foreach ($elTexts as $elementText) {
+                $oai_dc->appendNewElement('dc:'.$name, $elementText->text);
             }
         }
     }
@@ -446,7 +523,7 @@ class OaiPmhRepository_ResponseGenerator extends OaiPmhRepository_OaiXmlGenerato
         $items = $itemTable->fetchObjects($select);  
         
         if(count($items) == 0)
-            $this->throwError(self::OAI_ERR_NO_RECORDS_MATCH, 'No records match the given criteria');
+            $this->throwError(self::OAI_ERR_NO_RECORDS_MATCH, 'No records match the given criteria.');
 
         else {
 
