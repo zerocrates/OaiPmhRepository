@@ -22,17 +22,29 @@ Copyrights and licences for the third parties above can be found in the specific
 files and online.
 
 Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html).
+
+Basic support (see https://www.openarchives.org/OAI/2.0/guidelines.htm):
+- rightsManifest (repository and set levels)
+- branding (repository and set levels)
+- provenance (record level)
+- rights (record level)
+- about container.
+No support (may depend on server):
+- Identify compression.
 -->
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:oai="http://www.openarchives.org/OAI/2.0/"
     xmlns:oai_identifier="http://www.openarchives.org/OAI/2.0/oai-identifier"
-    xmlns:oai_gateway="http://www.openarchives.org/OAI/2.0/gateway/"
+    xmlns:oai_rights="http://www.openarchives.org/OAI/2.0/rights/"
     xmlns:oai_friends="http://www.openarchives.org/OAI/2.0/friends/"
+    xmlns:oai_branding="http://www.openarchives.org/OAI/2.0/branding/"
+    xmlns:oai_gateway="http://www.openarchives.org/OAI/2.0/gateway/"
+    xmlns:oai_provenance="http://www.openarchives.org/OAI/2.0/provenance"
     xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
     xmlns:dc="http://purl.org/dc/doc:elements/1.1/"
     xmlns:verb="http://informatik.hu-berlin.de/xmlverbatim"
-    exclude-result-prefixes="oai oai_identifier oai_gateway oai_friends oai_dc dc verb">
+    exclude-result-prefixes="oai oai_identifier oai_rights oai_friends oai_branding oai_gateway oai_provenance oai_dc dc verb">
 
     <xsl:output
         method="html"
@@ -197,7 +209,6 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
                     <div class="row">
                         <xsl:apply-templates select="oai:OAI-PMH/oai:error" />
                         <xsl:apply-templates select="oai:OAI-PMH/oai:Identify" />
-                        <xsl:apply-templates select="oai:OAI-PMH/oai:Identify/oai:description"/>
                         <xsl:apply-templates select="oai:OAI-PMH/oai:ListMetadataFormats" />
                         <xsl:apply-templates select="oai:OAI-PMH/oai:ListSets" />
                         <xsl:apply-templates select="oai:OAI-PMH/oai:ListIdentifiers" />
@@ -286,16 +297,33 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
                 </tbody>
             </table>
         </div>
+        <xsl:apply-templates select="oai:description"/>
     </xsl:template>
 
     <xsl:template match="oai:OAI-PMH/oai:Identify/oai:description">
         <xsl:apply-templates select="oai_identifier:oai-identifier" />
-        <xsl:apply-templates select="oai_gateway:gateway" />
+        <xsl:apply-templates select="oai_rights:rightsManifest" />
         <xsl:apply-templates select="oai_friends:friends" />
+        <xsl:apply-templates select="oai_branding:branding" />
+        <xsl:apply-templates select="oai_gateway:gateway" />
+        <xsl:apply-templates select="./*[
+            local-name() != 'oai-identifier'
+            and local-name() != 'rightsManifest'
+            and local-name() != 'gateway'
+            and local-name() != 'friends'
+            and local-name() != 'branding'
+            ]"/>
+    </xsl:template>
+
+    <xsl:template match="oai:OAI-PMH/oai:Identify/oai:description/*" priority="-100">
+        <div class="oaipmh oaipmh-description">
+            <h2>Unsupported Description Type</h2>
+            <xsl:apply-templates select="." mode='xmlverb' />
+        </div>
     </xsl:template>
 
     <xsl:template match="oai:OAI-PMH/oai:Identify/oai:description/oai_identifier:oai-identifier">
-        <div class="oaipmh oaipmh-identifier">
+        <div class="oaipmh oaipmh-description oaipmh-identifier">
             <h2>Identifiers Format</h2>
             <table class="table table-bordered table-striped">
                 <tbody>
@@ -320,8 +348,51 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
         </div>
     </xsl:template>
 
+    <xsl:template match="oai:OAI-PMH/oai:Identify/oai:description/oai_rights:rightsManifest">
+        <div class="oaipmh oaipmh-description oaipmh-rights">
+            <h2>Rights  Manifest</h2>
+            <xsl:apply-templates select="." mode='xmlverb' />
+        </div>
+    </xsl:template>
+
+    <xsl:template match="oai:OAI-PMH/oai:Identify/oai:description/oai_friends:friends">
+        <div class="oaipmh oaipmh-description oaipmh-friends">
+            <h2>Confederated Repositories</h2>
+            <xsl:choose>
+                <xsl:when test="count(oai_friends:baseURL)">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <xsl:for-each select="oai_friends:baseURL">
+                                <tr>
+                                    <th scope="row">
+                                        <xsl:value-of select="position()" />
+                                    </th>
+                                    <td>
+                                        <a href="{concat(text(), '?verb=Identify')}">
+                                            <xsl:value-of select="text()" />
+                                        </a>
+                                    </td>
+                                </tr>
+                            </xsl:for-each>
+                        </tbody>
+                    </table>
+                </xsl:when>
+                <xsl:otherwise>
+                    <p>None.</p>
+                </xsl:otherwise>
+            </xsl:choose>
+        </div>
+    </xsl:template>
+
+    <xsl:template match="oai:OAI-PMH/oai:Identify/oai:description/oai_branding:branding">
+        <div class="oaipmh oaipmh-description oaipmh-branding">
+            <h2>Branding</h2>
+            <xsl:apply-templates select="." mode='xmlverb' />
+        </div>
+    </xsl:template>
+
     <xsl:template match="oai:OAI-PMH/oai:Identify/oai:description/oai_gateway:gateway">
-        <div class="oaipmh oaipmh-gateway">
+        <div class="oaipmh oaipmh-description oaipmh-gateway">
             <h2>OAI-PMH Gateway</h2>
             <table class="table table-bordered table-striped">
                 <tbody>
@@ -357,35 +428,6 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
                     </tr>
                 </tbody>
             </table>
-        </div>
-    </xsl:template>
-
-    <xsl:template match="oai:OAI-PMH/oai:Identify/oai:description/oai_friends:friends">
-        <div class="oaipmh oaipmh-friends">
-            <h2>Confederated Repositories</h2>
-            <xsl:choose>
-                <xsl:when test="count(oai_friends:baseURL)">
-                    <table class="table table-bordered table-striped">
-                        <tbody>
-                            <xsl:for-each select="oai_friends:baseURL">
-                                <tr>
-                                    <th scope="row">
-                                        <xsl:value-of select="position()" />
-                                    </th>
-                                    <td>
-                                        <a href="{concat(text(), '?verb=Identify')}">
-                                            <xsl:value-of select="text()" />
-                                        </a>
-                                    </td>
-                                </tr>
-                            </xsl:for-each>
-                        </tbody>
-                    </table>
-                </xsl:when>
-                <xsl:otherwise>
-                    <p>None.</p>
-                </xsl:otherwise>
-            </xsl:choose>
         </div>
     </xsl:template>
 

@@ -33,9 +33,7 @@ pre {
 .oaipmh-response .panel-heading a {
     color: #3c763d;
 }
-.oaipmh-identifier,
-.oaipmh-gateway,
-.oaipmh-friends {
+.oaipmh-description {
   padding-top: 16px;
 }
 .oaipmh-formats table thead th:first-child,
