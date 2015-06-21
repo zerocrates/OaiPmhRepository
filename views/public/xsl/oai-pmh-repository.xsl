@@ -668,6 +668,14 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
                     <xsl:text>Show More</xsl:text>
                     </a>
                 </div>
+                <xsl:if test="@expirationDate != ''">
+                    <div class="text-center">
+                        <span class="label label-default">
+                            <xsl:text>Expires </xsl:text>
+                            <xsl:value-of select="normalize-space(translate(@expirationDate, 'TZ' , ' '))" />
+                        </span>
+                    </div>
+                </xsl:if>
             </div>
         </xsl:if>
     </xsl:template>
