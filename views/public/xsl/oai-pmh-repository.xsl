@@ -26,13 +26,13 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:oai="http://www.openarchives.org/OAI/2.0/"
+    xmlns:oai_identifier="http://www.openarchives.org/OAI/2.0/oai-identifier"
     xmlns:oai_gateway="http://www.openarchives.org/OAI/2.0/gateway/"
     xmlns:oai_friends="http://www.openarchives.org/OAI/2.0/friends/"
-    xmlns:oai_id="http://www.openarchives.org/OAI/2.0/oai-identifier"
     xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
     xmlns:dc="http://purl.org/dc/doc:elements/1.1/"
     xmlns:verb="http://informatik.hu-berlin.de/xmlverbatim"
-    exclude-result-prefixes="oai oai_gateway oai_friends oai_id oai_dc dc verb">
+    exclude-result-prefixes="oai oai_identifier oai_gateway oai_friends oai_dc dc verb">
 
     <xsl:output
         method="html"
@@ -197,8 +197,7 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
                     <div class="row">
                         <xsl:apply-templates select="oai:OAI-PMH/oai:error" />
                         <xsl:apply-templates select="oai:OAI-PMH/oai:Identify" />
-                        <xsl:apply-templates select="oai:OAI-PMH/oai:Identify/oai:description/oai_gateway:gateway" />
-                        <xsl:apply-templates select="oai:OAI-PMH/oai:Identify/oai:description/oai_friends:friends" />
+                        <xsl:apply-templates select="oai:OAI-PMH/oai:Identify/oai:description"/>
                         <xsl:apply-templates select="oai:OAI-PMH/oai:ListMetadataFormats" />
                         <xsl:apply-templates select="oai:OAI-PMH/oai:ListSets" />
                         <xsl:apply-templates select="oai:OAI-PMH/oai:ListIdentifiers" />
@@ -284,13 +283,37 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
                         <th scope="row">Deletion Mode</th>
                         <td><xsl:value-of select="oai:deletedRecord/text()" /></td>
                     </tr>
+                </tbody>
+            </table>
+        </div>
+    </xsl:template>
+
+    <xsl:template match="oai:OAI-PMH/oai:Identify/oai:description">
+        <xsl:apply-templates select="oai_identifier:oai-identifier" />
+        <xsl:apply-templates select="oai_gateway:gateway" />
+        <xsl:apply-templates select="oai_friends:friends" />
+    </xsl:template>
+
+    <xsl:template match="oai:OAI-PMH/oai:Identify/oai:description/oai_identifier:oai-identifier">
+        <div class="oaipmh oaipmh-identifier">
+            <h2>Identifiers Format</h2>
+            <table class="table table-bordered table-striped">
+                <tbody>
+                    <tr>
+                        <th scope="row">Scheme</th>
+                        <td><xsl:value-of select="oai_identifier:scheme/text()" /></td>
+                    </tr>
                     <tr>
                         <th scope="row">Repository identifier</th>
-                        <td><xsl:value-of select="oai:description/oai_id:oai-identifier/oai_id:repositoryIdentifier/text()" /></td>
+                        <td><xsl:value-of select="oai_identifier:repositoryIdentifier/text()" /></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Delimiter</th>
+                        <td><code><xsl:value-of select="oai_identifier:delimiter/text()" /></code></td>
                     </tr>
                     <tr>
                         <th scope="row">Sample identifier</th>
-                        <td><xsl:value-of select="oai:description/oai_id:oai-identifier/oai_id:sampleIdentifier/text()" /></td>
+                        <td><xsl:value-of select="oai_identifier:sampleIdentifier/text()" /></td>
                     </tr>
                 </tbody>
             </table>
