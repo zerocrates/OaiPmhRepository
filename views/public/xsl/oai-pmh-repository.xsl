@@ -517,15 +517,14 @@ No support (may depend on server):
                                 <div class="btn-group pull-right" aria-label="List of identifiers and records" role="group">
                                     <xsl:choose>
                                         <xsl:when test="oai:setDescription != ''">
-                                            <a class="btn btn-default collapse-data-btn"  data-toggle="collapse"
+                                            <a class="btn btn-default collapse-data-btn" data-toggle="collapse"
                                                     href="{concat('#', translate(oai:setSpec/text(), $forbidden-characters, ''))}">
                                                 <xsl:text>Description </xsl:text>
                                                 <span class="caret"></span>
                                             </a>
                                         </xsl:when>
                                         <xsl:otherwise>
-                                            <a class="btn btn-default disabled"
-                                                    href="#">
+                                            <a class="btn btn-default disabled" href="#">
                                                 <xsl:text>No Description</xsl:text>
                                             </a>
                                         </xsl:otherwise>
@@ -595,16 +594,25 @@ No support (may depend on server):
                             <td>
                                 <xsl:value-of select="oai:identifier/text()" />
                                 <div class="btn-group pull-right" aria-label="Get record" role="group">
-                                    <a class="btn btn-default">
-                                        <xsl:attribute name="href">
-                                            <xsl:value-of select="/oai:OAI-PMH/oai:request/text()" />
-                                            <xsl:text>?verb=GetRecord&amp;metadataPrefix=</xsl:text>
-                                            <xsl:value-of select="$metadata-prefix" />
-                                            <xsl:text>&amp;identifier=</xsl:text>
-                                            <xsl:value-of select="oai:identifier/text()" />
-                                        </xsl:attribute>
-                                        <xsl:text>View Record</xsl:text>
-                                    </a>
+                                    <xsl:choose>
+                                        <xsl:when test="@status = 'deleted'">
+                                                <a class="btn btn-default disabled" href="#">
+                                                    <xsl:text>Deleted Record</xsl:text>
+                                                </a>
+                                        </xsl:when>
+                                        <xsl:otherwise>
+                                            <a class="btn btn-default">
+                                                <xsl:attribute name="href">
+                                                    <xsl:value-of select="/oai:OAI-PMH/oai:request/text()" />
+                                                    <xsl:text>?verb=GetRecord&amp;metadataPrefix=</xsl:text>
+                                                    <xsl:value-of select="$metadata-prefix" />
+                                                    <xsl:text>&amp;identifier=</xsl:text>
+                                                    <xsl:value-of select="oai:identifier/text()" />
+                                                </xsl:attribute>
+                                                <xsl:text>View Record</xsl:text>
+                                            </a>
+                                        </xsl:otherwise>
+                                    </xsl:choose>
                                     <xsl:call-template name="display-button-sets">
                                         <xsl:with-param name="path" select="oai:setSpec" />
                                     </xsl:call-template>
@@ -656,39 +664,56 @@ No support (may depend on server):
                             <td>
                                 <xsl:value-of select="oai:header/oai:identifier/text()" />
                                 <div class="btn-group pull-right" aria-label="Get record" role="group">
-                                    <a class="btn btn-default collapse-data-btn"  data-toggle="collapse"
-                                            href="{concat('#', translate(oai:header/oai:identifier/text(), $forbidden-characters, ''))}">
-                                        <xsl:text>View Metadata</xsl:text>
-                                    </a>
+                                    <xsl:choose>
+                                        <xsl:when test="oai:header/@status = 'deleted'">
+                                                <a class="btn btn-default disabled" href="#">
+                                                    <xsl:text>Deleted Record</xsl:text>
+                                                </a>
+                                        </xsl:when>
+                                        <xsl:otherwise>
+                                            <a class="btn btn-default collapse-data-btn" data-toggle="collapse"
+                                                    href="{concat('#', translate(oai:header/oai:identifier/text(), $forbidden-characters, ''))}">
+                                                <xsl:text>View Metadata</xsl:text>
+                                            </a>
+                                        </xsl:otherwise>
+                                    </xsl:choose>
                                     <xsl:call-template name="display-button-sets">
                                         <xsl:with-param name="path" select="oai:header/oai:setSpec" />
                                     </xsl:call-template>
                                 </div>
                             </td>
                         </tr>
-                        <tr class="collapse" id="{translate(oai:header/oai:identifier/text(), $forbidden-characters, '')}">
-                            <td colspan="3">
-                                <table>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <xsl:choose>
-                                                    <xsl:when test="not(oai:about)">
-                                                        <xsl:apply-templates select="oai:metadata/*" />
-                                                    </xsl:when>
-                                                    <xsl:otherwise>
-                                                        <h3>Metadata</h3>
-                                                        <xsl:apply-templates select="oai:metadata/*" />
-                                                        <h3>About</h3>
-                                                        <xsl:apply-templates select="oai:about/*" mode='xmlverb' />
-                                                    </xsl:otherwise>
-                                                </xsl:choose>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </td>
-                        </tr>
+                        <xsl:choose>
+                            <xsl:when test="oai:header/@status = 'deleted'">
+                                <tr>
+                                </tr>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <tr class="collapse" id="{translate(oai:header/oai:identifier/text(), $forbidden-characters, '')}">
+                                    <td colspan="3">
+                                        <table>
+                                            <tbody>
+                                                <tr>
+                                                    <td>
+                                                        <xsl:choose>
+                                                            <xsl:when test="not(oai:about)">
+                                                                <xsl:apply-templates select="oai:metadata/*" />
+                                                            </xsl:when>
+                                                            <xsl:otherwise>
+                                                                <h3>Metadata</h3>
+                                                                <xsl:apply-templates select="oai:metadata/*" />
+                                                                <h3>About</h3>
+                                                                <xsl:apply-templates select="oai:about/*" mode='xmlverb' />
+                                                            </xsl:otherwise>
+                                                        </xsl:choose>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </xsl:otherwise>
+                        </xsl:choose>
                     </xsl:for-each>
                 </tbody>
             </table>
@@ -725,6 +750,9 @@ No support (may depend on server):
                     </div>
                     <div class="panel-body">
                         <xsl:choose>
+                            <xsl:when test="oai:header/@status = 'deleted'">
+                                <h3>Deleted Record</h3>
+                            </xsl:when>
                             <xsl:when test="not(oai:about)">
                                 <xsl:apply-templates select="oai:metadata/*" />
                             </xsl:when>
@@ -928,8 +956,7 @@ No support (may depend on server):
                 </ul>
             </xsl:when>
             <xsl:otherwise>
-                <a class="btn btn-default disabled"
-                        href="#">
+                <a class="btn btn-default disabled" href="#">
                     <xsl:text>Not in a set</xsl:text>
                 </a>
             </xsl:otherwise>
