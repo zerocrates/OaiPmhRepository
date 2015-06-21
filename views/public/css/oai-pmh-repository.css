@@ -9,8 +9,8 @@ footer a:hover {
   color: #000000;
 }
 a#logo {
-  background: transparent url('https://omeka.org/ui/i/logo-horizontal-288px.gif') no-repeat scroll 0 0 / 100% 100%;
-  padding: 8px 51px;
+  background: transparent none no-repeat scroll 0 0 / 100% 100%;
+/*  padding: 8px 51px; */
 }
 .vertical-space {
   height: 20px;
@@ -29,6 +29,9 @@ pre {
 .oaipmh table small {
   font-style: italic;
   margin-left: 10px;
+}
+.oaipmh-response .panel-heading a {
+    color: #3c763d;
 }
 .oaipmh-gateway,
 .oaipmh-friends {

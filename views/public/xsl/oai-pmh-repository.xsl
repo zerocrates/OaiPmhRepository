@@ -3,8 +3,9 @@
 Stylesheet to display responses to OAI-PMH requests with a Bootstrap theme.
 
 This stylesheet is primarily designed for Omeka (https://omeka.org) and the
-plugin OAI-PMH Gateway (http://github.com/daniel-km/OaiPmhGateway), but can be
-used by any OAI-PMH data provider.
+plugins OAI-PMH Repository (https://omeka.org/add-ons/plugins/oai-pmh-repository) and
+OAI-PMH Gateway (https://github.com/Daniel-KM/OaiPmhGateway), but can be used by
+any OAI-PMH Data Provider (https://www.openarchives.org/pmh/register_data_provider).
 
 Includes
 - Bootstrap, published under the MIT licence (see http://getbootstrap.com).
@@ -17,9 +18,10 @@ Copyright 2015 Daniel Berthereau (see https://github.com/Daniel-KM)
 Copyright (c) 2002 Oliver Becker (XML Verbatim)
 Copyright (c) 2002-2015, DuraSpace.  All rights reserved.
 
-Copyright for above third parties can be found in the specific files.
+Copyrights and licences for the third parties above can be found in the specific
+files and online.
 
-Published under the licence CeCILL v2.1
+Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licence_CeCILL_V2.1-en.html).
 -->
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -37,11 +39,16 @@ Published under the licence CeCILL v2.1
         doctype-system="about:legacy-compat"
         indent="yes"/>
 
-    <!-- Let empty to use the main domain set inside the repository. -->
-    <xsl:param name="homepage" select="''" />
+    <!-- Let empty to use the link to request "Identify". -->
+    <xsl:param name="homepage-url" select="''" />
+    <xsl:param name="homepage-text" select="'OAI-PMH Repository'" />
 
-    <!-- Let empty if this a normal repository (anyway, this is checked against the request). -->
-    <xsl:param name="gateway" select="''" />
+    <!-- Url for "powered by" link (logo is set in css if wanted). -->
+    <xsl:param name="powered-by-url" select="'https://omeka.org'" />
+    <xsl:param name="powered-by-text" select="'Powered by Omeka'" />
+
+    <!-- Let empty if this a normal repository. -->
+    <xsl:param name="gateway-url" select="''" />
 
     <!-- Url to css and javascripts. -->
     <xsl:param name="css-bootstrap" select="'../plugins/OaiPmhRepository/views/public/css/bootstrap.min.css'" />
@@ -50,46 +57,26 @@ Published under the licence CeCILL v2.1
     <xsl:param name="javascript-jquery" select="'../application/views/scripts/javascripts/vendor/jquery.js'" />
     <xsl:param name="javascript-bootstrap" select="'../plugins/OaiPmhRepository/views/public/javascripts/bootstrap.min.js'" />
 
-    <!-- Url for "powered by" link (logo is set in css). -->
-    <xsl:param name="powered-by-link" select="'https://omeka.org'" />
-    <xsl:param name="powered-by-text" select="'Powered by Omeka'" />
-
     <!-- This option is used by XML Verbatim. -->
     <xsl:param name="indent-elements" select="false()" />
 
     <!-- Constants. -->
-    <xsl:variable name="gateway-url">
-        <xsl:if test="$gateway != '' and starts-with(/oai:OAI-PMH/oai:request/text(), $gateway)">
-            <xsl:value-of select="$gateway" />
-        </xsl:if>
-    </xsl:variable>
-
-    <xsl:variable name="static-repository">
-        <xsl:if test="$gateway-url != ''">
-            <xsl:text>http://</xsl:text>
-            <xsl:choose>
-                <xsl:when test="substring($gateway-url, string-length($gateway-url)) = '/'">
-                    <xsl:value-of select="substring(/oai:OAI-PMH/oai:request/text(), string-length($gateway-url) + 1)" />
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:value-of select="substring(/oai:OAI-PMH/oai:request/text(), string-length($gateway-url) + 2)" />
-                </xsl:otherwise>
-            </xsl:choose>
-        </xsl:if>
-    </xsl:variable>
-
-    <xsl:variable name="home-page">
+    <xsl:variable name="url-homepage">
         <xsl:choose>
-            <xsl:when test="$homepage != ''">
-                <xsl:value-of select="$homepage" />
-            </xsl:when>
-            <xsl:when test="starts-with(/oai:OAI-PMH/oai:request/text(), 'http://')">
-                <xsl:value-of select="concat('http://', substring-before(substring(/oai:OAI-PMH/oai:request/text(), 8), '/'))" />
+            <xsl:when test="$homepage-url != ''">
+                <xsl:value-of select="$homepage-url" />
             </xsl:when>
             <xsl:otherwise>
-                <xsl:value-of select="concat('https://', substring-before(substring(/oai:OAI-PMH/oai:request/text(), 9), '/'))" />
+                <xsl:value-of select="concat(/oai:OAI-PMH/oai:request/text(), '?verb=Identify')" />
             </xsl:otherwise>
         </xsl:choose>
+    </xsl:variable>
+
+    <xsl:variable name="url-gateway">
+        <xsl:if test="$gateway-url != '' and starts-with(/oai:OAI-PMH/oai:request/text(), $gateway-url)">
+            <xsl:value-of select="$gateway-url" />
+        </xsl:if>
+        <xsl:text></xsl:text>
     </xsl:variable>
 
     <xsl:template match="/">
@@ -108,10 +95,10 @@ Published under the licence CeCILL v2.1
                 </xsl:element>
                 <xsl:element name="meta">
                     <xsl:attribute name="name">description</xsl:attribute>
-                    <xsl:attribute name="content">OAI-PMH Repository</xsl:attribute>
+                    <xsl:attribute name="content">OAI-PMH Repository and OAI-PMH Data Provider</xsl:attribute>
                 </xsl:element>
                 <link rel="icon" href="/favicon.ico" />
-                <title>Omeka OAI-PMH Data Provider</title>
+                <title><xsl:value-of select="$homepage-text" /></title>
                 <link rel="stylesheet" href="{$css-bootstrap}" type="text/css" />
                 <link rel="stylesheet" href="{$css-bootstrap-theme}" type="text/css" />
                 <xsl:comment>HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries</xsl:comment>
@@ -133,9 +120,9 @@ Published under the licence CeCILL v2.1
                             </button>
                             <a class="navbar-brand">
                                 <xsl:attribute name="href">
-                                    <xsl:value-of select="$home-page" />
+                                    <xsl:value-of select="$url-homepage" />
                                 </xsl:attribute>
-                                <xsl:text>Omeka OAI-PMH Data Provider</xsl:text>
+                                <xsl:value-of select="$homepage-text" />
                             </a>
                         </div>
                         <div id="navbar" class="navbar-collapse collapse">
@@ -185,12 +172,12 @@ Published under the licence CeCILL v2.1
                 </nav>
                 <div class="container">
                     <div class="row">
-                        <div class="panel panel-default panel-success">
-                            <xsl:if test="$gateway-url != ''">
+                        <div class="panel panel-default panel-success oaipmh-response">
+                            <xsl:if test="$url-gateway != ''">
                                 <div class="panel-heading">
-                                    <xsl:text>The access to this repository is provided by the gateway </xsl:text>
-                                    <em><a style="color:#3c763d;" href="{$gateway-url}">
-                                        <xsl:value-of select="$gateway-url" />
+                                    <xsl:text>The access to this repository is provided through the gateway </xsl:text>
+                                    <em><a href="{$url-gateway}">
+                                        <xsl:value-of select="$url-gateway" />
                                     </a></em>
                                     <xsl:text>.</xsl:text>
                                 </div>
@@ -199,6 +186,7 @@ Published under the licence CeCILL v2.1
                                 <div class="pull-right">
                                     <xsl:text>Response Date: </xsl:text>
                                     <xsl:value-of select="substring(oai:OAI-PMH/oai:responseDate/text(), 1, 10)" />
+                                    <xsl:text> </xsl:text>
                                     <xsl:value-of select="substring(oai:OAI-PMH/oai:responseDate/text(), 12, 8)" />
                                 </div>
                             </div>
@@ -218,13 +206,13 @@ Published under the licence CeCILL v2.1
                 </div>
                 <footer class="footer">
                     <div class="container">
-                        <xsl:if test="$powered-by-link != '' and $powered-by-text != ''">
+                        <xsl:if test="$powered-by-url != '' and $powered-by-text != ''">
                             <div class="row text-right">
                                 <div class="vertical-space"></div>
-                                    <p><small><a href="{$powered-by-link}">
+                                    <p><small><a href="{$powered-by-url}">
                                         <xsl:value-of select="$powered-by-text" />
                                     </a></small></p>
-                                    <a href="{$powered-by-link}" id="logo" />
+                                    <a href="{$powered-by-url}" id="logo" />
                                 <div class="vertical-space"></div>
                             </div>
                         </xsl:if>
