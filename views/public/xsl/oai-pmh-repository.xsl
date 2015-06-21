@@ -607,10 +607,17 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
                                     <tbody>
                                         <tr>
                                             <td>
-                                                <xsl:attribute name="id">
-                                                    <xsl:value-of select="translate(oai:header/oai:identifier/text(), ':/.', '')" />
-                                                </xsl:attribute>
-                                                <xsl:apply-templates select="oai:metadata/*" />
+                                                <xsl:choose>
+                                                    <xsl:when test="not(oai:about)">
+                                                        <xsl:apply-templates select="oai:metadata/*" />
+                                                    </xsl:when>
+                                                    <xsl:otherwise>
+                                                        <h3>Metadata</h3>
+                                                        <xsl:apply-templates select="oai:metadata/*" />
+                                                        <h3>About</h3>
+                                                        <xsl:apply-templates select="oai:about/*" mode='xmlverb' />
+                                                    </xsl:otherwise>
+                                                </xsl:choose>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -652,7 +659,17 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
                         </div>
                     </div>
                     <div class="panel-body">
-                        <xsl:apply-templates select="oai:metadata/*" />
+                        <xsl:choose>
+                            <xsl:when test="not(oai:about)">
+                                <xsl:apply-templates select="oai:metadata/*" />
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <h3>Metadata</h3>
+                                <xsl:apply-templates select="oai:metadata/*" />
+                                <h3>About</h3>
+                                <xsl:apply-templates select="oai:about/*" mode='xmlverb' />
+                            </xsl:otherwise>
+                        </xsl:choose>
                     </div>
                 </div>
             </xsl:for-each>
@@ -883,7 +900,7 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
         <xsl:apply-templates select="." mode='xmlverb' />
     </xsl:template>
 
-   <!-- root -->
+    <!-- root -->
     <xsl:template match="/" mode="xmlverb">
         <xsl:text>&#xA;</xsl:text>
         <xsl:comment>
