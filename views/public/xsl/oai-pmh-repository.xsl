@@ -79,6 +79,8 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
         <xsl:text></xsl:text>
     </xsl:variable>
 
+    <xsl:variable name="forbidden-characters" select="':/.()#? '" />
+
     <xsl:template match="/">
         <html lang="en">
             <head>
@@ -451,7 +453,7 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
                                     <xsl:choose>
                                         <xsl:when test="oai:setDescription != ''">
                                             <a class="btn btn-default collapse-data-btn"  data-toggle="collapse"
-                                                    href="{concat('#', translate(oai:setSpec/text(), ':/. ', ''))}">
+                                                    href="{concat('#', translate(oai:setSpec/text(), $forbidden-characters, ''))}">
                                                 <xsl:text>Description </xsl:text>
                                                 <span class="caret"></span>
                                             </a>
@@ -473,7 +475,7 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
                                     </a>
                                 </div>
                                 <xsl:if test="oai:setDescription != ''">
-                                    <div class="collapse" id="{translate(oai:setSpec/text(), ':/. ', '')}">
+                                    <div class="collapse" id="{translate(oai:setSpec/text(), $forbidden-characters, '')}">
                                         <hr />
                                         <xsl:apply-templates select="oai:setDescription/*" mode='xmlverb' />
                                     </div>
@@ -590,7 +592,7 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
                                 <xsl:value-of select="oai:header/oai:identifier/text()" />
                                 <div class="btn-group pull-right" aria-label="Get record" role="group">
                                     <a class="btn btn-default collapse-data-btn"  data-toggle="collapse"
-                                            href="{concat('#', translate(oai:header/oai:identifier/text(), ':/.', ''))}">
+                                            href="{concat('#', translate(oai:header/oai:identifier/text(), $forbidden-characters, ''))}">
                                         <xsl:text>View Metadata</xsl:text>
                                     </a>
                                     <xsl:call-template name="display-button-sets">
@@ -599,7 +601,7 @@ Published under the licence CeCILL v2.1 (https://www.cecill.info/licences/Licenc
                                 </div>
                             </td>
                         </tr>
-                        <tr class="collapse" id="{translate(oai:header/oai:identifier/text(), ':/.', '')}">
+                        <tr class="collapse" id="{translate(oai:header/oai:identifier/text(), $forbidden-characters, '')}">
                             <td colspan="3">
                                 <table>
                                     <tbody>
