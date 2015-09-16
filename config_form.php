@@ -15,33 +15,39 @@ $view = get_view();
 
 <div class="field">
     <div class="two columns alpha">
-        <label for="oaipmh_repository_name">Repository name</label>
+        <label for="oaipmh_repository_name"><?php echo __('Repository name'); ?></label>
     </div>
     <div class="inputs five columns omega">
-        <p class="explanation">Name for this OAI-PMH repository.</p>
+        <p class="explanation"><?php echo __('Name for this OAI-PMH repository.'); ?></p>
         <?php echo $view->formText('oaipmh_repository_name', $repoName);?>
     </div>
 </div>
 <div class="field">
     <div class="two columns alpha">
-        <label for="oaipmh_repository_namespace_id">Namespace identifier</label>
+        <label for="oaipmh_repository_namespace_id"><?php echo __('Namespace identifier'); ?></label>
     </div>
     <div class="inputs five columns omega">
-        <p class="explanation">This will be used to form
-        globally unique IDs for the exposed metadata items.  This value is required
-        to be a domain name you have registered.  Using other values will generate
-        invalid identifiers.</p>
+        <p class="explanation">
+            <?php echo __('This will be used to form globally unique IDs for '
+                . 'the exposed metadata items.  This value is required to be a '
+                . 'domain name you have registered.  Using other values will '
+                . 'generate invalid identifiers.');
+            ?>
+        </p>
         <?php echo $view->formText('oaipmh_repository_namespace_id', $namespaceID);?>
     </div>
 </div>
 <div class="field">
     <div class="two columns alpha">
-        <label for="oaipmh_repository_expose_files">Expose files</label>
+        <label for="oaipmh_repository_expose_files"><?php echo __('Expose files'); ?></label>
     </div>
     <div class="inputs five columns omega">
-        <p class="explanation">Whether the plugin should include identifiers for the
-        files associated with items.  This provides harvesters with direct access to
-        files.</p>
+        <p class="explanation">
+            <?php echo __('Whether the plugin should include identifiers for '
+                . 'the files associated with items.  This provides harvesters '
+                . 'with direct access to files.');
+            ?>
+        </p>
         <?php echo $view->formCheckbox('oaipmh_repository_expose_files', $exposeFiles, null,
             array('checked' => '1', 'unChecked' => '0'));?>
     </div>

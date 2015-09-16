@@ -20,7 +20,8 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
         'install',
         'config_form',
         'config',
-        'uninstall'
+        'uninstall',
+        'initialize',
     );
     
     protected $_filters = array(
@@ -107,12 +108,17 @@ SQL;
         include('config_form.php');
     }
 
+    public function hookInitialize()
+    {
+        add_translation_source(dirname(__FILE__) . '/languages');
+    }
+
     public function filterAdminDashboardPanels($panels)
     {
         ob_start();
 ?>
-<h2>OAI-PMH Repository</h2>
-<p>Harvester can access metadata from this site
+<h2><?php echo __('OAI-PMH Repository'); ?></h2>
+<p><?php echo __('Harvester can access metadata from this site') . ' '; ?>
 <a href="<?php echo OAI_PMH_BASE_URL; ?>"><?php echo OAI_PMH_BASE_URL; ?></a></p>
 <?php
         $panels[] = ob_get_clean();
