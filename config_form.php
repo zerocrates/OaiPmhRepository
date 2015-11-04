@@ -13,6 +13,9 @@
 $view = get_view();
 ?>
 
+<p><?php echo __('Harvester can access metadata from this site') . ' '; ?>
+<a href="<?php echo OAI_PMH_BASE_URL; ?>"><?php echo OAI_PMH_BASE_URL; ?></a></p>
+
 <div class="field">
     <div class="two columns alpha">
         <label for="oaipmh_repository_name"><?php echo __('Repository name'); ?></label>
