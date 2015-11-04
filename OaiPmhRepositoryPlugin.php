@@ -7,7 +7,6 @@
  
 define('OAI_PMH_BASE_URL',WEB_ROOT.'/oai-pmh-repository/request');
 define('OAI_PMH_REPOSITORY_PLUGIN_DIRECTORY',dirname(__FILE__));
-define('OAI_PMH_REPOSITORY_METADATA_DIRECTORY',OAI_PMH_REPOSITORY_PLUGIN_DIRECTORY.'/metadata');
  
  /**
   * OaiPmhRepository plugin class
