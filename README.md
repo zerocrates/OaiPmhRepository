@@ -12,7 +12,7 @@ protocol.
 
 * New RDF metadata format
 * New `oai_pmh_repository_metadata_formats` filter to allow other plugins to add and modify metadata formats
-* Localization support (contributed by [jajm](https://github.com/jajm)
+* Localization support (contributed by [jajm](https://github.com/jajm))
 * New option to exclude empty collections from ListSets (contributed by [Daniel-KM](https://github.com/Daniel-KM))
 * New option to expose item type as Dublin Core Type value (contributed by [Daniel-KM](https://github.com/Daniel-KM))
 * More accurate "earliest datestamp" calculation (contributed by [Daniel-KM](https://github.com/Daniel-KM))
