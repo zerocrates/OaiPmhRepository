@@ -17,55 +17,55 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: config_form.php:18
-msgid "Repository name"
+#: OaiPmhRepositoryPlugin.php:119
+msgid "OAI-PMH Repository"
+msgstr ""
+
+#: OaiPmhRepositoryPlugin.php:120 config_form.php:16
+msgid "Harvester can access metadata from this site"
 msgstr ""
 
 #: config_form.php:21
+msgid "Repository name"
+msgstr ""
+
+#: config_form.php:24
 msgid "Name for this OAI-PMH repository."
 msgstr ""
 
-#: config_form.php:27
+#: config_form.php:30
 msgid "Namespace identifier"
 msgstr ""
 
-#: config_form.php:31
+#: config_form.php:34
 msgid ""
 "This will be used to form globally unique IDs for the exposed metadata "
 "items.  This value is required to be a domain name you have registered.  "
 "Using other values will generate invalid identifiers."
 msgstr ""
 
-#: config_form.php:42
+#: config_form.php:45
 msgid "Expose files"
 msgstr ""
 
-#: config_form.php:46
+#: config_form.php:49
 msgid ""
 "Whether the plugin should include identifiers for the files associated with "
 "items.  This provides harvesters with direct access to files."
 msgstr ""
 
-#: config_form.php:58
+#: config_form.php:61
 msgid "Expose empty collections"
 msgstr ""
 
-#: config_form.php:62
+#: config_form.php:65
 msgid "Whether the plugin should expose empty public collections."
 msgstr ""
 
-#: config_form.php:71
+#: config_form.php:74
 msgid "Expose item type"
 msgstr ""
 
-#: config_form.php:75
+#: config_form.php:78
 msgid "Whether the plugin should expose the item type as Dublin Core Type."
-msgstr ""
-
-#: OaiPmhRepositoryPlugin.php:120
-msgid "OAI-PMH Repository"
-msgstr ""
-
-#: OaiPmhRepositoryPlugin.php:121
-msgid "Harvester can access metadata from this site"
 msgstr ""
