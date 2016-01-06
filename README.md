@@ -8,6 +8,8 @@ protocol.
 
 ## Metadata Formats ##
 
+The plugin ships with several default formats. Other plugins can alter these or add their own (see [Extending](#extending)).
+
 ### Dublin Core (`oai_dc`) ###
 
 This is required by the OAI-PMH specification for all repositories. Omeka metadata fields are mapped one-to-one with
