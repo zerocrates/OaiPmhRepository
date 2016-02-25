@@ -36,7 +36,7 @@ class OaiPmhRepository_DOMElement extends DOMElement
             if (is_array($value)) {
                 $newElement->appendNewElementWithChildren($tag, $value);
             } else {
-                $newElement->appendChild($document->createElement($tag, $value));
+                $this->appendNewElement($tag, $value);
             }
         }
         $this->appendChild($newElement);
