@@ -119,6 +119,11 @@ format (i.e., `oai_dc` or `rdf`). Each inner array has three mandatory keys:
 
 ## Version History ##
 
+*2.1.1*
+
+* Fixed a bug with XML special characters in Collection names
+* New translations: Catalan, Czech, German, Mongolian, Polish, Portuguese (Brazil), Portuguese (Portugal), Serbian
+
 *2.1*
 
 * New RDF metadata format
