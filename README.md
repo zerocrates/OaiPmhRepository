@@ -84,6 +84,16 @@ Default: false
 
 *Added in version 2.1*
 
+### Expose MIME type ###
+Whether the plugin should exposer the MIME type of files as Dublin Core Format.
+When enabled, for items that have files, the repository will expose additional
+Dublin Core Format elements (one for each different MIME type) with a value of
+the MIME types found in the item's files.
+
+Default: false
+
+*Added in version 2.2.0*
+
 ## Advanced Configuration ##
 The plugin also allows you to configure some more options about how the repository responds to harvesters. Since the default values
 are recommended for most users, these values must be edited by hand, in the config.ini file in the plugin's root directory.

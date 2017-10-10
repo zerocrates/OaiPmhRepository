@@ -81,3 +81,16 @@ $view = get_view();
             array('checked' => (boolean) get_option('oaipmh_repository_expose_item_type'))); ?>
     </div>
 </div>
+<div class="field">
+    <div class="two columns alpha">
+        <?php echo $view->formLabel('oaipmh_repository_expose_mime_type',
+            __('Expose MIME type')); ?>
+    </div>
+    <div class="inputs five columns omega">
+        <p class="explanation">
+            <?php echo __('Whether the plugin should expose the mime type of files as Dublin Core Format.'); ?>
+        </p>
+        <?php echo $view->formCheckbox('oaipmh_repository_expose_mime_type', true,
+            array('checked' => (boolean) get_option('oaipmh_repository_expose_mime_type'))); ?>
+    </div>
+</div>
