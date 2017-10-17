@@ -17,11 +17,11 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: OaiPmhRepositoryPlugin.php:119
+#: OaiPmhRepositoryPlugin.php:120
 msgid "OAI-PMH Repository"
 msgstr ""
 
-#: OaiPmhRepositoryPlugin.php:120 config_form.php:16
+#: OaiPmhRepositoryPlugin.php:121 config_form.php:16
 msgid "Harvester can access metadata from this site"
 msgstr ""
 
@@ -68,4 +68,14 @@ msgstr ""
 
 #: config_form.php:78
 msgid "Whether the plugin should expose the item type as Dublin Core Type."
+msgstr ""
+
+#: config_form.php:87
+msgid "Expose MIME type"
+msgstr ""
+
+#: config_form.php:91
+msgid ""
+"Whether the plugin should expose the mime type of files as Dublin Core "
+"Format."
 msgstr ""

@@ -71,6 +71,13 @@ class OaiPmhRepository_Metadata_Mets implements OaiPmhRepository_Metadata_Format
                 if ($dcType = $item->getProperty('item_type_name')) {
                     $dcXml->appendNewElement('dc:type', $dcType);
                 }
+            } elseif ($elementName == 'format' && get_option('oaipmh_repository_expose_mime_type')) {
+                $mimeTypes = array_unique(array_map(function($file) {
+                    return $file->mime_type;
+                }, $item->getFiles()));
+                foreach ($mimeTypes as $mimeType) {
+                    $dcXml->appendNewElement('dc:format', $mimeType);
+                }
             }
 
             foreach($dcElements as $elementText)

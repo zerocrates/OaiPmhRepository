@@ -121,6 +121,13 @@ class OaiPmhRepository_Metadata_Rdf implements OaiPmhRepository_Metadata_FormatI
                 if ($dcType = $item->getProperty('item_type_name')) {
                     $description->appendNewElement('dc:type', $dcType);
                 }
+            } elseif ($elementName == 'Format' && get_option('oaipmh_repository_expose_mime_type')) {
+                $mimeTypes = array_unique(array_map(function($file) {
+                    return $file->mime_type;
+                }, $item->getFiles()));
+                foreach ($mimeTypes as $mimeType) {
+                    $description->appendNewElement('dc:format', $mimeType);
+                }
             }
 
             foreach ($texts as $text) {
