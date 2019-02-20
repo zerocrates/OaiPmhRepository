@@ -21,6 +21,8 @@ The Qualified Dublin Core format supports the additional elements added by Dubli
 For installations that don't use "extended" elements, the metadata output will be the same as
 for oai_dc.
 
+*Added in version 2.2*
+
 ### CDWA Lite (`cdwalite`) ###
 
 The mapping between Omeka's metadata and CDWA Lite metadata is more complicated, and certain fields may not be populated correctly.
