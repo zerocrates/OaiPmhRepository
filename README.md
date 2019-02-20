@@ -15,6 +15,12 @@ The plugin ships with several default formats. Other plugins can alter these or 
 This is required by the OAI-PMH specification for all repositories. Omeka metadata fields are mapped one-to-one with
 fields for this output format.
 
+### Qualified Dublin Core (`oai_qdc`) ###
+
+The Qualified Dublin Core format supports the additional elements added by Dublin Core Extended.
+For installations that don't use "extended" elements, the metadata output will be the same as
+for oai_dc.
+
 ### CDWA Lite (`cdwalite`) ###
 
 The mapping between Omeka's metadata and CDWA Lite metadata is more complicated, and certain fields may not be populated correctly.
