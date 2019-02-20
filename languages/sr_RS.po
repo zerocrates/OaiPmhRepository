@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: omeka-plugin-OaiPmhRepository\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-09-16 14:08+0200\n"
-"PO-Revision-Date: 2016-01-22 13:13+0000\n"
+"PO-Revision-Date: 2017-09-22 17:08+0000\n"
 "Last-Translator: Predrag Djukic <djukic.predrag@gmail.com>\n"
 "Language-Team: Serbian (Serbia) (http://www.transifex.com/omeka/omeka-plugin-oaipmhrepository/language/sr_RS/)\n"
 "MIME-Version: 1.0\n"
@@ -28,40 +28,40 @@ msgstr "Назив OAI-PMH репозиторијума."
 
 #: config_form.php:27
 msgid "Namespace identifier"
-msgstr ""
+msgstr "Иденитификатор namespace"
 
 #: config_form.php:31
 msgid ""
 "This will be used to form globally unique IDs for the exposed metadata "
 "items.  This value is required to be a domain name you have registered.  "
 "Using other values will generate invalid identifiers."
-msgstr ""
+msgstr "Ово ће бити коришћено за формирање глобално јединствених идентификационих борјева за метаподатке изложених јединица. Вредност мора обвезно да буде име домена који сте регистровали. Коришћењем других вредности генерисаће се неисправни идентификатори."
 
 #: config_form.php:42
 msgid "Expose files"
-msgstr ""
+msgstr "Изложите документа"
 
 #: config_form.php:46
 msgid ""
 "Whether the plugin should include identifiers for the files associated with "
 "items.  This provides harvesters with direct access to files."
-msgstr ""
+msgstr "Да ли додатак треба да укључи и идентификаторе за фајлове прикључене јединицама. Ово омогућава харвестерима директан приступ фајловима."
 
 #: config_form.php:58
 msgid "Expose empty collections"
-msgstr ""
+msgstr "Изложите празне колекције"
 
 #: config_form.php:62
 msgid "Whether the plugin should expose empty public collections."
-msgstr ""
+msgstr "Да ли додатак треба да омогући видљивост празних јавних колекција."
 
 #: config_form.php:71
 msgid "Expose item type"
-msgstr ""
+msgstr "Изложите врсте јединица"
 
 #: config_form.php:75
 msgid "Whether the plugin should expose the item type as Dublin Core Type."
-msgstr ""
+msgstr "Да ли додатак треба да омогући видљивост врсту јединице као Dublin Core Type."
 
 #: OaiPmhRepositoryPlugin.php:120
 msgid "OAI-PMH Repository"
@@ -69,4 +69,4 @@ msgstr "OAI-PMH репозиторијум"
 
 #: OaiPmhRepositoryPlugin.php:121
 msgid "Harvester can access metadata from this site"
-msgstr ""
+msgstr "Харвестер може да приступи метаподацима са овог сајта"

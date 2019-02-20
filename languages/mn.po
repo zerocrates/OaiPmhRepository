@@ -3,14 +3,15 @@
 # This file is distributed under the same license as the Omeka package.
 # 
 # Translators:
-# Tuvshintogtoh <tuvshintogtoh.v@gmail.com>, 2015
+# Khaidav T. <khaidaw@yahoo.com>, 2016
+# Tuvshintogtoh <tuvshintogtoh.v@gmail.com>, 2015-2016
 msgid ""
 msgstr ""
 "Project-Id-Version: omeka-plugin-OaiPmhRepository\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2015-09-16 14:08+0200\n"
-"PO-Revision-Date: 2015-12-21 04:38+0000\n"
-"Last-Translator: Tuvshintogtoh <tuvshintogtoh.v@gmail.com>\n"
+"PO-Revision-Date: 2017-09-23 21:47+0000\n"
+"Last-Translator: Khaidav T. <khaidaw@yahoo.com>\n"
 "Language-Team: Mongolian (http://www.transifex.com/omeka/omeka-plugin-oaipmhrepository/language/mn/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -24,18 +25,18 @@ msgstr "архивын нэр"
 
 #: config_form.php:21
 msgid "Name for this OAI-PMH repository."
-msgstr ""
+msgstr "OAI-PMH архивын нэр."
 
 #: config_form.php:27
 msgid "Namespace identifier"
-msgstr ""
+msgstr "Нэрний зай танигч"
 
 #: config_form.php:31
 msgid ""
 "This will be used to form globally unique IDs for the exposed metadata "
 "items.  This value is required to be a domain name you have registered.  "
 "Using other values will generate invalid identifiers."
-msgstr ""
+msgstr "Хуулбарласан мета мэдээлэлд өвөрмөц ID-г ашиглаж болно. Энэ утга нь таны бүртгүүлсэн домэн нэр байх шаардлагатай. Бусад утгыг хэрэглэхэд зөвшөөрөгдөөгүй ялгагч шинж тэмдэг үүсгэнэ."
 
 #: config_form.php:42
 msgid "Expose files"
@@ -45,7 +46,7 @@ msgstr "Баримтуудыг ил гаргах"
 msgid ""
 "Whether the plugin should include identifiers for the files associated with "
 "items.  This provides harvesters with direct access to files."
-msgstr ""
+msgstr "Мэдээлэлтэй холбоотой файлуудад танигч тэмдэг бүхий плагин оруулах эсэх. \nЭнэ нь түүвэрлэгч файлд шууд хандах боломжийг олгодог."
 
 #: config_form.php:58
 msgid "Expose empty collections"
@@ -53,20 +54,20 @@ msgstr "Ил гаргах цуглуулгагүй"
 
 #: config_form.php:62
 msgid "Whether the plugin should expose empty public collections."
-msgstr ""
+msgstr "Сан хөмрөг хоосон эсэхийг илрүүлэх плагин."
 
 #: config_form.php:71
 msgid "Expose item type"
-msgstr ""
+msgstr "Мэдээллийн төрлийг ил гаргах"
 
 #: config_form.php:75
 msgid "Whether the plugin should expose the item type as Dublin Core Type."
-msgstr ""
+msgstr "Мэдээллийн төрлийг Dublin Core-ийн төрөл мөн эсэхийг илрүүлэх плагин."
 
 #: OaiPmhRepositoryPlugin.php:120
 msgid "OAI-PMH Repository"
-msgstr ""
+msgstr "OAI-PMH Архив"
 
 #: OaiPmhRepositoryPlugin.php:121
 msgid "Harvester can access metadata from this site"
-msgstr ""
+msgstr "Harvester Энэ сайтаас метадата өгөгдөлд хандаж болно"
