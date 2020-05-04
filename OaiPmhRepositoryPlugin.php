@@ -5,7 +5,11 @@
  * @package OaiPmhRepository
  */
  
-define('OAI_PMH_BASE_URL',WEB_ROOT.'/oai-pmh-repository/request');
+define('OAI_PMH_BASE_URL',
+    WEB_ROOT . '/'
+    . (($baseUrl = get_option('oaipmh_repository_base_url'))
+        ? $baseUrl
+        : 'oai-pmh-repository/request'));
 define('OAI_PMH_REPOSITORY_PLUGIN_DIRECTORY',dirname(__FILE__));
  
  /**
@@ -21,6 +25,7 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
         'config',
         'uninstall',
         'initialize',
+        'define_routes',
     );
     
     protected $_filters = array(
@@ -28,11 +33,13 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
     );
     
     protected $_options = array(
+        'oaipmh_repository_base_url' => 'oai-pmh-repository/request',
         'oaipmh_repository_name',
         'oaipmh_repository_namespace_id',
         'oaipmh_repository_expose_files' => 1,
         'oaipmh_repository_expose_empty_collections' => 1,
         'oaipmh_repository_expose_item_type' => 0,
+        'oaipmh_repository_add_human_stylesheet' => 1,
     );
     
     /**
@@ -112,6 +119,35 @@ SQL;
         add_translation_source(dirname(__FILE__) . '/languages');
     }
 
+    /**
+     * Define routes.
+     *
+     * @param Zend_Controller_Router_Rewrite $router
+     */
+    public function hookDefineRoutes($args)
+    {
+        if (is_admin_theme()) {
+            return;
+        }
+
+        // If base url is not set, use the default module/controller/action.
+        $route = get_option('oaipmh_repository_base_url');
+        if (empty($route) || $route == 'oai-pmh-repository/request') {
+            return;
+        }
+
+        $args['router']->addRoute('oai-pmh-repository', new Zend_Controller_Router_Route(
+            $route,
+            array(
+                'module' => 'oai-pmh-repository',
+                'controller' => 'request',
+                'action' => 'index',
+        )));
+    }
+
+    /**
+     * Filter to add a dashboard panel.
+     */
     public function filterAdminDashboardPanels($panels)
     {
         ob_start();
