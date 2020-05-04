@@ -33,6 +33,7 @@ class OaiPmhRepositoryPlugin extends Omeka_Plugin_AbstractPlugin
         'oaipmh_repository_expose_files' => 1,
         'oaipmh_repository_expose_empty_collections' => 1,
         'oaipmh_repository_expose_item_type' => 0,
+        'oaipmh_repository_add_human_stylesheet' => 1,
     );
     
     /**
